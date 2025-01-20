@@ -8,7 +8,7 @@ This project uses React.js with NextJS for the frontend, Express.js for the back
 
 Runs the app in the development mode.
 
-Open [http://localhost:5173](http://localhost:5173) to view it in the browser. For API, you can access it in [http://localhost:8000/api](http://localhost:8000/api). The app will reload if you make edits.
+Open [http://localhost:3000](http://localhost:3000) to view it in the browser. For API, you can access it in [http://localhost:4000/api](http://localhost:4000/api). The app will reload if you make edits.
 
 ### `npm run build`
 
@@ -80,4 +80,3 @@ Example : `npm run seqeulize --workspace=api -- --db:migrate`
 4. **Nested Folder Structure:**
    - Create a logical and organized folder structure based on the project's architecture.
    - For larger projects, consider organizing files by features/modules (Feature-Based Structure) or layer-based (Layered Structure).
-     > > > > > > > 4378653 (build: setup project)
