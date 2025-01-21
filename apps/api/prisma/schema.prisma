@@ -2,7 +2,8 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["views"]
 }
 
 datasource db {
@@ -11,12 +12,159 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-model Sample {
-  id        String   @id @default(uuid())
-  name      String
-  code      String   @unique
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+enum Role {
+  CUSTOMER
+  ORGANIZER
+}
 
-  @@map("samples") // if you want to use snake_case format
+model User {
+  id             String   @id @default(uuid())
+  name           String
+  email          String   @unique
+  password       String
+  profilePicture String?
+  role           Role
+  pointsBalance  Int      @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  referralCode String  @unique // A special code that this user gets. They can share it with others to invite them to sign up.
+  referrals    User[]  @relation("SignupReferral") // A list of users who signed up using this user's referral code.
+  referredBy   User?   @relation("SignupReferral", fields: [referredById], references: [id]) // The user who invited this user to sign up (if they used a referral code).
+  referredById String? // The ID of the user who invited this user (if a referral code was used).
+
+  organizedEvents Event[]       @relation("UserOrganizedEvents")
+  transactions    Transaction[]
+  reviews         Review[]
+  coupons         Coupon[]
+}
+
+view CummulativeUserRating {
+  id                String @unique // this will be user id
+  cummulativeRating Int
+}
+
+model EventCategory {
+  id   String @id @default(uuid())
+  name String
+
+  events Event[]
+}
+
+model Location {
+  id        String @id @default(uuid())
+  address   String
+  latitude  Float
+  longitude Float
+
+  events Event[]
+}
+
+model Event {
+  id          String   @id @default(uuid())
+  name        String
+  description String
+  startDate   DateTime
+  endDate     DateTime
+  // totalCapacity Int // Should be managed programmatically
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  category   EventCategory @relation(fields: [categoryId], references: [id])
+  categoryId String
+
+  location   Location @relation(fields: [locationId], references: [id])
+  locationId String
+
+  organizer   User   @relation("UserOrganizedEvents", fields: [organizerId], references: [id])
+  organizerId String
+
+  tickets      Ticket[]
+  transactions Transaction[]
+  reviews      Review[]
+  coupons      Coupon[]
+}
+
+view TotalSeat {
+  id    String @unique // this will be event id
+  total Int
+}
+
+model Ticket {
+  id             String   @id @default(uuid())
+  type           String
+  price          Float
+  seatsAvailable Int // this will be used to calculate total ticket
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  event   Event  @relation(fields: [eventId], references: [id])
+  eventId String
+
+  transactions Transaction[]
+}
+
+enum TransactionStatus {
+  WAITING_PAYMENT
+  WAITING_CONFIRMATION
+  COMPLETED
+  CANCELLED
+}
+
+model Transaction {
+  id             String            @id @default(uuid())
+  status         TransactionStatus
+  ticketQuantity Int
+  totalPrice     Float
+  usedPoints     Int               @default(0)
+  paymentProof   String?
+  createdAt      DateTime          @default(now())
+  expiresAt      DateTime
+
+  event   Event  @relation(fields: [eventId], references: [id])
+  eventId String
+
+  buyer   User   @relation(fields: [buyerId], references: [id])
+  buyerId String
+
+  ticket   Ticket @relation(fields: [ticketId], references: [id])
+  ticketId String
+
+  coupon   Coupon? @relation(fields: [couponId], references: [id])
+  couponId String?
+}
+
+enum CouponStatus {
+  NOT_USED
+  IN_USE
+  USED
+}
+
+model Coupon {
+  id                 String       @id @default(uuid())
+  userId             String
+  code               String       @unique
+  discountPercentage Int
+  couponStatus       CouponStatus
+  startDate          DateTime     @default(now())
+  endDate            DateTime
+
+  event   Event  @relation(fields: [eventId], references: [id])
+  eventId String
+
+  user User @relation(fields: [userId], references: [id])
+
+  transactions Transaction[]
+}
+
+model Review {
+  id         String   @id @default(uuid())
+  eventId    String
+  customerId String
+  rating     Int
+  comment    String
+  createdAt  DateTime @default(now())
+
+  event    Event @relation(fields: [eventId], references: [id])
+  customer User  @relation(fields: [customerId], references: [id])
 }

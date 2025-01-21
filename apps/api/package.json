@@ -7,7 +7,10 @@
     "dev": "cross-env NODE_ENV=development ts-node-dev -r tsconfig-paths/register src/index.ts",
     "build": "tsc && tsc-alias",
     "serve": "cross-env NODE_ENV=production node dist/index.js",
-    "prisma": "npx prisma"
+    "prisma:gen": "prisma generate",
+    "prisma:migrate:dev": "prisma migrate dev",
+    "prisma:migrate:reset": "prisma migrate reset",
+    "prisma:studio": "prisma studio"
   },
   "author": "",
   "license": "ISC",
