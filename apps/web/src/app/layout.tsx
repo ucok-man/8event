@@ -8,11 +8,9 @@ export const metadata: Metadata = {
 };
 
 type Props = {
-  children: React.ReactNode
-}
+  children: React.ReactNode;
+};
 
-export default function RootLayout({children}: Props) {
-  return (
-    <div className={`${inter.className}`, "antialiased"}>{children}</div>
-  )
+export default function RootLayout({ children }: Props) {
+  return <div className={`${inter.className} antialiased`}>{children}</div>;
 }
