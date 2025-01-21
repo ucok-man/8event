@@ -1,17 +1,17 @@
+import cors from 'cors';
 import express, {
-  json,
-  urlencoded,
   Express,
+  json,
+  NextFunction,
   Request,
   Response,
-  NextFunction,
-  Router,
+  urlencoded,
 } from 'express';
-import cors from 'cors';
 import { PORT } from './config';
-import { SampleRouter } from './routers/sample.router';
+// import { SampleRouter } from './routers/sample.router';
 
 export default class App {
+  private version = '1.0.0';
   private app: Express;
 
   constructor() {
@@ -31,7 +31,9 @@ export default class App {
     // not found
     this.app.use((req: Request, res: Response, next: NextFunction) => {
       if (req.path.includes('/api/')) {
-        res.status(404).send('Not found !');
+        res.status(404).json({
+          error: 'the resource you are looking for cannot be found',
+        });
       } else {
         next();
       }
@@ -42,7 +44,10 @@ export default class App {
       (err: Error, req: Request, res: Response, next: NextFunction) => {
         if (req.path.includes('/api/')) {
           console.error('Error : ', err.stack);
-          res.status(500).send('Error !');
+          res.status(500).json({
+            error:
+              'sorry the server encountered problem and cannot procces your request',
+          });
         } else {
           next();
         }
@@ -51,13 +56,19 @@ export default class App {
   }
 
   private routes(): void {
-    const sampleRouter = new SampleRouter();
+    // const sampleRouter = new SampleRouter();
 
     this.app.get('/api', (req: Request, res: Response) => {
-      res.send(`Hello, Purwadhika Student API!`);
+      res.json({
+        status: 'available',
+        system_info: {
+          environment: process.env.NODE_ENV,
+          version: this.version,
+        },
+      });
     });
 
-    this.app.use('/api/samples', sampleRouter.getRouter());
+    // this.app.use('/api/samples', sampleRouter.getRouter());
   }
 
   public start(): void {
