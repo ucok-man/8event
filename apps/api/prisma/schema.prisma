@@ -39,9 +39,10 @@ model User {
   coupons         Coupon[]
 }
 
-view CummulativeUserRating {
-  id                String @unique // this will be user id
-  cummulativeRating Int
+// create manual view on migration. Dont update this manually on app
+view UserInfo {
+  organizerId   String @unique // this will be user id with role Organizer only
+  averageRating Float // calculated from average all review rating for the event ever created for this organizer
 }
 
 model EventCategory {
@@ -64,6 +65,7 @@ model Event {
   id          String   @id @default(uuid())
   name        String
   description String
+  eventImage  String
   startDate   DateTime
   endDate     DateTime
   // totalCapacity Int // Should be managed programmatically
@@ -85,16 +87,18 @@ model Event {
   coupons      Coupon[]
 }
 
-view TotalSeat {
-  id    String @unique // this will be event id
-  total Int
+// create manual view on migration. Dont update this manually on app
+view EventInfo {
+  eventId   String @unique // this will be event id
+  totalSeat Int // calculated from ticket.seatsAvailable
 }
 
 model Ticket {
   id             String   @id @default(uuid())
   type           String
   price          Float
-  seatsAvailable Int // this will be used to calculate total ticket
+  isFree         Boolean // check constraint (if true 'price' should be 0) on migration
+  seatsAvailable Int // this will be used to calculate total seat available for an event
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
@@ -158,13 +162,14 @@ model Coupon {
 }
 
 model Review {
-  id         String   @id @default(uuid())
-  eventId    String
-  customerId String
-  rating     Int
-  comment    String
-  createdAt  DateTime @default(now())
+  id        String   @id @default(uuid())
+  rating    Int      @default(0) // check constraint to max of 5 on migration // value 0 mean user dont give rating;
+  comment   String
+  createdAt DateTime @default(now())
 
-  event    Event @relation(fields: [eventId], references: [id])
-  customer User  @relation(fields: [customerId], references: [id])
+  event   Event  @relation(fields: [eventId], references: [id])
+  eventId String
+
+  customer   User   @relation(fields: [customerId], references: [id]) // user who review the event
+  customerId String
 }
