@@ -9,6 +9,8 @@ import express, {
 } from 'express';
 import { PORT } from './config';
 // import { SampleRouter } from './routers/sample.router';
+import { ApiError } from './errors/interface';
+import { EventRouter } from './routers/event.router';
 
 export default class App {
   private version = '1.0.0';
@@ -27,12 +29,19 @@ export default class App {
     this.app.use(urlencoded({ extended: true }));
   }
 
+  private logerror(err: Error) {
+    console.log('Error Msg: ', err.message);
+    console.error('Error : ', err.stack);
+  }
+
   private handleError(): void {
     // not found
     this.app.use((req: Request, res: Response, next: NextFunction) => {
       if (req.path.includes('/api/')) {
         res.status(404).json({
-          error: 'the resource you are looking for cannot be found',
+          error: {
+            message: 'the resource you are looking for cannot be found',
+          },
         });
       } else {
         next();
@@ -43,11 +52,31 @@ export default class App {
     this.app.use(
       (err: Error, req: Request, res: Response, next: NextFunction) => {
         if (req.path.includes('/api/')) {
-          console.error('Error : ', err.stack);
-          res.status(500).json({
-            error:
-              'sorry the server encountered problem and cannot procces your request',
-          });
+          switch (true) {
+            // handle api error
+            case err instanceof ApiError: {
+              if (err.status === 500) this.logerror(err);
+              res.status(err.status).json({
+                error: {
+                  message: err.message,
+                  detail: err.errdetail,
+                },
+              });
+              break;
+            }
+
+            // handle other error
+            default: {
+              this.logerror(err);
+              res.status(500).json({
+                error: {
+                  message:
+                    'sorry the server encountered problem and cannot procces your request',
+                },
+              });
+              break;
+            }
+          }
         } else {
           next();
         }
@@ -57,6 +86,7 @@ export default class App {
 
   private routes(): void {
     // const sampleRouter = new SampleRouter();
+    const eventRouter = new EventRouter();
 
     this.app.get('/api', (req: Request, res: Response) => {
       res.json({
@@ -69,6 +99,7 @@ export default class App {
     });
 
     // this.app.use('/api/samples', sampleRouter.getRouter());
+    this.app.use('/api/events', eventRouter.getRouter());
   }
 
   public start(): void {
