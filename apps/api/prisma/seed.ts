@@ -19,7 +19,6 @@ async function seedUser(): Promise<{
       password: '12345678',
       profilePicture: 'https://example.com/profile.jpg',
       role: Role.ORGANIZER,
-      pointsBalance: 0,
       referralCode: 'REFCODE' + organizerId,
     },
   });
@@ -32,7 +31,6 @@ async function seedUser(): Promise<{
       password: '12345678',
       profilePicture: 'https://example.com/profile.jpg',
       role: Role.CUSTOMER,
-      pointsBalance: 20000,
       referralCode: 'REFCODE' + userId,
     },
   });
@@ -43,8 +41,38 @@ async function seedUser(): Promise<{
   };
 }
 
+async function addPointBalance(userId: string) {
+  const cd = new Date();
+  await prisma.pointBalance.create({
+    data: {
+      pointBalance: 20000,
+      type: 'ADD',
+      userId: userId,
+      endDate: new Date(cd.setMonth(cd.getMonth() + 3)),
+    },
+  });
+  await prisma.pointBalance.create({
+    data: {
+      pointBalance: -5000,
+      type: 'SUBSTRACT',
+      userId: userId,
+      endDate: new Date(cd.setMonth(cd.getMonth() + 3)),
+    },
+  });
+  await prisma.pointBalance.create({
+    data: {
+      pointBalance: 10000,
+      type: 'ADD',
+      userId: userId,
+      endDate: new Date(cd.setMonth(cd.getMonth() + 3)),
+    },
+  });
+  return { userId };
+}
+
 async function main() {
-  const {} = await seedUser();
+  const { userid, organizerid } = await seedUser();
+  const {} = await addPointBalance(userid);
 }
 
 main()

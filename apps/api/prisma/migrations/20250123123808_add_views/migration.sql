@@ -1,6 +1,6 @@
 -- This is an empty migration.
 
--- create RecordOrganizerAverageRating view
+-- create organizer rating view
 CREATE VIEW RecordOrganizerAverageRating AS
 SELECT 
     u.id AS organizerId,
@@ -17,7 +17,7 @@ GROUP BY
     u.id;
 
 
--- create event info view
+-- create event total seat view
 CREATE OR REPLACE VIEW RecordEventTotalSeat AS
 SELECT
     e.id AS eventId,
@@ -28,3 +28,17 @@ LEFT JOIN
     "Ticket" t ON e."id" = t."eventId"
 GROUP BY
     e.id;
+
+-- create view on active point balance user
+CREATE OR REPLACE VIEW RecordUserPointBalance AS
+SELECT
+    pb."userId" AS userId,
+    COALESCE(SUM(pb."pointBalance"), 0) AS pointBalance
+FROM
+    "PointBalance" pb
+WHERE 
+    "endDate" >= CURRENT_TIMESTAMP + INTERVAL '1 DAY' OR
+    "endDate" IS NULL
+GROUP BY
+    pb."userId"
+
