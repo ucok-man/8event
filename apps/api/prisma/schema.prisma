@@ -62,32 +62,6 @@ model User {
   coupons         Coupon[]
 }
 
-model Event {
-  id          String   @id @default(uuid())
-  name        String
-  description String
-  eventImage  String
-  startDate   DateTime
-  endDate     DateTime
-  // totalCapacity Int // Should be managed on Event View
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  location  String
-  latitude  Float
-  longitude Float
-
-  organizer   User   @relation("UserOrganizedEvents", fields: [organizerId], references: [id])
-  organizerId String
-
-  categories EventCategory[]
-  tickets    Ticket[]
-
-  transactions Transaction[]
-  reviews      Review[]
-  coupons      Coupon[]
-}
-
 model EventCategory {
   id   String @id @default(uuid())
   name String @unique
@@ -95,14 +69,54 @@ model EventCategory {
   events Event[]
 }
 
+model Event {
+  id          String   @id @default(uuid())
+  name        String
+  bannerUrl   String
+  description String
+  startDate   DateTime
+  endDate     DateTime
+  startTime   String
+  endTime     String
+  // totalCapacity Int // Should be managed on Event View
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  isEventOnline Boolean
+  urlStreaming  String?
+  placeName     String?
+  placeCity     String?
+  placeAddress  String?
+
+  isPublished Boolean @default(false)
+
+  organizer   User   @relation("UserOrganizedEvents", fields: [organizerId], references: [id])
+  organizerId String
+
+  category   EventCategory @relation(fields: [categoryId], references: [id])
+  categoryId String
+
+  tickets Ticket[]
+
+  transactions Transaction[]
+  reviews      Review[]
+  coupons      Coupon[]
+}
+
 model Ticket {
-  id             String   @id @default(uuid())
-  type           String
-  price          Float
-  isFree         Boolean // check constraint (if true 'price' should be 0) on migration
-  seatsAvailable Int // this will be used to calculate total seat available for an event
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  id            String     @id @default(uuid())
+  type          TicketType
+  name          String
+  description   String
+  initialAmount Int // seat available, dont change manually
+  amount        Int
+  startDate     DateTime
+  endDate       DateTime
+  startTime     String
+  endTime       String
+  price         Float?
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
 
   event   Event  @relation(fields: [eventId], references: [id])
   eventId String
@@ -163,6 +177,11 @@ enum PointBalanceType {
   SUBSTRACT
 }
 
+enum TicketType {
+  FREE
+  PAID
+}
+
 // create manual view on migration. Dont update this manually on app
 view RecordOrganizerAverageRating {
   organizerId   String @unique // this will be user id with role Organizer only
@@ -170,9 +189,10 @@ view RecordOrganizerAverageRating {
 }
 
 // create manual view on migration. Dont update this manually on app
-view RecordEventTotalSeat {
-  eventId   String @unique // this will be event id
-  totalSeat Int // calculated from ticket.seatsAvailable
+view RecordEventInfo {
+  eventId         String @unique // this will be event id
+  totalSeat       Int // calculated from ticket.initialAmount
+  ticketRemaining Int // calculated from ticket.amount
 }
 
 view RecordUserPointBalance {

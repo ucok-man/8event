@@ -1,7 +1,7 @@
 import { EventController } from '@/controllers/event.controller';
 import { fileUpload } from '@/middlewares/file-upload.middleware';
 import { Router } from 'express';
-import errHandler from 'express-async-handler';
+import catcherror from 'express-async-handler';
 
 export class EventRouter {
   private router: Router;
@@ -14,11 +14,16 @@ export class EventRouter {
   }
 
   private initializeRoutes(): void {
-    this.router.post('/', errHandler(this.eventController.create));
+    this.router.post('/', catcherror(this.eventController.create));
     this.router.post(
       '/upload-banner',
       fileUpload,
-      errHandler(this.eventController.uploadBanner),
+      catcherror(this.eventController.uploadBannerTemp),
+    );
+    this.router.post(
+      '/upload-description-assets',
+      fileUpload,
+      catcherror(this.eventController.uploadDescriptionAsset),
     );
   }
 

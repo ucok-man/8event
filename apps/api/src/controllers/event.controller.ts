@@ -1,47 +1,44 @@
 import { SAFE_MIME_IMAGE } from '@/constant';
-import { CreateEventDtoValidation } from '@/dto/create-event.dto';
+import { CreateEventDTO } from '@/dto/create-event.dto';
 import { BadRequestError } from '@/errors/bad-request.error';
 import { FailedValidationError } from '@/errors/failed-validation.error';
 import { InternalSeverError } from '@/errors/internal-server.error';
+import { cloudinaryPublicIdFromURL } from '@/helpers/cloudinary-public-id-from-url';
+import { formatErr } from '@/helpers/format-error';
 import { getFileFromRequest } from '@/helpers/get-file-from-request';
-import { EventCategoryService } from '@/services/event-category.service';
+import { getOrganizerId } from '@/helpers/get-organizer-id';
+// import { EventCategoryService } from '@/services/event-category.service';
 import { EventService } from '@/services/event.service';
 import { MediaService } from '@/services/media.service';
-import { TicketService } from '@/services/ticket.service';
+// import { TicketService } from '@/services/ticket.service';
 import { Request, Response } from 'express';
-import { fromError } from 'zod-validation-error';
 
 export class EventController {
   private eventService = new EventService();
-  private eventCategoryService = new EventCategoryService();
-  private ticketService = new TicketService();
+  // private eventCategoryService = new EventCategoryService();
+  // private ticketService = new TicketService();
   private mediaService = new MediaService();
 
-  constructor() {
-    this.uploadBanner = this.uploadBanner.bind(this);
-    this.create = this.create.bind(this);
-  }
+  create = async (req: Request, res: Response) => {
+    const organizerId = getOrganizerId(req);
 
-  async create(req: Request, res: Response) {
-    const { data: dto, error } = CreateEventDtoValidation.safeParse(req.body);
+    const { data: dto, error } = CreateEventDTO.safeParse(req.body);
     if (error) {
-      throw new FailedValidationError(fromError(error));
+      throw new FailedValidationError(formatErr(error));
     }
 
-    const organizerId = ''; // TODO: get this from request
-
     try {
-      const categories = await this.eventCategoryService.createManyIfNotExist(
-        dto.categories,
-      );
-      const event = await this.eventService.create(
-        organizerId,
-        { ...dto },
-        categories,
-      );
-      const ticket = await this.ticketService.createMany(dto.tickets, event.id);
+      const pid = cloudinaryPublicIdFromURL(dto.event.bannerUrl);
+      if (pid) {
+        dto.event.bannerUrl = await this.mediaService.rename(
+          pid,
+          pid.replace('/temp', '/event'),
+        );
+      }
+
+      const eventid = await this.eventService.create(organizerId, dto);
       res.status(201).json({
-        eventId: event.id,
+        event: { id: eventid },
       });
     } catch (error) {
       if (error instanceof Error) {
@@ -49,10 +46,10 @@ export class EventController {
       }
       throw error;
     }
-  }
+  };
 
-  async uploadBanner(req: Request, res: Response) {
-    const organizerId = 'randomid'; // TODO: get organizer id
+  uploadBannerTemp = async (req: Request, res: Response) => {
+    const organizerId = getOrganizerId(req);
 
     const fileinput = getFileFromRequest(req);
     const match = SAFE_MIME_IMAGE.find(
@@ -60,12 +57,12 @@ export class EventController {
     );
     if (!match) {
       throw new BadRequestError(
-        'file format not supported, valid format are [jpg, png, webp]',
+        'file format not supported, valid format are [jpg, png]',
       );
     }
 
     try {
-      const url = await this.mediaService.uploadEventBanner(
+      const url = await this.mediaService.uploadBannerTemp(
         fileinput.buffer,
         organizerId,
       );
@@ -79,5 +76,32 @@ export class EventController {
       }
       throw error;
     }
-  }
+  };
+
+  uploadDescriptionAsset = async (req: Request, res: Response) => {
+    // const organizerId = getOrganizerId(req);
+
+    const fileinput = getFileFromRequest(req);
+    const match = SAFE_MIME_IMAGE.find(
+      (safemime) => safemime === fileinput.mimetype,
+    );
+    if (!match) {
+      throw new BadRequestError(
+        'file format not supported, valid format are [jpg, png]',
+      );
+    }
+
+    try {
+      const url = await this.mediaService.uploadAsset(fileinput.buffer);
+
+      res.status(201).json({
+        imageUrl: url,
+      });
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new InternalSeverError(error.message);
+      }
+      throw error;
+    }
+  };
 }
