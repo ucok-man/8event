@@ -1,9 +1,11 @@
-import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { format } from 'date-fns';
-import { Calendar, Clock, Globe2, MapPin } from 'lucide-react';
+import { getEventCategory } from '@/lib/utils';
+import CategoryBadge from '../category-badge';
+import EventDateTime from '../event-date-time';
+import EventHeading from '../event-heading';
+import EventLoaction from '../event-location';
 import TicketCard from '../ticket-card';
 
 type Props = {
@@ -60,64 +62,35 @@ export default function EventDetail({ event, tickets }: Props) {
                 alt={event.name}
                 className="object-cover object-center w-full h-full"
               />
-              <div className="absolute bottom-0 left-0 right-0 p-6 z-20 max-sm:hidden">
-                <Badge className="bg-brand-blue-500 hover:bg-brand-blue-600 text-white mb-3">
-                  {event.category}
-                </Badge>
-                <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">
-                  {event.name}
-                </h1>
+              <div className="absolute bottom-0 left-0 right-0 p-6 z-20">
+                <CategoryBadge label={getEventCategory(event.category)} />
               </div>
             </div>
-            <div className="sm:hidden p-6">
-              <h1 className="text-2xl font-bold text-gray-700 mb-2">
-                {event.name}
-              </h1>
-              <Badge className="bg-brand-blue-500 hover:bg-brand-blue-600 text-white mb-3">
-                {event.category}
-              </Badge>
+            <div className="p-6">
+              <EventHeading title={event.name} className="md:text-3xl" />
               <Separator className="mt-6" />
             </div>
           </CardHeader>
           <CardContent className="p-6">
-            {/* Event Info */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
               <div className="space-y-3">
-                <div className="flex items-center gap-3">
-                  <Calendar className="h-5 w-5 text-brand-blue-500" />
-                  <span className="text-gray-700">
-                    {format(new Date(event.startDate), 'MMMM d')} -{' '}
-                    {format(new Date(event.endDate), 'MMMM d, yyyy')}
-                  </span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <Clock className="h-5 w-5 text-brand-blue-500" />
-                  <span className="text-gray-700">
-                    {event.startTime} - {event.endTime}
-                  </span>
-                </div>
+                <EventDateTime
+                  endDate={event.endDate}
+                  endTime={event.endTime}
+                  startDate={event.startDate}
+                  startTime={event.startTime}
+                  visual="long"
+                />
               </div>
-
-              <div className="space-y-3">
-                {event.isEventOnline && (
-                  <div className="flex items-center gap-3">
-                    <Globe2 className="h-5 w-5 text-brand-blue-500" />
-                    <span className="text-gray-700">Online Event</span>
-                  </div>
-                )}
-                <div className="flex items-center gap-3">
-                  {!event.isEventOnline && (
-                    <>
-                      <MapPin className="h-5 w-5 text-brand-blue-500 shrink-0" />
-                      <div className="text-gray-700">
-                        <div className="font-medium">{event.placeName}</div>
-                        <div className="text-sm text-gray-500">
-                          {event.placeAddress}, {event.placeCity}
-                        </div>
-                      </div>
-                    </>
-                  )}
-                </div>
+              <div>
+                <EventLoaction
+                  isOnline={event.isEventOnline}
+                  placeAddress={event.placeAddress}
+                  placeCity={event.placeCity}
+                  placeName={event.placeName}
+                  platform="Virtual Platform"
+                  visual="long"
+                />
               </div>
             </div>
 

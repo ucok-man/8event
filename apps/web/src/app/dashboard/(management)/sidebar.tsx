@@ -1,8 +1,6 @@
 'use client';
 
-import { Home, LayoutDashboard, LogOut, Settings, User } from 'lucide-react';
-
-import { Icons } from '@/components/shared/icons';
+import Logo from '@/components/shared/logo';
 import {
   Sidebar as SidebarContainer,
   SidebarContent,
@@ -13,77 +11,71 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarSeparator,
 } from '@/components/ui/sidebar';
+import { cn } from '@/lib/utils';
+import { usePathname, useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { SIDEBAR_LINK } from './constant';
 
 export default function Sidebar() {
+  const pathname = usePathname();
+  const router = useRouter();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return null;
+
   return (
-    <SidebarContainer className="max-w-[270px]">
-      <SidebarHeader>
+    <SidebarContainer>
+      <SidebarHeader className="p-0">
         <SidebarMenu>
-          <SidebarMenuItem>
-            {/* Logo */}
-            <div className="flex flex-row items-center justify-center gap-2 relative bottom-1">
-              <div className="transition-transform transform hover:scale-110 duration-200">
-                <Icons.Logo className="size-12 text-indigo-600 drop-shadow-lg" />
-              </div>
-              <div className="text-4xl font-extrabold relative top-[4px] bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-transparent bg-clip-text font-montserrat">
-                <span className="uppercase tracking-wide">Event</span>
-              </div>
+          <SidebarMenuItem className="h-20 overflow-hidden border-b grainy-dark">
+            <div className="relative flex h-full w-full items-center justify-center">
+              <Logo />
             </div>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
-      <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupLabel className="text-sm font-bold tracking-tight">
-            Dashboard
-          </SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton>
-                  <Home className="mr-2 size-4" />
-                  Overview
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton>
-                  <LayoutDashboard className="mr-2 size-4" />
-                  My Events
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-        <SidebarSeparator />
-        <SidebarGroup>
-          <SidebarGroupLabel className="text-sm font-bold tracking-tight">
-            Account
-          </SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton>
-                  <User className="mr-2 size-4" />
-                  Profile
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton>
-                  <Settings className="mr-2 size-4" />
-                  Settings
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton>
-                  <LogOut className="mr-2 size-4" />
-                  Logout
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+      <SidebarContent className="grainy-dark">
+        {SIDEBAR_LINK.map((group, i) => (
+          <SidebarGroup key={i}>
+            <SidebarGroupLabel className="font-semibold tracking-tight text-foreground/70 text-sm">
+              {group.grouplabel}
+            </SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {group.items.map((item, j) => {
+                  const isActive = pathname.startsWith(item.link);
+
+                  return (
+                    <SidebarMenuItem key={j}>
+                      <SidebarMenuButton
+                        onClick={() => router.push(item.link)}
+                        className={cn(
+                          'transition-all duration-200 ease-in-out hover:bg-brand-blue-100/50 text-muted-foreground',
+                          isActive &&
+                            'bg-brand-blue-100/60 text-brand-blue-900',
+                        )}
+                      >
+                        <item.icon
+                          className={cn(
+                            'mr-3 size-5 transition-transform duration-200',
+                          )}
+                        />
+                        <span className={cn('font-medium text-base')}>
+                          {item.label}
+                        </span>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  );
+                })}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        ))}
       </SidebarContent>
     </SidebarContainer>
   );

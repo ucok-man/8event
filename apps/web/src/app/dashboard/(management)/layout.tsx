@@ -14,7 +14,9 @@ export default function ManagementLayout({ children }: Props) {
         <Sidebar />
         <main className="flex-1 overflow-y-auto">
           <Navbar />
-          {children}
+          <section className="px-8 lg:px-12 py-2 text-brand-blue-950">
+            {children}
+          </section>
         </main>
       </div>
     </SidebarProvider>

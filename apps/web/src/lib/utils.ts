@@ -11,6 +11,7 @@ import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import { DeepRequired } from 'utility-types';
 import { ZodError } from 'zod';
+import { EVENT_CATEGORY_MAP } from './category-map';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -20,6 +21,14 @@ export function timeToFloat(time: TimeType): number {
   const parts = time.split(':');
   if (parts.length < 2) return 0;
   return parseFloat(`${parts[0]}.${parts[1]}`);
+}
+
+export function toTitleCase(text: string): string {
+  return text
+    .replace(/[-_]/g, ' ') // Replace hyphens and underscores with spaces
+    .split(' ')
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
 }
 
 export function toErrForm(zoderr: ZodError) {
@@ -129,4 +138,10 @@ export function validbanner(param: {
   if (haserror) return false;
 
   return true;
+}
+
+export function getEventCategory(key: string) {
+  return EVENT_CATEGORY_MAP[key as keyof typeof EVENT_CATEGORY_MAP]
+    ? EVENT_CATEGORY_MAP[key as keyof typeof EVENT_CATEGORY_MAP]
+    : '';
 }
