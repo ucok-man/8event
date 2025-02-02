@@ -58,7 +58,8 @@ export default class App {
               if (err.status === 500) this.logerror(err);
               res.status(err.status).json({
                 error: {
-                  message: err.message,
+                  message:
+                    'sorry the server encountered problem and cannot procces your request',
                   detail: err.errdetail,
                 },
               });

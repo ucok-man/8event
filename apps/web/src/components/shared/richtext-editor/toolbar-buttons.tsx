@@ -16,12 +16,12 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
 import { toast } from '@/hooks/use-toast';
+import { apiclient } from '@/lib/axios';
 import { cn } from '@/lib/utils';
 import { useMutation } from '@tanstack/react-query';
 // import { useEditorStore } from '@/store/use-editor-store';
 import { Level } from '@tiptap/extension-heading';
 import { Editor } from '@tiptap/react';
-import axios from 'axios';
 import {
   AlignCenterIcon,
   AlignJustifyIcon,
@@ -172,8 +172,8 @@ export function ImageButton({ editor }: { editor: Editor }) {
     mutationFn: async (file: File) => {
       const form = new FormData();
       form.append('file-upload', file);
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/events/upload-description-assets`,
+      const response = await apiclient.post(
+        '/events/upload-description-assets',
         form,
       );
       return response.data;

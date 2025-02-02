@@ -1,5 +1,6 @@
 import { SAFE_MIME_IMAGE } from '@/constant';
 import { CreateEventDTO } from '@/dto/create-event.dto';
+import { GetAllEventDTO } from '@/dto/get-all-event.dto';
 import { BadRequestError } from '@/errors/bad-request.error';
 import { FailedValidationError } from '@/errors/failed-validation.error';
 import { InternalSeverError } from '@/errors/internal-server.error';
@@ -40,6 +41,24 @@ export class EventController {
       res.status(201).json({
         event: { id: eventid },
       });
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new InternalSeverError(error.message);
+      }
+      throw error;
+    }
+  };
+
+  getAll = async (req: Request, res: Response) => {
+    const organizerId = getOrganizerId(req);
+    const { data: dto, error } = GetAllEventDTO.safeParse(req.query);
+    if (error) {
+      throw new FailedValidationError(formatErr(error));
+    }
+
+    try {
+      const result = await this.eventService.getAll(organizerId, dto);
+      res.status(200).json(result);
     } catch (error) {
       if (error instanceof Error) {
         throw new InternalSeverError(error.message);

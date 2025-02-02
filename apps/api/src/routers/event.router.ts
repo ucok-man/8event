@@ -14,6 +14,7 @@ export class EventRouter {
   }
 
   private initializeRoutes(): void {
+    this.router.get('/', catcherror(this.eventController.getAll));
     this.router.post('/', catcherror(this.eventController.create));
     this.router.post(
       '/upload-banner',

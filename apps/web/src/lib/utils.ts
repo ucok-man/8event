@@ -11,7 +11,7 @@ import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import { DeepRequired } from 'utility-types';
 import { ZodError } from 'zod';
-import { EVENT_CATEGORY_MAP } from './category-map';
+import { EVENT_CATEGORY_MAP } from '../constants/category-map';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));

@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { getEventCategory } from '@/lib/utils';
+import { cn, getEventCategory } from '@/lib/utils';
 import CategoryBadge from '../category-badge';
 import EventDateTime from '../event-date-time';
 import EventHeading from '../event-heading';
@@ -18,10 +18,10 @@ type Props = {
     startTime: string;
     endTime: string;
     isEventOnline: boolean;
-    urlStreaming: string;
-    placeName: string;
-    placeAddress: string;
-    placeCity: string;
+    urlStreaming?: string;
+    placeName?: string;
+    placeAddress?: string;
+    placeCity?: string;
     description: string;
   };
   tickets: (
@@ -48,6 +48,16 @@ type Props = {
       }
   )[];
 };
+
+const proseStyle = `
+prose max-w-none
+prose-headings:text-brand-blue-900
+prose-p:text-gray-700
+prose-a:text-brand-blue-600 prose-a:no-underline hover:prose-a:underline hover:prose-a:cursor-pointer
+prose-strong:text-brand-blue-800
+prose-ul:list-disc prose-ol:list-decimal prose-ul:text-gray-700 prose-li:mb-2
+prose-img:rounded-md prose-img:shadow-md
+`;
 
 export default function EventDetail({ event, tickets }: Props) {
   return (
@@ -115,7 +125,7 @@ export default function EventDetail({ event, tickets }: Props) {
 
               <TabsContent value="about" className="mt-0">
                 <div
-                  className="prose max-w-none [&>h2]:text-brand-blue-900 [&>h3]:text-brand-blue-800 [&>p]:text-gray-700 [&>ul]:text-gray-700 [&>ul>li]:mb-2"
+                  className={cn(proseStyle.trim().replaceAll('\n', ' '))}
                   dangerouslySetInnerHTML={{ __html: event.description }}
                 />
               </TabsContent>

@@ -5,8 +5,9 @@ import Spinner from '@/components/shared/spinner';
 import { Button } from '@/components/ui/button';
 import { useCreateEventContext } from '@/context/create-event-provider';
 import { toast } from '@/hooks/use-toast';
+import { apiclient } from '@/lib/axios';
 import { useMutation } from '@tanstack/react-query';
-import axios, { AxiosError } from 'axios';
+import { AxiosError } from 'axios';
 import { Award, PartyPopper, RotateCw, Save } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import path from 'path';
@@ -38,10 +39,7 @@ export default function PublishBar() {
         },
         tickets: payload.createTicket.data,
       };
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}${'/events'}`,
-        dto,
-      );
+      const response = await apiclient.post('/events', dto);
       return response.data;
     },
     onSuccess: () => {

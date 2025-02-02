@@ -20,9 +20,9 @@ import { Progress } from '@/components/ui/progress';
 import { useCreateEventContext } from '@/context/create-event-provider';
 import { useRender } from '@/hooks/use-rendered';
 import { toast } from '@/hooks/use-toast';
+import { apiclient } from '@/lib/axios';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@tanstack/react-query';
-import axios from 'axios';
 import {
   ChevronRightIcon,
   CirclePlus,
@@ -60,18 +60,14 @@ export default function UploadBannerStep() {
     mutationFn: async (file: File) => {
       const formData = new FormData();
       formData.append('file-upload', file);
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}${'/events/upload-banner'}`,
-        formData,
-        {
-          onUploadProgress: (progressEvent) => {
-            const percentCompleted = Math.round(
-              (progressEvent.loaded * 100) / (progressEvent.total ?? 1),
-            );
-            setUploadProgress(percentCompleted);
-          },
+      const response = await apiclient.post('/events/upload-banner', formData, {
+        onUploadProgress: (progressEvent) => {
+          const percentCompleted = Math.round(
+            (progressEvent.loaded * 100) / (progressEvent.total ?? 1),
+          );
+          setUploadProgress(percentCompleted);
         },
-      );
+      });
       return response.data;
     },
     onSuccess: (data) => {
