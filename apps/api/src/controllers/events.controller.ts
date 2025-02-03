@@ -8,16 +8,12 @@ import { cloudinaryPublicIdFromURL } from '@/helpers/cloudinary-public-id-from-u
 import { formatErr } from '@/helpers/format-error';
 import { getFileFromRequest } from '@/helpers/get-file-from-request';
 import { getOrganizerId } from '@/helpers/get-organizer-id';
-// import { EventCategoryService } from '@/services/event-category.service';
 import { EventService } from '@/services/event.service';
 import { MediaService } from '@/services/media.service';
-// import { TicketService } from '@/services/ticket.service';
 import { Request, Response } from 'express';
 
-export class EventController {
+export class EventsController {
   private eventService = new EventService();
-  // private eventCategoryService = new EventCategoryService();
-  // private ticketService = new TicketService();
   private mediaService = new MediaService();
 
   create = async (req: Request, res: Response) => {

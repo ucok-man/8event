@@ -58,22 +58,22 @@ export function validTicket(param: {
 
   for (const ticket of data) {
     if (
-      typeof ticket.name !== 'string' ||
-      typeof ticket.description !== 'string' ||
-      typeof ticket.amount !== 'number' ||
-      typeof ticket.startDate !== 'string' ||
-      typeof ticket.endDate !== 'string' ||
-      typeof ticket.startTime !== 'string' ||
-      typeof ticket.endTime !== 'string'
+      !ticket.name ||
+      !ticket.description ||
+      !ticket.amount ||
+      !ticket.startDate ||
+      !ticket.endDate ||
+      !ticket.startTime ||
+      !ticket.endTime
     ) {
       return false;
     }
 
-    if (ticket.type === 'FREE' && typeof ticket.price !== 'undefined') {
+    if (ticket.type === 'FREE' && ticket.price) {
       return false;
     }
 
-    if (ticket.type === 'PAID' && typeof ticket.price !== 'number') {
+    if (ticket.type === 'PAID' && !ticket.price) {
       return false;
     }
   }
@@ -144,4 +144,12 @@ export function getEventCategory(key: string) {
   return EVENT_CATEGORY_MAP[key as keyof typeof EVENT_CATEGORY_MAP]
     ? EVENT_CATEGORY_MAP[key as keyof typeof EVENT_CATEGORY_MAP]
     : '';
+}
+
+export function formatRupiah(amount: number): string {
+  return new Intl.NumberFormat('id-ID', {
+    style: 'currency',
+    currency: 'IDR',
+    minimumFractionDigits: 0,
+  }).format(amount);
 }

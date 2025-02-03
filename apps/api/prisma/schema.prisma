@@ -81,6 +81,7 @@ model Event {
   // totalCapacity Int // Should be managed on Event View
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  views       Int      @default(0)
 
   isEventOnline Boolean
   urlStreaming  String?
@@ -190,9 +191,12 @@ view RecordOrganizerAverageRating {
 
 // create manual view on migration. Dont update this manually on app
 view RecordEventInfo {
-  eventId         String @unique // this will be event id
-  totalSeat       Int // calculated from ticket.initialAmount
-  ticketRemaining Int // calculated from ticket.amount
+  eventId          String @unique // this will be event id
+  totalView        Int
+  ticketTotal      Int // can be interpreted as total seat
+  ticketRemaining  Int // can be interpreted as remaining seat
+  totalIncome      Float
+  totalTransaction Int
 }
 
 view RecordUserPointBalance {

@@ -1,10 +1,22 @@
 'use client';
 
 import ButtonRose from '@/components/shared/button-rose';
+import { useCreateEventContext } from '@/context/create-event-provider';
 import { CalendarClockIcon } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import NavInfo from './navinfo';
 
 export default function Navbar() {
+  const router = useRouter();
+  const { payload, setStorageToDefault } = useCreateEventContext();
+
+  const onClick = () => {
+    if (payload.createEvent.data.id) {
+      setStorageToDefault();
+    }
+    router.push('/dashboard/configure/upload-banner');
+  };
+
   return (
     <div className="grainy-light border-b">
       <div className="relative">
@@ -17,12 +29,13 @@ export default function Navbar() {
           <div className="flex items-center gap-4">
             <div>
               <ButtonRose
-                isLink
+                isLink={false}
                 icon={<CalendarClockIcon className="size-5" />}
                 iconPosition="left"
                 label="Create Event"
-                link="/dashboard/configure/upload-banner"
                 className="rounded-md font-medium py-2 text-sm hover:bg-brand-blue-600/95 bg-brand-blue-600"
+                type="button"
+                onClick={onClick}
               />
             </div>
             <div>[PROFILE]</div>

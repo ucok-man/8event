@@ -1,30 +1,30 @@
-import { EventController } from '@/controllers/event.controller';
+import { EventsController } from '@/controllers/events.controller';
 import { fileUpload } from '@/middlewares/file-upload.middleware';
 import { Router } from 'express';
 import catcherror from 'express-async-handler';
 
-export class EventRouter {
+export class EventsRouter {
   private router: Router;
-  private eventController: EventController;
+  private controller: EventsController;
 
   constructor() {
-    this.eventController = new EventController();
+    this.controller = new EventsController();
     this.router = Router();
     this.initializeRoutes();
   }
 
   private initializeRoutes(): void {
-    this.router.get('/', catcherror(this.eventController.getAll));
-    this.router.post('/', catcherror(this.eventController.create));
+    this.router.get('/', catcherror(this.controller.getAll));
+    this.router.post('/', catcherror(this.controller.create));
     this.router.post(
       '/upload-banner',
       fileUpload,
-      catcherror(this.eventController.uploadBannerTemp),
+      catcherror(this.controller.uploadBannerTemp),
     );
     this.router.post(
       '/upload-description-assets',
       fileUpload,
-      catcherror(this.eventController.uploadDescriptionAsset),
+      catcherror(this.controller.uploadDescriptionAsset),
     );
   }
 

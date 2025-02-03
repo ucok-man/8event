@@ -13,9 +13,9 @@ export default function DealsLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen w-full">
-      <Navbar />
-      <CreateEventContextProvider>
+    <CreateEventContextProvider>
+      <div className="min-h-screen w-full">
+        <Navbar />
         <section>
           <MaxWidthWrapper className="py-8">
             <StepNavigation steps={CREATE_EVENT_STEPS} />
@@ -23,7 +23,7 @@ export default function DealsLayout({
           </MaxWidthWrapper>
           <PublishBar />
         </section>
-      </CreateEventContextProvider>
-    </div>
+      </div>
+    </CreateEventContextProvider>
   );
 }

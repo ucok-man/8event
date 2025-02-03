@@ -1,12 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
-import EventDetail from '@/components/shared/event-detail/page';
 import { useCreateEventContext } from '@/context/create-event-provider';
 import { useRender } from '@/hooks/use-rendered';
 import { validbanner, validEvent, validTicket } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
+import EventPreview from './event-preview';
 
 export default function ReviewDraft() {
   const { isRendered } = useRender();
@@ -19,6 +19,7 @@ export default function ReviewDraft() {
   } else if (!payload.createEvent || !validEvent(payload.createEvent)) {
     redirectPath = '/dashboard/configure/create-event';
   } else if (!payload.createTicket || !validTicket(payload.createTicket)) {
+    console.log('AAAAAA');
     redirectPath = '/dashboard/configure/create-ticket';
   }
 
@@ -33,7 +34,7 @@ export default function ReviewDraft() {
   return (
     <div>
       {isRendered && redirectPath === null && (
-        <EventDetail
+        <EventPreview
           event={{
             bannerUrl: payload.uploadBanner.data?.bannerUrl as any,
             ...(payload.createEvent.data as any),

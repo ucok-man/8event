@@ -90,11 +90,23 @@ export default function CreateEventForm() {
   const isEventOnlineChoosen = form.watch('isEventOnline');
   useEffect(() => {
     if (isEventOnlineChoosen) {
-      form.setValue('placeName', undefined);
-      form.setValue('placeAddress', undefined);
-      form.setValue('placeCity', undefined);
+      form.setValue(
+        'placeName',
+        payload.createEvent.data.placeName || undefined,
+      );
+      form.setValue(
+        'placeAddress',
+        payload.createEvent.data.placeAddress || undefined,
+      );
+      form.setValue(
+        'placeCity',
+        payload.createEvent.data.placeCity || undefined,
+      );
     } else {
-      form.setValue('urlStreaming', undefined);
+      form.setValue(
+        'urlStreaming',
+        payload.createEvent.data.urlStreaming || undefined,
+      );
     }
   }, [isEventOnlineChoosen]);
 

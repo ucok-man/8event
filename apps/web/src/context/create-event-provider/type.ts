@@ -138,6 +138,9 @@ export type CreateEventStepPayload = {
       }
     >;
   };
+  showBackButton?: {
+    link: string;
+  };
 };
 
 export type BannerPayload = CreateEventStepPayload['uploadBanner']['data'];
@@ -146,3 +149,4 @@ export type EventPayload = CreateEventStepPayload['createEvent']['data'];
 export type EventError = CreateEventStepPayload['createEvent']['error'];
 export type TicketPayload = CreateEventStepPayload['createTicket']['data'];
 export type TicketError = CreateEventStepPayload['createTicket']['error'];
+export type ShowBackButtonPayload = CreateEventStepPayload['showBackButton'];

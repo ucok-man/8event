@@ -3,12 +3,12 @@ import { SORTBY_OPTION } from './constant';
 export type SortByOptionType = (typeof SORTBY_OPTION)[number]['value'];
 export type TabActiveType = 'active' | 'draft' | 'past';
 
-export interface GetAllEventPayload {
+export type GetAllEventPayload = {
   events: Event[];
   metadata: Metadata | null;
-}
+};
 
-export interface Event {
+type Event = {
   id: string;
   name: string;
   bannerUrl: string;
@@ -24,12 +24,12 @@ export interface Event {
   placeAddress?: string;
   isPublished: boolean;
   category: string;
-}
+};
 
-export interface Metadata {
+type Metadata = {
   currentPage: number;
   pageSize: number;
   firstPage: number;
   lastPage: number;
   totalRecord: number;
-}
+};

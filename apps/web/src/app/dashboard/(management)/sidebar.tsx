@@ -13,18 +13,83 @@ import {
   SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { cn } from '@/lib/utils';
+import {
+  Atom,
+  CircleDollarSignIcon,
+  Handshake,
+  MessagesSquare,
+  Users2Icon,
+} from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { SIDEBAR_LINK } from './constant';
 
 export default function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
+  const [content, setContent] = useState(SIDEBAR_LINK);
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  const addEventSection = useCallback((eid: string) => {
+    setContent((prev) => {
+      if (prev.some((group) => group.grouplabel === 'Event Management')) {
+        return prev; // Prevent duplicate group additions
+      }
+
+      return [
+        ...prev,
+        {
+          grouplabel: 'Event Management',
+          items: [
+            {
+              label: 'Summary',
+              link: `/dashboard/event-details/${eid}/summary`,
+              icon: Atom,
+            },
+            {
+              label: 'Sales',
+              link: `/dashboard/event-details/${eid}/sales`,
+              icon: CircleDollarSignIcon,
+            },
+            {
+              label: 'Transactions',
+              link: `/dashboard/event-details/${eid}/transactions`,
+              icon: Handshake,
+            },
+            {
+              label: 'Buyers Info',
+              link: `/dashboard/event-details/${eid}/buyers-info`,
+              icon: Users2Icon,
+            },
+            {
+              label: 'Feedback',
+              link: `/dashboard/event-details/${eid}/feedback`,
+              icon: MessagesSquare,
+            },
+          ],
+        },
+      ];
+    });
+  }, []);
+
+  const removeEventSection = useCallback(() => {
+    setContent((prev) =>
+      prev.filter((group) => group.grouplabel !== 'Event Management'),
+    );
+  }, []);
+
+  useEffect(() => {
+    const match = pathname.match(/^\/dashboard\/event-details\/([^/]+)/);
+    if (match) {
+      addEventSection(match[1]);
+    } else {
+      removeEventSection();
+    }
+  }, [pathname, addEventSection, removeEventSection]);
 
   if (!mounted) return null;
 
@@ -40,7 +105,7 @@ export default function Sidebar() {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent className="grainy-dark">
-        {SIDEBAR_LINK.map((group, i) => (
+        {content.map((group, i) => (
           <SidebarGroup key={i}>
             <SidebarGroupLabel className="font-semibold tracking-tight text-foreground/70 text-sm">
               {group.grouplabel}

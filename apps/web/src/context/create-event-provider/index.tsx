@@ -14,6 +14,7 @@ import {
   CreateEventStepPayload,
   EventError,
   EventPayload,
+  ShowBackButtonPayload,
   TicketError,
   TicketPayload,
 } from './type';
@@ -31,6 +32,10 @@ type CreateEventContextType = {
   ) => void;
   updateCreateTicketError: (cb: (error: TicketError) => TicketError) => void;
   setStorageToDefault: () => void;
+  setStorage: (payload: CreateEventStepPayload) => void;
+  setShowBackButton: (
+    cb: (payload: ShowBackButtonPayload) => ShowBackButtonPayload,
+  ) => void;
 };
 
 export const CreateEventContext = createContext<CreateEventContextType | null>(
@@ -176,8 +181,29 @@ export default function CreateEventContextProvider({
   );
 
   const setStorageToDefault = useCallback(() => {
+    setPayload(LOCAL_STORAGE_DEFAULT_VALUE);
     writeStorage(LOCAL_STORAGE_DEFAULT_VALUE);
   }, []);
+
+  const setStorage = useCallback((payload: CreateEventStepPayload) => {
+    setPayload(payload);
+    writeStorage(payload);
+  }, []);
+
+  const setShowBackButton = useCallback(
+    (cb: (payload: ShowBackButtonPayload) => ShowBackButtonPayload) => {
+      let updated = cb(payload.showBackButton);
+      setPayload((prev) => {
+        const updatedPayload: CreateEventStepPayload = {
+          ...prev,
+          showBackButton: updated,
+        };
+        writeStorage(updatedPayload);
+        return updatedPayload;
+      });
+    },
+    [payload],
+  );
 
   return (
     <CreateEventContext.Provider
@@ -190,6 +216,8 @@ export default function CreateEventContextProvider({
         updateCreateTicketPayload,
         updateCreateTicketError,
         setStorageToDefault,
+        setStorage,
+        setShowBackButton,
       }}
     >
       {children}
@@ -231,6 +259,7 @@ const LOCAL_STORAGE_DEFAULT_VALUE: CreateEventStepPayload = {
   createTicket: {
     data: [],
   },
+  showBackButton: undefined,
 };
 
 function writeStorage(data: CreateEventStepPayload) {

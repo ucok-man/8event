@@ -82,7 +82,8 @@ export default function UploadBannerStep() {
         description: 'Your banner has been uploaded successfully.',
       });
     },
-    onError: () => {
+    onError: (err) => {
+      console.log({ err });
       toast({
         title: 'Upload Failed',
         description:

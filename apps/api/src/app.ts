@@ -10,7 +10,8 @@ import express, {
 import { PORT } from './config';
 // import { SampleRouter } from './routers/sample.router';
 import { ApiError } from './errors/interface';
-import { EventRouter } from './routers/event.router';
+import { EventDetailRouter } from './routers/event-detail.router';
+import { EventsRouter } from './routers/events.router';
 
 export default class App {
   private version = '1.0.0';
@@ -55,11 +56,11 @@ export default class App {
           switch (true) {
             // handle api error
             case err instanceof ApiError: {
-              if (err.status === 500) this.logerror(err);
+              if (err.status === 500)
+                this.logerror(new Error(err._errinternal));
               res.status(err.status).json({
                 error: {
-                  message:
-                    'sorry the server encountered problem and cannot procces your request',
+                  message: err.errmsg,
                   detail: err.errdetail,
                 },
               });
@@ -86,8 +87,8 @@ export default class App {
   }
 
   private routes(): void {
-    // const sampleRouter = new SampleRouter();
-    const eventRouter = new EventRouter();
+    const eventsRouter = new EventsRouter();
+    const eventDetailRouter = new EventDetailRouter();
 
     this.app.get('/api', (req: Request, res: Response) => {
       res.json({
@@ -99,8 +100,8 @@ export default class App {
       });
     });
 
-    // this.app.use('/api/samples', sampleRouter.getRouter());
-    this.app.use('/api/events', eventRouter.getRouter());
+    this.app.use('/api/events', eventsRouter.getRouter());
+    this.app.use('/api/events/details/', eventDetailRouter.getRouter());
   }
 
   public start(): void {

@@ -1,12 +1,12 @@
+import CategoryBadge from '@/components/shared/category-badge';
+import EventDateTime from '@/components/shared/event-date-time';
+import EventHeading from '@/components/shared/event-heading';
+import EventLoaction from '@/components/shared/event-location';
+import TicketCard from '@/components/shared/ticket-card';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn, getEventCategory } from '@/lib/utils';
-import CategoryBadge from '../category-badge';
-import EventDateTime from '../event-date-time';
-import EventHeading from '../event-heading';
-import EventLoaction from '../event-location';
-import TicketCard from '../ticket-card';
 
 type Props = {
   event: {
@@ -59,7 +59,7 @@ prose-ul:list-disc prose-ol:list-decimal prose-ul:text-gray-700 prose-li:mb-2
 prose-img:rounded-md prose-img:shadow-md
 `;
 
-export default function EventDetail({ event, tickets }: Props) {
+export default function EventPreview({ event, tickets }: Props) {
   return (
     <div className="p-4 md:p-8">
       <div className="mx-auto max-w-4xl">

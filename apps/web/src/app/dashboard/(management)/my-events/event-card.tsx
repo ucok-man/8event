@@ -3,8 +3,8 @@ import EventDateTime from '@/components/shared/event-date-time';
 import EventHeading from '@/components/shared/event-heading';
 import EventLoaction from '@/components/shared/event-location';
 import { Card } from '@/components/ui/card';
-import { cn } from '@/lib/utils';
 import { ExternalLinkIcon } from 'lucide-react';
+import Link from 'next/link';
 
 type Props = {
   event: {
@@ -21,29 +21,21 @@ type Props = {
     placeName?: string;
     placeAddress?: string;
     placeCity?: string;
-    description: string;
   };
 };
-
-const proseStyle = `
-prose max-w-none
-prose-headings:text-brand-blue-900
-prose-p:text-gray-700
-prose-a:text-brand-blue-600 prose-a:no-underline hover:prose-a:underline hover:prose-a:cursor-pointer
-prose-strong:text-brand-blue-800
-prose-ul:list-disc prose-ol:list-decimal prose-ul:text-gray-700 prose-li:mb-2
-prose-img:rounded-md prose-img:shadow-md
-`;
 
 export default function EventCard({ event }: Props) {
   return (
     <Card className="group relative flex flex-col overflow-hidden bg-white transition-all hover:shadow-lg cursor-pointer">
       {/* Action */}
-      <div className="absolute inset-0 -translate-y-full group-hover:translate-y-0 transition-all duration-300">
+      <Link
+        href={`/dashboard/event-details/${event.id}/summary`}
+        className="absolute inset-0 -translate-y-full group-hover:translate-y-0 transition-all duration-300 z-20"
+      >
         <div className="flex size-full items-center justify-center bg-brand-blue-950/20">
-          <ExternalLinkIcon className="text-brand-blue-600 font-semibold size-10 group-hover:scale-105 z-50" />
+          <ExternalLinkIcon className="text-brand-blue-600 font-semibold size-10 group-hover:scale-105" />
         </div>
-      </div>
+      </Link>
 
       {/* Banner Image */}
       <div className="relative aspect-video">
@@ -62,19 +54,12 @@ export default function EventCard({ event }: Props) {
 
       {/* Content */}
       <div className="flex flex-col flex-grow p-6">
-        {/* Title and Description */}
+        {/* Title */}
         <div className="mb-4 flex-grow">
           <EventHeading
             title={event.name}
             className="text-xl font-semibold tracking-tight"
           />
-          <div
-            className={cn(
-              'line-clamp-2 text-sm text-gray-500',
-              proseStyle.trim().replaceAll('\n', ' '),
-            )}
-            dangerouslySetInnerHTML={{ __html: event.description }}
-          ></div>
         </div>
 
         {/* Event Details */}

@@ -6,7 +6,7 @@ import { z } from 'zod';
 import { MetadataService } from './metadata.service';
 
 export class EventService {
-  readonly metadataService = new MetadataService();
+  private metadataService = new MetadataService();
 
   create = async (organizerId: string, dto: z.infer<typeof CreateEventDTO>) => {
     const foundcategory = await prismaclient.eventCategory.findUnique({
