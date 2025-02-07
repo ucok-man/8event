@@ -60,6 +60,7 @@ export class MediaService {
       },
     });
   };
+
   rename = async (src: string, target: string) => {
     target = target + '/' + uuid();
     const result = await cloudinaryclient.uploader.rename(src, target, {

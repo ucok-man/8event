@@ -66,10 +66,11 @@ export class EventService {
     return result;
   };
 
-  getAll = async (organizerId: string, dto: z.infer<typeof GetAllEventDTO>) => {
+  getAll = async (dto: z.infer<typeof GetAllEventDTO>) => {
     const searchTerm = getSearch({ search: dto.search || '' });
-    const eventType = getEventType({ type: dto.eventType || '' });
-    const orderBy = getSortBy({ sortBy: dto.sortBy || '' });
+    const organizerId = getOrganizerId({ organizerId: dto.organizerId });
+    const eventType = getEventType({ type: dto.eventType });
+    const orderBy = getSortBy({ sortBy: dto.sortBy });
     const limit = getLimit({
       pageSize: dto.pageSize,
     });
@@ -88,7 +89,7 @@ export class EventService {
       ec."name" as "category" 
     FROM "Event" as e
     JOIN "EventCategory" as ec ON e."categoryId" = ec."id"
-		WHERE e."organizerId" = ${organizerId} ${searchTerm} ${eventType}
+		WHERE e."id" = e."id" ${organizerId} ${searchTerm} ${eventType}
 		${orderBy}
 		${limit} ${offset}`;
 
@@ -144,6 +145,13 @@ export class EventService {
       metadata: null,
     };
   };
+}
+
+function getOrganizerId({ organizerId }: { organizerId?: string }) {
+  if (organizerId) {
+    return Prisma.sql`AND e."organizerId" = ${organizerId}`;
+  }
+  return Prisma.sql``;
 }
 
 function getSearch({ search }: { search: string }) {

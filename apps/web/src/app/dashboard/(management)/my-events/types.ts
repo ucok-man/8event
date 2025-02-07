@@ -8,7 +8,7 @@ export type GetAllEventPayload = {
   metadata: Metadata | null;
 };
 
-type Event = {
+export type Event = {
   id: string;
   name: string;
   bannerUrl: string;
@@ -26,7 +26,7 @@ type Event = {
   category: string;
 };
 
-type Metadata = {
+export type Metadata = {
   currentPage: number;
   pageSize: number;
   firstPage: number;

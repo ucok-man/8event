@@ -53,7 +53,7 @@ export default function CreateEventContextProvider({
 
   const updateBannerPayload = useCallback(
     (cb: (payload: BannerPayload) => BannerPayload) => {
-      let updated = cb(payload.uploadBanner?.data);
+      const updated = cb(payload.uploadBanner?.data);
       // if (updated && Object.keys(updated).length < 1) {
       //   updated = undefined;
       // }
@@ -95,7 +95,7 @@ export default function CreateEventContextProvider({
 
   const updateCreateEventPayload = useCallback(
     (cb: (payload: EventPayload) => EventPayload) => {
-      let updated = cb(payload?.createEvent?.data);
+      const updated = cb(payload?.createEvent?.data);
       // if (updated && Object.keys(updated).length < 1) {
       //   updated = undefined;
       // }
@@ -139,7 +139,7 @@ export default function CreateEventContextProvider({
 
   const updateCreateTicketPayload = useCallback(
     (cb: (payload: TicketPayload) => TicketPayload) => {
-      let updated = cb(payload?.createTicket?.data);
+      const updated = cb(payload?.createTicket?.data);
       // if (updated && updated.length < 1) {
       //   updated = undefined;
       // }
@@ -192,7 +192,7 @@ export default function CreateEventContextProvider({
 
   const setShowBackButton = useCallback(
     (cb: (payload: ShowBackButtonPayload) => ShowBackButtonPayload) => {
-      let updated = cb(payload.showBackButton);
+      const updated = cb(payload.showBackButton);
       setPayload((prev) => {
         const updatedPayload: CreateEventStepPayload = {
           ...prev,

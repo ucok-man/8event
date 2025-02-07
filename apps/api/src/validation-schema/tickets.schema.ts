@@ -11,7 +11,7 @@ export const TicketsSchema = z
         name: z.string().min(3).max(250),
         amount: z.number().min(1),
         description: z.string().min(10),
-        price: z.number().min(1).optional(),
+        price: z.number().min(1).optional().nullable(),
         startDate: z.string().datetime(),
         endDate: z.string().datetime(),
         startTime: z.string().regex(/^(?:[01]\d|2[0-3]):(?:00|30)$/, {

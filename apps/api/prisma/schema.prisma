@@ -22,20 +22,18 @@ model PointBalance {
   endDate      DateTime // for substract type this should be null
 }
 
-model Coupon {
-  id                 String @id @default(uuid())
-  userId             String
-  code               String @unique
-  discountPercentage Int
-
-  isUsed    Boolean  @default(false)
-  startDate DateTime @default(now())
-  endDate   DateTime
+model Voucher {
+  id             String   @id @default(uuid())
+  discountAmount Float
+  isUsed         Boolean  @default(false)
+  startDate      DateTime @default(now())
+  endDate        DateTime
 
   event   Event  @relation(fields: [eventId], references: [id])
   eventId String
 
-  user User @relation(fields: [userId], references: [id])
+  user   User   @relation(fields: [userId], references: [id])
+  userId String
 
   transactions Transaction[]
 }
@@ -59,7 +57,7 @@ model User {
   organizedEvents Event[]        @relation("UserOrganizedEvents")
   transactions    Transaction[]
   reviews         Review[]
-  coupons         Coupon[]
+  vouchers        Voucher[]
 }
 
 model EventCategory {
@@ -101,7 +99,8 @@ model Event {
 
   transactions Transaction[]
   reviews      Review[]
-  coupons      Coupon[]
+  // coupons      Coupon[]
+  Voucher      Voucher[]
 }
 
 model Ticket {
@@ -126,13 +125,13 @@ model Ticket {
 }
 
 model Transaction {
-  id             String            @id @default(uuid())
-  status         TransactionStatus
-  ticketQuantity Int
-  totalPrice     Float
-  paymentProof   String?
-  createdAt      DateTime          @default(now())
-  expiredAt      DateTime
+  id                  String            @id @default(uuid())
+  status              TransactionStatus
+  priceBeforeDiscount Float
+  priceAfterDiscount  Float
+  paymentProof        String?
+  createdAt           DateTime          @default(now())
+  expiredAt           DateTime
 
   event   Event  @relation(fields: [eventId], references: [id])
   eventId String
@@ -140,25 +139,26 @@ model Transaction {
   buyer   User   @relation(fields: [buyerId], references: [id])
   buyerId String
 
-  ticket   Ticket @relation(fields: [ticketId], references: [id])
-  ticketId String
+  ticketQuantity Int
+  ticket         Ticket @relation(fields: [ticketId], references: [id])
+  ticketId       String
 
-  usedPoints Int     @default(0)
-  coupon     Coupon? @relation(fields: [couponId], references: [id])
-  couponId   String?
+  usedPoints Int      @default(0)
+  voucher    Voucher? @relation(fields: [voucherId], references: [id])
+  voucherId  String?
 }
 
 model Review {
   id        String   @id @default(uuid())
-  rating    Int      @default(0) // check constraint to max of 5 on migration // value 0 mean user dont give rating;
+  rating    Int      @default(0) // check constraint to max of 5 on migration, value 0 mean user dont give rating;
   comment   String
   createdAt DateTime @default(now())
 
   event   Event  @relation(fields: [eventId], references: [id])
   eventId String
 
-  customer   User   @relation(fields: [customerId], references: [id]) // user who review the event
-  customerId String
+  createdBy   User   @relation(fields: [createdById], references: [id])
+  createdById String
 }
 
 enum TransactionStatus {
@@ -191,12 +191,13 @@ view RecordOrganizerAverageRating {
 
 // create manual view on migration. Dont update this manually on app
 view RecordEventInfo {
-  eventId          String @unique // this will be event id
-  totalView        Int
-  ticketTotal      Int // can be interpreted as total seat
-  ticketRemaining  Int // can be interpreted as remaining seat
-  totalIncome      Float
-  totalTransaction Int
+  eventId              String @unique // this will be event id
+  totalView            Int
+  totalTicketAmount    Int // can be interpreted as total seat
+  totalTicketRemaining Int // can be interpreted as remaining seat
+  totalTicketSold      Int // ticket sold means organizer already confirm the payment
+  totalIncome          Float
+  totalTransaction     Int
 }
 
 view RecordUserPointBalance {

@@ -19,12 +19,12 @@ export default function StatCard({
   trend,
 }: Props) {
   return (
-    <div className="relative overflow-hidden rounded-md bg-transparent p-6 shadow-md transition-all">
+    <div className="relative overflow-hidden rounded-md bg-transparent p-6 shadow-md transition-all w-full">
       <div className="flex items-center justify-between">
         <div className="space-y-2">
           <p className="text-sm font-medium text-gray-500">{title}</p>
           <div className="flex items-baseline space-x-2">
-            <h3 className="text-2xl font-semibold text-gray-900 ">{value}</h3>
+            <h3 className="text-2xl font-semibold text-gray-900">{value}</h3>
             {subtitle && (
               <span className="text-sm text-gray-500">{subtitle}</span>
             )}

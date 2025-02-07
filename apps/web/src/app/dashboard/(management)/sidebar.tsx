@@ -18,7 +18,6 @@ import {
   CircleDollarSignIcon,
   Handshake,
   MessagesSquare,
-  Users2Icon,
 } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
@@ -59,11 +58,6 @@ export default function Sidebar() {
               label: 'Transactions',
               link: `/dashboard/event-details/${eid}/transactions`,
               icon: Handshake,
-            },
-            {
-              label: 'Buyers Info',
-              link: `/dashboard/event-details/${eid}/buyers-info`,
-              icon: Users2Icon,
             },
             {
               label: 'Feedback',

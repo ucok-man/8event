@@ -23,7 +23,21 @@ export default function ContentSummary({ summary, event }: Props) {
         data: { bannerUrl: event.bannerUrl },
       },
       createEvent: {
-        data: { ...event },
+        data: {
+          id: event.id,
+          name: event.name,
+          category: event.category,
+          description: event.description,
+          endDate: event.endDate,
+          endTime: event.endTime,
+          isEventOnline: event.isEventOnline,
+          startDate: event.startDate,
+          startTime: event.startTime,
+          placeAddress: event.placeAddress,
+          placeCity: event.placeCity,
+          placeName: event.placeName,
+          urlStreaming: event.urlStreaming,
+        },
       },
       createTicket: {
         data: event.tickets,
@@ -44,9 +58,9 @@ export default function ContentSummary({ summary, event }: Props) {
           icon={<WalletCards className="h-6 w-6 text-blue-600" />}
         />
         <StatCard
-          title="Ticket Sales"
-          value={summary.ticketSales}
-          subtitle={`/${summary!.ticketTotal}`}
+          title="Ticket Sold"
+          value={summary.totalTicketSold}
+          subtitle={`/${summary!.totalTicketAmount}`}
           icon={<Ticket className="h-6 w-6 text-orange-600" />}
         />
         <StatCard

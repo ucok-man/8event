@@ -172,10 +172,7 @@ export function ImageButton({ editor }: { editor: Editor }) {
     mutationFn: async (file: File) => {
       const form = new FormData();
       form.append('file-upload', file);
-      const response = await apiclient.post(
-        '/events/upload-description-assets',
-        form,
-      );
+      const response = await apiclient.post('/media/upload-assets', form);
       return response.data;
     },
     onSuccess: (data) => {

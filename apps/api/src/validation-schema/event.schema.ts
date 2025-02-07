@@ -28,10 +28,10 @@ export const EventSchema = z
       message: 'Invalid time format. Please use HH:mm format.',
     }),
     isEventOnline: z.boolean(),
-    urlStreaming: z.string().trim().url().optional(),
-    placeName: z.string().trim().nonempty().optional(),
-    placeAddress: z.string().trim().nonempty().optional(),
-    placeCity: z.string().trim().nonempty().optional(),
+    urlStreaming: z.string().trim().url().optional().nullable(),
+    placeName: z.string().trim().nonempty().optional().nullable(),
+    placeAddress: z.string().trim().nonempty().optional().nullable(),
+    placeCity: z.string().trim().nonempty().optional().nullable(),
     description: z
       .string()
       .trim()

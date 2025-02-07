@@ -22,9 +22,10 @@ CREATE OR REPLACE VIEW "RecordEventInfo" AS
 SELECT
     e."id" AS "eventId",
     e."views" AS "totalView",
-    COALESCE(SUM(ti."initialAmount"), 0)::int AS "ticketTotal",
-    COALESCE(SUM(ti."amount"), 0)::int AS "ticketRemaining",
-    COALESCE(SUM(tr."totalPrice"), 0)::int AS "totalIncome",
+    COALESCE(SUM(ti."initialAmount"), 0)::int AS "totalTicketAmount",
+    COALESCE(SUM(ti."amount"), 0)::int AS "totalTicketRemaining",
+    COALESCE(SUM(CASE WHEN tr."status" = 'COMPLETED' THEN tr."ticketQuantity" ELSE 0 END), 0) AS "totalTicketSold",
+    COALESCE(SUM(tr."priceAfterDiscount"), 0) AS "totalIncome",
     COALESCE(COUNT(tr."id"), 0)::int AS "totalTransaction"
 FROM
     "Event" e

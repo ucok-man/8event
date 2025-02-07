@@ -16,7 +16,7 @@ type Props = {
 
 export default function RootLayout({ children }: Props) {
   return (
-    <html>
+    <html className="grainy-light">
       <QueryProvider>
         <body>
           <div

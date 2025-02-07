@@ -18,7 +18,6 @@ import {
 } from '@/components/ui/form';
 import { Progress } from '@/components/ui/progress';
 import { useCreateEventContext } from '@/context/create-event-provider';
-import { useRender } from '@/hooks/use-rendered';
 import { toast } from '@/hooks/use-toast';
 import { apiclient } from '@/lib/axios';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -33,20 +32,22 @@ import {
 } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { useCallback, useState } from 'react';
+import { useCallback, useState, useTransition } from 'react';
 import { type FileRejection, useDropzone } from 'react-dropzone';
 import { useForm } from 'react-hook-form';
+import { useIsClient } from 'usehooks-ts';
 import type { z } from 'zod';
 import { UploadBannerSchema } from './validation';
 
 type FormData = z.infer<typeof UploadBannerSchema>;
 
 export default function UploadBannerStep() {
-  const { isRendered } = useRender();
+  const isClient = useIsClient();
   const { payload, updateBannerError, updateBannerPayload } =
     useCreateEventContext();
   const [uploadProgress, setUploadProgress] = useState(0);
   const router = useRouter();
+  const [isPushing, startTransition] = useTransition();
 
   const form = useForm<FormData>({
     resolver: zodResolver(UploadBannerSchema),
@@ -60,7 +61,7 @@ export default function UploadBannerStep() {
     mutationFn: async (file: File) => {
       const formData = new FormData();
       formData.append('file-upload', file);
-      const response = await apiclient.post('/events/upload-banner', formData, {
+      const response = await apiclient.post('/media/upload-banner', formData, {
         onUploadProgress: (progressEvent) => {
           const percentCompleted = Math.round(
             (progressEvent.loaded * 100) / (progressEvent.total ?? 1),
@@ -83,7 +84,6 @@ export default function UploadBannerStep() {
       });
     },
     onError: (err) => {
-      console.log({ err });
       toast({
         title: 'Upload Failed',
         description:
@@ -131,10 +131,12 @@ export default function UploadBannerStep() {
   };
 
   const onSubmit = (data: FormData) => {
-    router.push('/dashboard/configure/create-event');
+    startTransition(() => {
+      router.push('/dashboard/configure/create-event');
+    });
   };
 
-  if (!isRendered) return null;
+  if (!isClient) return <div></div>;
 
   return (
     <Form {...form}>
@@ -282,6 +284,7 @@ export default function UploadBannerStep() {
 
             <div className="flex justify-end pt-4">
               <ButtonRose
+                isLoading={isPushing}
                 type="submit"
                 isLink={false}
                 iconPosition="right"

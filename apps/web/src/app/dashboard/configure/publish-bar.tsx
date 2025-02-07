@@ -4,6 +4,7 @@ import MaxWidthWrapper from '@/components/shared/max-width-wrapper';
 import Spinner from '@/components/shared/spinner';
 import { Button } from '@/components/ui/button';
 import { useCreateEventContext } from '@/context/create-event-provider';
+import { queryclient } from '@/context/query-provider';
 import { toast } from '@/hooks/use-toast';
 import { apiclient } from '@/lib/axios';
 import { useMutation } from '@tanstack/react-query';
@@ -11,7 +12,7 @@ import { AxiosError } from 'axios';
 import { Award, PartyPopper, RotateCw, Save } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import path from 'path';
-import { useState } from 'react';
+import { useState, useTransition } from 'react';
 import Confetti from 'react-dom-confetti';
 
 export default function PublishBar() {
@@ -25,16 +26,16 @@ export default function PublishBar() {
   const pathname = usePathname();
   const currentPath = path.basename(pathname);
   const router = useRouter();
+  const [isRedirecting, startTransition] = useTransition();
 
   const [showConfetti, setShowConfetti] = useState<boolean>(false);
-  const [isRedirecting, setIsRedirecting] = useState<boolean>(false);
   const [intend, setIntend] = useState<'Publish' | 'Save'>('Save');
   const { isPending, mutate: publish } = useMutation({
     mutationFn: async (intend: 'Publish' | 'Save') => {
       const dto = {
         event: {
-          bannerUrl: payload.uploadBanner.data?.bannerUrl,
           ...payload.createEvent.data,
+          bannerUrl: payload.uploadBanner.data?.bannerUrl,
           isPublished: intend === 'Publish' ? true : false,
         },
         tickets: payload.createTicket.data,
@@ -44,14 +45,24 @@ export default function PublishBar() {
     },
     onSuccess: () => {
       setShowConfetti(true);
-      setIsRedirecting(true);
-      toast({
-        title: `Success ${intend} Event`,
-        description: `${intend === 'Publish' ? 'Your event has been published.' : 'Your event has been saved.'}`,
-        variant: 'default',
+      startTransition(() => {
+        setStorageToDefault();
+        queryclient.invalidateQueries({
+          queryKey: ['my-events', 'event-detail'],
+        });
+        toast({
+          title: `Success ${intend} Event`,
+          description: `${intend === 'Publish' ? 'Your event has been published.' : 'Your event has been saved.'}`,
+          variant: 'default',
+        });
+        if (intend === 'Publish') {
+          router.replace('/dashboard/overview');
+        } else {
+          router.replace(
+            `/dashboard/event-details/${payload.createEvent.data.id}/summary`,
+          );
+        }
       });
-      setStorageToDefault();
-      router.push('/dashboard/overview');
     },
     onError: (error: AxiosError) => {
       if (error.status === 422) {
@@ -121,7 +132,6 @@ export default function PublishBar() {
           router.replace('/dashboard/configure/create-ticket');
         }
       } else {
-        console.log({ error });
         toast({
           title: 'Internal Server Error',
           description: 'Oops we found some issue, please try again later',

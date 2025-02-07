@@ -23,7 +23,7 @@ export default function Navbar() {
         <div className="absolute inset-0 border backdrop-blur-xl" />
 
         <div className="relative flex h-20 items-center justify-between w-full px-8 lg:px-12">
-          <div>
+          <div className="max-sm:hidden">
             <NavInfo />
           </div>
           <div className="flex items-center gap-4">

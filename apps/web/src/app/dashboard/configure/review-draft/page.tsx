@@ -2,14 +2,14 @@
 'use client';
 
 import { useCreateEventContext } from '@/context/create-event-provider';
-import { useRender } from '@/hooks/use-rendered';
 import { validbanner, validEvent, validTicket } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
+import { useIsClient } from 'usehooks-ts';
 import EventPreview from './event-preview';
 
 export default function ReviewDraft() {
-  const { isRendered } = useRender();
+  const isClient = useIsClient();
   const { payload } = useCreateEventContext();
   const router = useRouter();
 
@@ -19,7 +19,6 @@ export default function ReviewDraft() {
   } else if (!payload.createEvent || !validEvent(payload.createEvent)) {
     redirectPath = '/dashboard/configure/create-event';
   } else if (!payload.createTicket || !validTicket(payload.createTicket)) {
-    console.log('AAAAAA');
     redirectPath = '/dashboard/configure/create-ticket';
   }
 
@@ -29,19 +28,17 @@ export default function ReviewDraft() {
     }
   }, [redirectPath, router]);
 
-  if (redirectPath) return <div></div>;
+  if (redirectPath || !isClient) return <div></div>;
 
   return (
     <div>
-      {isRendered && redirectPath === null && (
-        <EventPreview
-          event={{
-            bannerUrl: payload.uploadBanner.data?.bannerUrl as any,
-            ...(payload.createEvent.data as any),
-          }}
-          tickets={payload.createTicket.data as any}
-        />
-      )}
+      <EventPreview
+        event={{
+          bannerUrl: payload.uploadBanner.data?.bannerUrl as any,
+          ...(payload.createEvent.data as any),
+        }}
+        tickets={payload.createTicket.data as any}
+      />
     </div>
   );
 }

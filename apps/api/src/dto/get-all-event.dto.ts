@@ -6,9 +6,10 @@ import { QueryTypeEventSchema } from '@/validation-schema/query-type-event.schem
 import { z } from 'zod';
 
 export const GetAllEventDTO = z.object({
+  organizerId: z.string().uuid().optional(),
   search: QuerySearchSchema,
-  sortBy: QuerySortByEventSchema,
-  eventType: QueryTypeEventSchema,
+  sortBy: QuerySortByEventSchema.default('startDate'),
+  eventType: QueryTypeEventSchema.default('active'),
   page: QueryPageSchema.default('1'),
   pageSize: QueryPageSizeSchema.default('6'),
 });

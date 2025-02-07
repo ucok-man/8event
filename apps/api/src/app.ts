@@ -10,8 +10,9 @@ import express, {
 import { PORT } from './config';
 // import { SampleRouter } from './routers/sample.router';
 import { ApiError } from './errors/interface';
-import { EventDetailRouter } from './routers/event-detail.router';
 import { EventsRouter } from './routers/events.router';
+import { MediaRouter } from './routers/media.router';
+import { TicketRouter } from './routers/ticket.router';
 
 export default class App {
   private version = '1.0.0';
@@ -88,7 +89,8 @@ export default class App {
 
   private routes(): void {
     const eventsRouter = new EventsRouter();
-    const eventDetailRouter = new EventDetailRouter();
+    const mediaRouter = new MediaRouter();
+    const ticketRouter = new TicketRouter();
 
     this.app.get('/api', (req: Request, res: Response) => {
       res.json({
@@ -101,7 +103,8 @@ export default class App {
     });
 
     this.app.use('/api/events', eventsRouter.getRouter());
-    this.app.use('/api/events/details/', eventDetailRouter.getRouter());
+    this.app.use('/api/media', mediaRouter.getRouter());
+    this.app.use('/api/tickets', ticketRouter.getRouter());
   }
 
   public start(): void {

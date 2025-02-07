@@ -11,7 +11,7 @@ type Props = {
 export default function MyEventsPage({ searchParams }: Props) {
   const searchParam = searchParams.search;
   const pageParam = searchParams.page;
-  let sortByParam = searchParams.sortBy;
+  const sortByParam = searchParams.sortBy;
   if (
     Array.isArray(searchParam) ||
     Array.isArray(sortByParam) ||
@@ -27,7 +27,12 @@ export default function MyEventsPage({ searchParams }: Props) {
   return (
     <div className="mt-8">
       <SortAndSearch />
-      <Content search={search} sortBy={sortBy} page={page} />
+      <Content
+        search={search}
+        sortBy={sortBy}
+        page={page}
+        organizerId={'4369549d-8056-4138-a1cf-5139f7527f0d'} // TODO: GET event id from user session
+      />
     </div>
   );
 }

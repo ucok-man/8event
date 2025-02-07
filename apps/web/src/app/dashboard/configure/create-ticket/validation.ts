@@ -3,6 +3,7 @@ import { timeToFloat } from '@/lib/utils';
 import { z } from 'zod';
 
 const BaseTicketValidationSchema = {
+  id: z.string().optional(),
   name: z.string().min(3).max(500),
   amount: z.number().min(1),
   description: z.string().min(10),

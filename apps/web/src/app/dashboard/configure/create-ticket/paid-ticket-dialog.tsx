@@ -37,8 +37,6 @@ import { DEFAULT_PAID_TICKET, FreeTicket, PaidTicket } from './validation';
 type Props = {
   intend: 'CREATE' | 'EDIT';
   editValue: PaidTicket;
-  onTicketUpdate: (target: number, data: FreeTicket | PaidTicket) => void;
-  targetIndex: number | undefined;
   isDialogOpen: boolean;
   setIsDialogOpen: (open: boolean) => void;
   form: ReturnType<typeof useForm<PaidTicket>>;
@@ -53,8 +51,6 @@ export default function PaidTicketDialog({
   onSubmit,
   intend,
   editValue,
-  onTicketUpdate,
-  targetIndex,
   formError,
 }: Props) {
   const { payload } = useCreateEventContext();
@@ -307,12 +303,7 @@ export default function PaidTicketDialog({
                 Cancel
               </Button>
               <Button
-                onClick={
-                  intend === 'CREATE'
-                    ? undefined
-                    : () => onTicketUpdate(targetIndex!, form.getValues())
-                }
-                type={intend === 'CREATE' ? 'submit' : 'button'}
+                type="submit"
                 className="bg-brand-rose-500 hover:bg-brand-rose-600"
               >
                 {intend === 'CREATE' ? 'Create Ticket' : 'Edit Ticket'}

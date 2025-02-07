@@ -17,15 +17,16 @@ type Props = {
   search: string;
   sortBy: SortByOptionType;
   page: number;
+  organizerId: string;
 };
 
-export default function Content({ search, sortBy, page }: Props) {
+export default function Content({ search, sortBy, page, organizerId }: Props) {
   const isClient = useIsClient();
   const [activeTab, setActiveTab] = useState<TabActiveType>('draft');
   const isMobile = useMediaQuery('(min-width: 450px)');
 
   const { data, isPending, error } = useQuery({
-    queryKey: ['past-event', search, sortBy, page, activeTab],
+    queryKey: ['my-events', search, sortBy, page, activeTab],
     queryFn: async () => {
       const queryparam = qs.stringify(
         {
@@ -34,6 +35,7 @@ export default function Content({ search, sortBy, page }: Props) {
           eventType: activeTab,
           page: page,
           pageSize: 6,
+          organizerId: organizerId,
         },
         {
           skipEmptyString: true,
@@ -49,7 +51,9 @@ export default function Content({ search, sortBy, page }: Props) {
   if (isPending) {
     return (
       <div className="p-8 text-center">
-        <div className="text-base text-muted-foreground">🤔 Searching...</div>
+        <div className="text-base text-muted-foreground">
+          🤔 Preparing your data...
+        </div>
       </div>
     );
   }

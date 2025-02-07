@@ -39,9 +39,9 @@ export type GetEventByIdPayload = {
 export type GetEventByIdSummaryPayload = {
   eventId: string;
   totalView: number;
-  ticketSales: number;
-  ticketTotal: number;
-  ticketRemaining: number;
+  totalTicketAmount: number;
+  totalTicketRemaining: number;
+  totalTicketSold: number;
   totalIncome: number;
   totalTransaction: number;
 };
