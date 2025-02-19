@@ -13,6 +13,7 @@ import { ApiError } from './errors/interface';
 import { EventsRouter } from './routers/events.router';
 import { MediaRouter } from './routers/media.router';
 import { TicketRouter } from './routers/ticket.router';
+import { UserRouter } from './routers/user.router';
 
 export default class App {
   private version = '1.0.0';
@@ -91,6 +92,7 @@ export default class App {
     const eventsRouter = new EventsRouter();
     const mediaRouter = new MediaRouter();
     const ticketRouter = new TicketRouter();
+    const userRouter = new UserRouter();
 
     this.app.get('/api', (req: Request, res: Response) => {
       res.json({
@@ -105,6 +107,7 @@ export default class App {
     this.app.use('/api/events', eventsRouter.getRouter());
     this.app.use('/api/media', mediaRouter.getRouter());
     this.app.use('/api/tickets', ticketRouter.getRouter());
+    this.app.use('/api/users', userRouter.getRouter());
   }
 
   public start(): void {

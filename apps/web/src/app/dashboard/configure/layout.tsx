@@ -1,7 +1,7 @@
 // import StepNavigation from '@/components/shared/step-navigation';
-import { CREATE_EVENT_STEPS } from '@/app/dashboard/configure/constant';
 import MaxWidthWrapper from '@/components/shared/max-width-wrapper';
 import StepNavigation from '@/components/shared/step-navigation';
+import { CREATE_EVENT_STEPS } from '@/constants';
 import CreateEventContextProvider from '@/context/create-event-provider';
 import React from 'react';
 import Navbar from './navbar';

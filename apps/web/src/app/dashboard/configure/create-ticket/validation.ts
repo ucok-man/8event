@@ -1,5 +1,9 @@
 import { TimeType } from '@/components/shared/time-picker/time-type';
-import { timeToFloat } from '@/lib/utils';
+import {
+  sourceDateIsAfterEqualTarget,
+  sourceTimeIsAfterTarget,
+  targetIsAfterEqualCurrentDate,
+} from '@/lib/datetime-utils';
 import { z } from 'zod';
 
 const BaseTicketValidationSchema = {
@@ -22,17 +26,27 @@ export const FreeTicketValidationSchema = z
     ...BaseTicketValidationSchema,
     type: z.enum(['FREE']),
   })
-  .refine((data) => data.endDate >= data.startDate, {
-    message: 'End date must be after start date',
-    path: ['endDate'],
+  .refine(
+    (data) => sourceDateIsAfterEqualTarget(data.endDate, data.startDate),
+    {
+      message: 'End date must be after or equal start date',
+      path: ['endDate'],
+    },
+  )
+  .refine((data) => targetIsAfterEqualCurrentDate(data.startDate), {
+    message: 'Event start must be in the future',
+    path: ['startDate'],
   })
   .refine(
-    (data) => {
-      const start = timeToFloat(data.startTime as TimeType) || 0;
-      const end = timeToFloat(data.endTime as TimeType) || 0;
-      return end > start;
+    (data) =>
+      sourceTimeIsAfterTarget(
+        data.endTime as TimeType,
+        data.startTime as TimeType,
+      ),
+    {
+      message: 'End time must be after start time',
+      path: ['endTime'],
     },
-    { message: 'End time must be more than start time', path: ['endTime'] },
   );
 
 export const PaidTicketValidationSchema = z
@@ -41,17 +55,27 @@ export const PaidTicketValidationSchema = z
     type: z.enum(['PAID']),
     price: z.number().min(1),
   })
-  .refine((data) => data.endDate >= data.startDate, {
-    message: 'End date must be after start date',
-    path: ['endDate'],
+  .refine(
+    (data) => sourceDateIsAfterEqualTarget(data.endDate, data.startDate),
+    {
+      message: 'End date must be after or equal start date',
+      path: ['endDate'],
+    },
+  )
+  .refine((data) => targetIsAfterEqualCurrentDate(data.startDate), {
+    message: 'Event start must be in the future',
+    path: ['startDate'],
   })
   .refine(
-    (data) => {
-      const start = timeToFloat(data.startTime as TimeType) || 0;
-      const end = timeToFloat(data.endTime as TimeType) || 0;
-      return end > start;
+    (data) =>
+      sourceTimeIsAfterTarget(
+        data.endTime as TimeType,
+        data.startTime as TimeType,
+      ),
+    {
+      message: 'End time must be after start time',
+      path: ['endTime'],
     },
-    { message: 'End time must be more than start time', path: ['endTime'] },
   );
 
 export type FreeTicket = z.infer<typeof FreeTicketValidationSchema>;

@@ -6,7 +6,7 @@ import EventLoaction from '@/components/shared/event-location';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { cn, getEventCategory } from '@/lib/utils';
-import { GetEventByIdPayload } from './types';
+import { GetEventByIdResponse } from '@/types';
 
 const proseStyle = `
 prose max-w-none
@@ -19,7 +19,7 @@ prose-img:rounded-md prose-img:shadow-md
 `;
 
 type Props = {
-  event: GetEventByIdPayload;
+  event: GetEventByIdResponse['event'];
 };
 
 export default function ContentEvent({ event }: Props) {

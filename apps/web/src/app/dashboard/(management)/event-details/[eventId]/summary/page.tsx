@@ -2,12 +2,12 @@
 
 import { toast } from '@/hooks/use-toast';
 import { apiclient } from '@/lib/axios';
+import { GetEventByIdResponse, GetEventSummaryResponse } from '@/types';
 import { useQuery } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 import { notFound, useParams } from 'next/navigation';
 import ContentEvent from './content-event';
 import ContentSummary from './content-summary';
-import { GetEventByIdPayload, GetEventByIdSummaryPayload } from './types';
 
 export default function SummaryPage() {
   const { eventId } = useParams();
@@ -20,8 +20,8 @@ export default function SummaryPage() {
         apiclient.get(`/events/id/${eventId}/summary`),
       ]);
       return {
-        event: eventres.data.event as GetEventByIdPayload,
-        summary: summaryres.data.summary as GetEventByIdSummaryPayload,
+        event: eventres.data.event as GetEventByIdResponse['event'],
+        summary: summaryres.data.summary as GetEventSummaryResponse['summary'],
       };
     },
   });
@@ -50,7 +50,7 @@ export default function SummaryPage() {
     }
   }
 
-  if (!data) return notFound();
+  if (!data || Array.isArray(eventId)) return notFound();
   const { event, summary } = data;
 
   return (

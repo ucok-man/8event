@@ -1,4 +1,8 @@
-import { timeToFloat } from '@/helpers/time-to-float';
+import {
+  sourceDateIsAfterEqualTarget,
+  sourceTimeIsAfterTarget,
+  targetIsAfterEqualCurrentDate,
+} from '@/helpers/datetime-utils';
 import { TimeType } from '@/types/time-type';
 import { z } from 'zod';
 
@@ -31,17 +35,27 @@ export const TicketsSchema = z
           path: ['price'],
         },
       )
-      .refine((data) => data.endDate >= data.startDate, {
-        message: 'End date must be after start date',
-        path: ['endDate'],
+      .refine(
+        (data) => sourceDateIsAfterEqualTarget(data.endDate, data.startDate),
+        {
+          message: 'End date must be after or equal start date',
+          path: ['endDate'],
+        },
+      )
+      .refine((data) => targetIsAfterEqualCurrentDate(data.startDate), {
+        message: 'Event start must be in the future',
+        path: ['startDate'],
       })
       .refine(
-        (data) => {
-          const start = timeToFloat(data.startTime as TimeType) || 0;
-          const end = timeToFloat(data.endTime as TimeType) || 0;
-          return end > start;
+        (data) =>
+          sourceTimeIsAfterTarget(
+            data.endTime as TimeType,
+            data.startTime as TimeType,
+          ),
+        {
+          message: 'End time must be after start time',
+          path: ['endTime'],
         },
-        { message: 'End time must be more than start time', path: ['endTime'] },
       ),
   )
   .nonempty();

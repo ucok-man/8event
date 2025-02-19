@@ -67,10 +67,17 @@ export class EventService {
   };
 
   getAll = async (dto: z.infer<typeof GetAllEventDTO>) => {
+    console.log({ dto });
     const searchTerm = getSearch({ search: dto.search || '' });
     const organizerId = getOrganizerId({ organizerId: dto.organizerId });
     const eventType = getEventType({ type: dto.eventType });
-    const orderBy = getSortBy({ sortBy: dto.sortBy });
+    const eventFormat = getEventFormat({ format: dto.eventFormat || '' });
+    const city = getCity({ city: dto.city || '' });
+    const category = getCategory({ category: dto.category || '' });
+    const startTime = getStartTime({ startTime: dto.startTime || '' });
+    const priceType = getPriceType({ type: dto.priceType || '' });
+    const sortBy = getSortBy({ sortBy: dto.sortBy });
+    const popular = getPopular({ popular: dto.popular });
     const limit = getLimit({
       pageSize: dto.pageSize,
     });
@@ -82,15 +89,25 @@ export class EventService {
     const query = Prisma.sql`
     SELECT 
       (COUNT(*) OVER())::int as "totalRecord",
+      o."name" as "organizerName", o."profilePicture" as "organizerProfile",
       e."id", e."name", e."bannerUrl", e."description",
       e."startDate", e."endDate", e."startTime", e."endTime",
       e."isEventOnline", e."urlStreaming", e."placeName",
-      e."placeCity", e."placeAddress", e."isPublished",
-      ec."name" as "category" 
+      e."placeCity", e."placeAddress", e."isPublished", e."views",
+      ec."name" as "category",
+      ( SELECT MIN(CASE WHEN t."type" = 'FREE' THEN 0 ELSE t."price" END)
+        FROM "Ticket" t
+        WHERE t."eventId" = e."id"
+      ) as "lowestTicketPrice"
     FROM "Event" as e
     JOIN "EventCategory" as ec ON e."categoryId" = ec."id"
-		WHERE e."id" = e."id" ${organizerId} ${searchTerm} ${eventType}
-		${orderBy}
+    JOIN "User" as o ON e."organizerId" = o."id"
+		WHERE 
+      e."id" = e."id" 
+      ${organizerId} ${searchTerm} ${eventType} 
+      ${eventFormat} ${city} ${category} ${startTime}
+      ${priceType}
+		ORDER BY ${popular} ${sortBy} e."id" ASC
 		${limit} ${offset}`;
 
     const result: {
@@ -110,6 +127,10 @@ export class EventService {
       placeAddress?: string;
       isPublished: boolean;
       category: string;
+      views: number;
+      lowestTicketPrice: number;
+      organizerName: string;
+      organizerProfile?: string;
     }[] = await prismaclient.$queryRaw(query);
 
     if (result.length >= 1) {
@@ -136,6 +157,10 @@ export class EventService {
           placeAddress: e.placeAddress,
           isPublished: e.isPublished,
           category: e.category,
+          views: e.views,
+          lolowestTicketPrice: e.lowestTicketPrice,
+          organizerName: e.organizerName,
+          organizerProfile: e.organizerProfile,
         })),
         metadata: metadata,
       };
@@ -176,16 +201,99 @@ function getEventType({ type }: { type: string }) {
   } else return Prisma.sql``;
 }
 
+function getEventFormat({ format }: { format: string }) {
+  if (format === 'online') {
+    return Prisma.sql`AND e."isEventOnline" = ${true}`;
+  } else if (format === 'inperson') {
+    return Prisma.sql`AND e."isEventOnline" = ${false}`;
+  } else return Prisma.sql``;
+}
+
+function getCity({ city }: { city: string }) {
+  if (city != '') {
+    const token = city
+      .split(' ')
+      .map((term) => `${term}:*`)
+      .join(' & ');
+    return Prisma.sql`AND (to_tsvector('simple', e."placeCity") @@ to_tsquery('simple', ${token}) OR ${token} = ${''})`;
+  }
+  return Prisma.sql``;
+}
+
+function getCategory({ category }: { category: string }) {
+  if (category === '') return Prisma.sql``;
+  return Prisma.sql`AND ec."name" = ${category}`;
+}
+
+function getStartTime({ startTime }: { startTime: string }) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0); // Set to midnight today
+
+  const tomorrow = new Date(today);
+  tomorrow.setDate(today.getDate() + 1); // Set to midnight tomorrow
+
+  const dayAfterTomorrow = new Date(today);
+  dayAfterTomorrow.setDate(today.getDate() + 2); // Set to midnight the day after tomorrow
+
+  // Calculate the start of the week (Sunday)
+  const dayOfWeek = today.getDay(); // 0 (Sunday) to 6 (Saturday)
+  const startOfWeek = new Date(today);
+  startOfWeek.setDate(today.getDate() - dayOfWeek);
+
+  // Calculate the start of next week (next Sunday)
+  const startOfNextWeek = new Date(startOfWeek);
+  startOfNextWeek.setDate(startOfWeek.getDate() + 7);
+
+  // Calculate the start of the month (first day of the month)
+  const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+
+  // Calculate the start of the next month (first day of next month)
+  const startOfNextMonth = new Date(
+    today.getFullYear(),
+    today.getMonth() + 1,
+    1,
+  );
+
+  if (startTime === 'this_day') {
+    return Prisma.sql`AND e."startDate" >= ${today} AND e."startDate" < ${tomorrow}`;
+  } else if (startTime === 'tomorrow') {
+    return Prisma.sql`AND e."startDate" >= ${tomorrow} AND e."startDate" < ${dayAfterTomorrow}`;
+  } else if (startTime === 'this_week') {
+    return Prisma.sql`AND e."startDate" >= ${startOfWeek} AND e."startDate" < ${startOfNextWeek}`;
+  } else if (startTime === 'this_month') {
+    return Prisma.sql`AND e."startDate" >= ${startOfMonth} AND e."startDate" < ${startOfNextMonth}`;
+  } else return Prisma.sql``;
+}
+
+function getPriceType({ type }: { type: string }) {
+  if (type === 'free') {
+    return Prisma.sql`AND EXISTS (
+      SELECT t."name" FROM "Ticket" t
+      WHERE t."eventId" = e."id" AND t."type" = 'FREE'
+    )`;
+  } else if (type === 'paid') {
+    return Prisma.sql`AND EXISTS (
+      SELECT t."name" FROM "Ticket" t
+      WHERE t."eventId" = e."id" AND t."type" = 'PAID'
+    )`;
+  } else return Prisma.sql``;
+}
+
 function getSortBy({ sortBy }: { sortBy: string }) {
   if (sortBy === 'startDate') {
-    return Prisma.sql`ORDER BY e."startDate" ASC, e."id" ASC`;
+    return Prisma.sql`e."startDate" ASC,`;
   } else if (sortBy === '-startDate') {
-    return Prisma.sql`ORDER BY e."startDate" DESC, e."id" ASC`;
+    return Prisma.sql`e."startDate" DESC,`;
   } else if (sortBy === 'name') {
-    return Prisma.sql`ORDER BY e."name" ASC, e."id" ASC`;
+    return Prisma.sql`e."name" ASC,`;
   } else if (sortBy === '-name') {
-    return Prisma.sql`ORDER BY e."name" DESC, e."id" ASC`;
-  } else return Prisma.sql`ORDER BY e."id" ASC`;
+    return Prisma.sql`e."name" DESC,`;
+  } else return Prisma.sql``;
+}
+
+function getPopular({ popular }: { popular: boolean }) {
+  if (!popular) return Prisma.sql``;
+  return Prisma.sql`e."views" DESC,`;
 }
 
 function getLimit({ pageSize }: { pageSize: number }) {

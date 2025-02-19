@@ -15,15 +15,16 @@ export class MediaRouter {
 
   private initializeRoutes(): void {
     this.router.post(
-      '/upload-banner',
+      '/events/banners',
       fileUpload,
-      catcherror(this.controller.uploadBannerTemp),
+      catcherror(this.controller.uploadEventBanner),
     );
     this.router.post(
-      '/upload-assets',
+      '/events/assets',
       fileUpload,
-      catcherror(this.controller.uploadAsset),
+      catcherror(this.controller.uploadEventAsset),
     );
+    this.router.delete('/', catcherror(this.controller.remove));
   }
 
   getRouter(): Router {

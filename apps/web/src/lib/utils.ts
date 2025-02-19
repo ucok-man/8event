@@ -1,4 +1,11 @@
-import { TimeType } from '@/components/shared/time-picker/time-type';
+import {
+  EVENT_CATEGORY,
+  EVENT_CATEGORY_MAP,
+  EVENT_FORMAT_OPTION,
+  EVENT_PRICE_TYPE_OPTION,
+  EVENT_START_TIME_OPTION,
+  SORTBY_OPTION,
+} from '@/constants';
 import {
   BannerError,
   BannerPayload,
@@ -8,19 +15,13 @@ import {
   TicketPayload,
 } from '@/context/create-event-provider/type';
 import { clsx, type ClassValue } from 'clsx';
+import qs from 'query-string';
 import { twMerge } from 'tailwind-merge';
 import { DeepRequired } from 'utility-types';
 import { ZodError } from 'zod';
-import { EVENT_CATEGORY_MAP } from '../constants/category-map';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
-}
-
-export function timeToFloat(time: TimeType): number {
-  const parts = time.split(':');
-  if (parts.length < 2) return 0;
-  return parseFloat(`${parts[0]}.${parts[1]}`);
 }
 
 export function toTitleCase(text: string): string {
@@ -146,10 +147,111 @@ export function getEventCategory(key: string) {
     : '';
 }
 
+export function checkQueryEventCategory(val: string) {
+  return getEventCategory(val);
+}
+
 export function formatRupiah(amount: number): string {
   return new Intl.NumberFormat('id-ID', {
     style: 'currency',
     currency: 'IDR',
     minimumFractionDigits: 0,
   }).format(amount);
+}
+
+export function getOneFromQuery(
+  key: string,
+  queries: qs.ParsedQuery<string>,
+): string {
+  const q = queries[key];
+  if (!q) return '';
+  if (Array.isArray(q) && q[0]) return q[0];
+  return q as string;
+}
+
+export function checkQuerySearch(input: string | string[] | undefined): string {
+  if (!input) return '';
+  if (Array.isArray(input)) return input[0] || '';
+  return input;
+}
+
+export function checkQuerySortBy(
+  input: string | string[] | undefined,
+): (typeof SORTBY_OPTION)[number]['value'] {
+  if (!input) return 'startDate';
+  if (Array.isArray(input)) {
+    input = input[0];
+  }
+  const safesort = SORTBY_OPTION.map((opt) => opt.value);
+  const found = safesort.find((safeval) => safeval === input);
+  if (!found) return 'startDate';
+  return found;
+}
+
+export function checkQueryEventFormat(
+  input: string | string[] | undefined,
+): (typeof EVENT_FORMAT_OPTION)[number]['value'] | '' {
+  if (!input) return '';
+  if (Array.isArray(input)) {
+    input = input[0];
+  }
+  const safesort = EVENT_FORMAT_OPTION.map((opt) => opt.value);
+  const found = safesort.find((safeval) => safeval === input);
+  if (!found) return '';
+  return found;
+}
+
+export function checkQueryCity(input: string | string[] | undefined): string {
+  if (!input) return '';
+  if (Array.isArray(input)) return input[0] || '';
+  return input;
+}
+
+export function checkQueryCategory(
+  input: string | string[] | undefined,
+): (typeof EVENT_CATEGORY)[number]['value'] | '' {
+  if (!input) return '';
+  if (Array.isArray(input)) {
+    input = input[0];
+  }
+  const safesort = EVENT_CATEGORY.map((opt) => opt.value);
+  const found = safesort.find((safeval) => safeval === input);
+  if (!found) return '';
+  return found;
+}
+
+export function checkQueryStartTime(
+  input: string | string[] | undefined,
+): (typeof EVENT_START_TIME_OPTION)[number]['value'] | '' {
+  if (!input) return '';
+  if (Array.isArray(input)) {
+    input = input[0];
+  }
+  const safesort = EVENT_START_TIME_OPTION.map((opt) => opt.value);
+  const found = safesort.find((safeval) => safeval === input);
+  if (!found) return '';
+  return found;
+}
+
+export function checkQueryPriceType(
+  input: string | string[] | undefined,
+): (typeof EVENT_PRICE_TYPE_OPTION)[number]['value'] | '' {
+  if (!input) return '';
+  if (Array.isArray(input)) {
+    input = input[0];
+  }
+  const safesort = EVENT_PRICE_TYPE_OPTION.map((opt) => opt.value);
+  const found = safesort.find((safeval) => safeval === input);
+  if (!found) return '';
+  return found;
+}
+
+export function checkQueryPage(input: string | string[] | undefined): number {
+  if (!input) return 1;
+  if (Array.isArray(input)) {
+    input = input[0];
+  }
+  const p = Number(input);
+  if (isNaN(p) || p < 1) return 1;
+  return p;
 }

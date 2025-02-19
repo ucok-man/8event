@@ -7,7 +7,7 @@ BigInt.prototype['toJSON'] = function () {
 };
 
 const prismaclient = new PrismaClient({
-  log: ['query', 'info', 'warn', 'error'],
+  log: ['query', 'warn', 'error'],
 });
 
 export { prismaclient };

@@ -1,5 +1,9 @@
 import { TimeType } from '@/components/shared/time-picker/time-type';
-import { timeToFloat } from '@/lib/utils';
+import {
+  sourceDateIsAfterEqualTarget,
+  sourceTimeIsAfterTarget,
+  targetIsAfterEqualCurrentDate,
+} from '@/lib/datetime-utils';
 import { z } from 'zod';
 
 export const CreateEventSchema = z
@@ -22,7 +26,7 @@ export const CreateEventSchema = z
     description: z
       .string()
       .trim()
-      .min(10)
+      .min(100)
       .refine((arg) => arg !== '<p></p>', { message: 'Required' }),
   })
   .refine(
@@ -106,16 +110,24 @@ export const CreateEventSchema = z
     },
   )
   .refine(
-    (data) => {
-      return data.startDate <= data.endDate;
+    (data) => sourceDateIsAfterEqualTarget(data.endDate, data.startDate),
+    {
+      message: 'End date must be after or equal start date',
+      path: ['endDate'],
     },
-    { message: 'End date is behind start date', path: ['endDate'] },
   )
+  .refine((data) => targetIsAfterEqualCurrentDate(data.startDate), {
+    message: 'Event start must be in the future',
+    path: ['startDate'],
+  })
   .refine(
-    (data) => {
-      const start = timeToFloat(data.startTime as TimeType) || 0;
-      const end = timeToFloat(data.endTime as TimeType) || 0;
-      return end > start;
+    (data) =>
+      sourceTimeIsAfterTarget(
+        data.endTime as TimeType,
+        data.startTime as TimeType,
+      ),
+    {
+      message: 'End time must be after start time',
+      path: ['endTime'],
     },
-    { message: 'End time must be more than start time', path: ['endTime'] },
   );

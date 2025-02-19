@@ -24,6 +24,10 @@ export class EventsRouter {
       '/id/:eventId/sales',
       catcherror(this.controller.getTicketSales),
     );
+    this.router.patch(
+      '/id/:eventId/increment-view',
+      catcherror(this.controller.updateIncrementEventView),
+    );
   }
 
   getRouter(): Router {

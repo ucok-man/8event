@@ -1,6 +1,5 @@
 'use client';
 
-import { CREATE_EVENT_STEPS } from '@/app/dashboard/configure/constant';
 import ButtonRose from '@/components/shared/button-rose';
 import RichTextEditor from '@/components/shared/richtext-editor';
 import StepNavigationBackButton from '@/components/shared/step-navigation-back-button';
@@ -40,6 +39,7 @@ import {
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
+import { CREATE_EVENT_STEPS, EVENT_CATEGORY } from '@/constants';
 import { useCreateEventContext } from '@/context/create-event-provider';
 import { cn, validbanner } from '@/lib/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -58,7 +58,6 @@ import { useForm } from 'react-hook-form';
 import 'react-time-picker/dist/TimePicker.css';
 import { useIsClient } from 'usehooks-ts';
 import { z } from 'zod';
-import { EVENT_CATEGORY } from './constant';
 import { CreateEventSchema } from './validation';
 
 type FormData = z.infer<typeof CreateEventSchema>;
@@ -89,28 +88,20 @@ export default function CreateEventForm() {
     });
   };
 
-  const isEventOnlineChoosen = form.watch('isEventOnline');
+  const toogleEventType = form.watch('isEventOnline');
   useEffect(() => {
-    if (isEventOnlineChoosen) {
-      form.setValue(
-        'placeName',
-        payload.createEvent.data.placeName || undefined,
-      );
-      form.setValue(
-        'placeAddress',
-        payload.createEvent.data.placeAddress || undefined,
-      );
-      form.setValue(
-        'placeCity',
-        payload.createEvent.data.placeCity || undefined,
-      );
-    } else {
-      form.setValue(
-        'urlStreaming',
-        payload.createEvent.data.urlStreaming || undefined,
-      );
-    }
-  }, [isEventOnlineChoosen]);
+    // updateCreateEventPayload((prev) => ({
+    //   ...prev,
+    //   placeName: undefined,
+    //   placeAddress: undefined,
+    //   placeCity: undefined,
+    //   urlStreaming: undefined,
+    // }));
+    form.setValue('placeName', undefined);
+    form.setValue('placeAddress', undefined);
+    form.setValue('placeCity', undefined);
+    form.setValue('urlStreaming', undefined);
+  }, [toogleEventType]);
 
   let redirectPath: string | null = null;
   if (!payload.uploadBanner || !validbanner(payload.uploadBanner)) {
@@ -407,7 +398,7 @@ export default function CreateEventForm() {
                                 placeholder="https://"
                                 className="border-gray-200 focus:border-brand-rose-500 focus:ring-brand-rose-500 max-sm:text-sm"
                                 {...field}
-                                value={field.value || ''}
+                                value={form.getValues('urlStreaming') || ''}
                               />
                             </FormControl>
                             <FormMessage />
@@ -430,7 +421,7 @@ export default function CreateEventForm() {
                                     placeholder="Enter venue name"
                                     className="border-gray-200 focus:border-brand-rose-500 focus:ring-brand-rose-500 max-sm:text-sm"
                                     {...field}
-                                    value={field.value || ''}
+                                    value={form.getValues('placeName') || ''}
                                   />
                                 </FormControl>
                                 <FormMessage />
@@ -450,7 +441,7 @@ export default function CreateEventForm() {
                                     placeholder="Enter city name"
                                     className="border-gray-200 focus:border-brand-rose-500 focus:ring-brand-rose-500 max-sm:text-sm"
                                     {...field}
-                                    value={field.value || ''}
+                                    value={form.getValues('placeCity') || ''}
                                   />
                                 </FormControl>
                                 <FormMessage />
@@ -471,7 +462,7 @@ export default function CreateEventForm() {
                                   placeholder="Enter the complete venue address"
                                   className="resize-none border-gray-200 focus:border-brand-rose-500 focus:ring-brand-rose-500 max-sm:text-sm"
                                   {...field}
-                                  value={field.value || ''}
+                                  value={form.getValues('placeAddress') || ''}
                                 />
                               </FormControl>
                               <FormMessage />

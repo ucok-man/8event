@@ -12,6 +12,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from '@/components/ui/sidebar';
+import { SIDEBAR_LINK } from '@/constants';
 import { cn } from '@/lib/utils';
 import {
   Atom,
@@ -21,7 +22,6 @@ import {
 } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
-import { SIDEBAR_LINK } from './constant';
 
 export default function Sidebar() {
   const pathname = usePathname();

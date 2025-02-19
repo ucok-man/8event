@@ -17,6 +17,10 @@ export default function SalesPage() {
   const { eventId } = useParams();
   const maxw450 = useMediaQuery('(max-width: 450px)');
 
+  if (Array.isArray(eventId)) {
+    return notFound();
+  }
+
   const { data, isError, error, isFetching } = useQuery({
     queryKey: ['event-detail', 'event-detail-sales', eventId],
     queryFn: async () => {

@@ -1,13 +1,12 @@
 import { cloudinaryclient } from '@/cloudinary';
+import { cloudinaryPublicIdFromURL } from '@/helpers/cloudinary-public-id-from-url';
 import { UploadApiOptions } from 'cloudinary';
 import { Readable } from 'stream';
-import { v4 as uuid } from 'uuid';
 
 type Media_Folder =
   | 'minpro-event-ticketing/profile/'
-  | 'minpro-event-ticketing/asset'
-  | 'minpro-event-ticketing/event/banner'
-  | 'minpro-event-ticketing/temp/banner';
+  | 'minpro-event-ticketing/event/asset'
+  | 'minpro-event-ticketing/event/banner';
 
 export class MediaService {
   upload = async (param: {
@@ -38,35 +37,23 @@ export class MediaService {
     });
   };
 
-  uploadBannerTemp = async (file: Buffer, fixedId: string) => {
+  uploadEventBanner = async (file: Buffer) => {
     return await this.upload({
       file,
-      folder: 'minpro-event-ticketing/temp/banner',
-      options: {
-        public_id: fixedId,
-        unique_filename: false,
-        overwrite: true,
-      },
+      folder: 'minpro-event-ticketing/event/banner',
     });
   };
 
-  uploadAsset = async (file: Buffer) => {
+  uploadEventAsset = async (file: Buffer) => {
     return await this.upload({
       file,
-      folder: 'minpro-event-ticketing/asset',
-      options: {
-        unique_filename: true,
-        overwrite: false,
-      },
+      folder: 'minpro-event-ticketing/event/asset',
     });
   };
 
-  rename = async (src: string, target: string) => {
-    target = target + '/' + uuid();
-    const result = await cloudinaryclient.uploader.rename(src, target, {
-      invalidate: true,
-      overwrite: true,
-    });
-    return result.secure_url as string;
+  remove = async (url: string) => {
+    const publicId = cloudinaryPublicIdFromURL(url);
+    if (!publicId) return null;
+    return await cloudinaryclient.uploader.destroy(publicId);
   };
 }

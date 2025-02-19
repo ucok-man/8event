@@ -3,13 +3,13 @@
 import StatCard from '@/components/shared/stat-card';
 import { useCreateEventContext } from '@/context/create-event-provider';
 import { formatRupiah } from '@/lib/utils';
-import { CreditCard, Ticket, Users, WalletCards } from 'lucide-react';
+import { GetEventByIdResponse, GetEventSummaryResponse } from '@/types';
+import { NotepadText, Ticket, Users, WalletCards } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
-import { GetEventByIdPayload, GetEventByIdSummaryPayload } from './types';
 
 type Props = {
-  summary: GetEventByIdSummaryPayload;
-  event: GetEventByIdPayload;
+  event: GetEventByIdResponse['event'];
+  summary: GetEventSummaryResponse['summary'];
 };
 
 export default function ContentSummary({ summary, event }: Props) {
@@ -54,23 +54,23 @@ export default function ContentSummary({ summary, event }: Props) {
       <div className="flex flex-col justify-center gap-2">
         <StatCard
           title="Income"
-          value={formatRupiah(summary!.totalIncome)}
+          value={formatRupiah(summary.totalIncome)}
           icon={<WalletCards className="h-6 w-6 text-blue-600" />}
         />
         <StatCard
           title="Ticket Sold"
           value={summary.totalTicketSold}
-          subtitle={`/${summary!.totalTicketAmount}`}
+          subtitle={`/${summary.totalTicket}`}
           icon={<Ticket className="h-6 w-6 text-orange-600" />}
         />
         <StatCard
           title="Transactions"
-          value={summary!.totalTransaction}
-          icon={<CreditCard className="h-6 w-6 text-purple-600" />}
+          value={summary.totalTransaction}
+          icon={<NotepadText className="h-6 w-6 text-purple-600" />}
         />
         <StatCard
           title="Visitors"
-          value={summary!.totalView}
+          value={summary.totalView}
           icon={<Users className="h-6 w-6 text-green-600" />}
         />
       </div>

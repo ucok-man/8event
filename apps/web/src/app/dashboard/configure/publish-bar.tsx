@@ -55,12 +55,12 @@ export default function PublishBar() {
           description: `${intend === 'Publish' ? 'Your event has been published.' : 'Your event has been saved.'}`,
           variant: 'default',
         });
-        if (intend === 'Publish') {
-          router.replace('/dashboard/overview');
-        } else {
+        if (payload.createEvent.data.id) {
           router.replace(
             `/dashboard/event-details/${payload.createEvent.data.id}/summary`,
           );
+        } else {
+          router.replace('/dashboard/my-events');
         }
       });
     },

@@ -1,12 +1,12 @@
 import { CreateEventDTO } from '@/dto/create-event.dto';
 import { GetAllEventDTO } from '@/dto/get-all-event.dto';
-import { GetByIdEventDTO } from '@/dto/get-by-id-event.dto';
-import { GetSalesEventDTO } from '@/dto/get-sales-event.dto';
-import { GetSummaryEventDTO } from '@/dto/get-summary-event.dto';
+import { GetEventByIdDTO } from '@/dto/get-event-by-id.dto';
+import { GetEventSalesDTO } from '@/dto/get-event-sales.dto';
+import { GetEventSummaryDTO } from '@/dto/get-event-summary.dto';
+import { UpdateEventViewIncrementDTO } from '@/dto/update-event-view-increment.dto';
 import { FailedValidationError } from '@/errors/failed-validation.error';
 import { InternalSeverError } from '@/errors/internal-server.error';
 import { NotFoundError } from '@/errors/not-found.error';
-import { cloudinaryPublicIdFromURL } from '@/helpers/cloudinary-public-id-from-url';
 import { formatErr } from '@/helpers/format-error';
 import { getOrganizerId } from '@/helpers/get-organizer-id';
 import { EventDetailService } from '@/services/event-detail.service';
@@ -28,16 +28,6 @@ export class EventsController {
     }
 
     try {
-      if (dto.event.bannerUrl.includes('minpro-event-ticketing/temp/banner')) {
-        const pid = cloudinaryPublicIdFromURL(dto.event.bannerUrl);
-        if (pid) {
-          dto.event.bannerUrl = await this.mediaService.rename(
-            pid,
-            pid.replace('/temp', '/event'),
-          );
-        }
-      }
-
       const eventid = await this.eventService.create(organizerId, dto);
       res.status(201).json({
         event: { id: eventid },
@@ -69,7 +59,7 @@ export class EventsController {
 
   getById = async (req: Request, res: Response) => {
     const organizerId = getOrganizerId(req);
-    const { data: dto, error } = GetByIdEventDTO.safeParse(req.params);
+    const { data: dto, error } = GetEventByIdDTO.safeParse(req.params);
     if (error) {
       throw new FailedValidationError(formatErr(error));
     }
@@ -91,7 +81,7 @@ export class EventsController {
   };
 
   getSummary = async (req: Request, res: Response) => {
-    const { data: dto, error } = GetSummaryEventDTO.safeParse(req.params);
+    const { data: dto, error } = GetEventSummaryDTO.safeParse(req.params);
     if (error) {
       throw new FailedValidationError(formatErr(error));
     }
@@ -111,7 +101,7 @@ export class EventsController {
   };
 
   getTicketSales = async (req: Request, res: Response) => {
-    const { data: dto, error } = GetSalesEventDTO.safeParse(req.params);
+    const { data: dto, error } = GetEventSalesDTO.safeParse(req.params);
     if (error) {
       throw new FailedValidationError(formatErr(error));
     }
@@ -122,6 +112,28 @@ export class EventsController {
         throw new NotFoundError();
       }
       res.status(200).json({ ticketSales });
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new InternalSeverError(error.message);
+      }
+      throw error;
+    }
+  };
+
+  updateIncrementEventView = async (req: Request, res: Response) => {
+    const { data: dto, error } = UpdateEventViewIncrementDTO.safeParse(
+      req.params,
+    );
+    if (error) {
+      throw new FailedValidationError(formatErr(error));
+    }
+
+    try {
+      const event = await this.eventDetailService.incrementView(dto.eventId);
+      if (!event) {
+        throw new NotFoundError();
+      }
+      res.status(200).json({ eventId: event.id });
     } catch (error) {
       if (error instanceof Error) {
         throw new InternalSeverError(error.message);

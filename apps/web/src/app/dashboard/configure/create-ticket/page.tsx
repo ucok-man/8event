@@ -16,6 +16,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import { CREATE_EVENT_STEPS } from '@/constants';
 import { useCreateEventContext } from '@/context/create-event-provider';
 import { toast } from '@/hooks/use-toast';
 import { apiclient } from '@/lib/axios';
@@ -32,7 +33,6 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState, useTransition } from 'react';
 import { useForm } from 'react-hook-form';
 import { useIsClient } from 'usehooks-ts';
-import { CREATE_EVENT_STEPS } from '../constant';
 import FreeTicketDialog from './free-ticket-dialog';
 import PaidTicketDialog from './paid-ticket-dialog';
 import {

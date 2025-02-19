@@ -13,24 +13,23 @@ datasource db {
 }
 
 model PointBalance {
-  id           String           @id @default(uuid())
-  user         User             @relation(fields: [userId], references: [id])
-  userId       String
-  pointBalance Int // this can be negative or positive
-  type         PointBalanceType
-  startDate    DateTime         @default(now())
-  endDate      DateTime // for substract type this should be null
+  id        String           @id @default(uuid())
+  user      User             @relation(fields: [userId], references: [id])
+  userId    String
+  point     Float // this can be negative or positive
+  type      PointBalanceType
+  createdAt DateTime         @default(now())
+  // expiredAt DateTime? // missing feature
 }
 
 model Voucher {
-  id             String   @id @default(uuid())
-  discountAmount Float
-  isUsed         Boolean  @default(false)
-  startDate      DateTime @default(now())
-  endDate        DateTime
-
-  event   Event  @relation(fields: [eventId], references: [id])
-  eventId String
+  id          String        @id @default(uuid())
+  name        String
+  description String
+  price       Float
+  status      VoucherStatus @default(NOT_USE)
+  createdAt   DateTime      @default(now())
+  expiredAt   DateTime?
 
   user   User   @relation(fields: [userId], references: [id])
   userId String
@@ -76,7 +75,6 @@ model Event {
   endDate     DateTime
   startTime   String
   endTime     String
-  // totalCapacity Int // Should be managed on Event View
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   views       Int      @default(0)
@@ -99,8 +97,6 @@ model Event {
 
   transactions Transaction[]
   reviews      Review[]
-  // coupons      Coupon[]
-  Voucher      Voucher[]
 }
 
 model Ticket {
@@ -108,7 +104,7 @@ model Ticket {
   type          TicketType
   name          String
   description   String
-  initialAmount Int // seat available, dont change manually
+  initialAmount Int // immutable
   amount        Int
   startDate     DateTime
   endDate       DateTime
@@ -121,17 +117,17 @@ model Ticket {
   event   Event  @relation(fields: [eventId], references: [id])
   eventId String
 
-  transactions Transaction[]
+  transactions TransactionTicket[]
 }
 
 model Transaction {
   id                  String            @id @default(uuid())
-  status              TransactionStatus
+  status              TransactionStatus @default(WAITING_PAYMENT)
   priceBeforeDiscount Float
   priceAfterDiscount  Float
   paymentProof        String?
   createdAt           DateTime          @default(now())
-  expiredAt           DateTime
+  expiredAt           DateTime?
 
   event   Event  @relation(fields: [eventId], references: [id])
   eventId String
@@ -139,13 +135,26 @@ model Transaction {
   buyer   User   @relation(fields: [buyerId], references: [id])
   buyerId String
 
-  ticketQuantity Int
-  ticket         Ticket @relation(fields: [ticketId], references: [id])
-  ticketId       String
+  totalTicketQuantity Int
+  tickets             TransactionTicket[]
 
-  usedPoints Int      @default(0)
-  voucher    Voucher? @relation(fields: [voucherId], references: [id])
-  voucherId  String?
+  totalDiscount Float
+  usedPoints    Float?
+  voucher       Voucher? @relation(fields: [voucherId], references: [id])
+  voucherId     String?
+}
+
+model TransactionTicket {
+  transaction   Transaction @relation(fields: [transactionId], references: [id])
+  transactionId String
+
+  ticket   Ticket @relation(fields: [ticketId], references: [id])
+  ticketId String
+
+  price    Float // price per individual ticket
+  quantity Int // quantity per individual ticket
+
+  @@id([transactionId, ticketId])
 }
 
 model Review {
@@ -166,6 +175,7 @@ enum TransactionStatus {
   WAITING_CONFIRMATION
   COMPLETED
   CANCELLED
+  EXPIRED
 }
 
 enum Role {
@@ -174,8 +184,8 @@ enum Role {
 }
 
 enum PointBalanceType {
-  ADD
-  SUBSTRACT
+  EARN
+  REDEEM
 }
 
 enum TicketType {
@@ -183,24 +193,13 @@ enum TicketType {
   PAID
 }
 
-// create manual view on migration. Dont update this manually on app
+enum VoucherStatus {
+  NOT_USE
+  USED
+}
+
+// TODO: change this to service instead
 view RecordOrganizerAverageRating {
   organizerId   String @unique // this will be user id with role Organizer only
   averageRating Float // calculated from average all review rating for the event ever created for this organizer
-}
-
-// create manual view on migration. Dont update this manually on app
-view RecordEventInfo {
-  eventId              String @unique // this will be event id
-  totalView            Int
-  totalTicketAmount    Int // can be interpreted as total seat
-  totalTicketRemaining Int // can be interpreted as remaining seat
-  totalTicketSold      Int // ticket sold means organizer already confirm the payment
-  totalIncome          Float
-  totalTransaction     Int
-}
-
-view RecordUserPointBalance {
-  userId       String @unique
-  pointBalance Int // active point balance
 }

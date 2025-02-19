@@ -1,4 +1,4 @@
-import { SORTBY_OPTION } from './constant';
+import { SORTBY_OPTION } from '@/constants';
 
 export type SortByOptionType = (typeof SORTBY_OPTION)[number]['value'];
 export type TabActiveType = 'active' | 'draft' | 'past';

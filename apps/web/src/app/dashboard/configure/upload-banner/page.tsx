@@ -32,7 +32,7 @@ import {
 } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { useCallback, useState, useTransition } from 'react';
+import { useCallback, useEffect, useState, useTransition } from 'react';
 import { type FileRejection, useDropzone } from 'react-dropzone';
 import { useForm } from 'react-hook-form';
 import { useIsClient } from 'usehooks-ts';
@@ -57,11 +57,15 @@ export default function UploadBannerStep() {
     errors: payload.uploadBanner.error,
   });
 
-  const { isPending, mutate: upload } = useMutation({
+  const {
+    isPending: isUploading,
+    mutate: uploadBanner,
+    error: uploadError,
+  } = useMutation({
     mutationFn: async (file: File) => {
       const formData = new FormData();
       formData.append('file-upload', file);
-      const response = await apiclient.post('/media/upload-banner', formData, {
+      const response = await apiclient.post('/media/events/banners', formData, {
         onUploadProgress: (progressEvent) => {
           const percentCompleted = Math.round(
             (progressEvent.loaded * 100) / (progressEvent.total ?? 1),
@@ -72,6 +76,7 @@ export default function UploadBannerStep() {
       return response.data;
     },
     onSuccess: (data) => {
+      setUploadProgress(0);
       form.setValue('bannerUrl', data.imageUrl);
       updateBannerPayload(() => ({
         bannerUrl: data.imageUrl,
@@ -83,23 +88,64 @@ export default function UploadBannerStep() {
         description: 'Your banner has been uploaded successfully.',
       });
     },
-    onError: (err) => {
+  });
+
+  const {
+    isPending: isRemoving,
+    mutate: removeBanner,
+    error: removeError,
+  } = useMutation({
+    mutationFn: async (url: string) => {
+      const response = await apiclient.delete('/media', {
+        data: {
+          mediaUrl: url,
+        },
+        onUploadProgress: (progressEvent) => {
+          const percentCompleted = Math.round(
+            (progressEvent.loaded * 100) / (progressEvent.total ?? 1),
+          );
+          setUploadProgress(percentCompleted);
+        },
+      });
+      return response.data;
+    },
+    onSuccess: () => {
+      setUploadProgress(0);
+      form.setValue('bannerUrl', '');
+      updateBannerPayload((prev) => {
+        prev.bannerUrl = '';
+        return prev;
+      });
+    },
+  });
+
+  useEffect(() => {
+    setUploadProgress(0);
+    if (uploadError) {
       toast({
         title: 'Upload Failed',
         description:
           'There was an error uploading your banner. Please try again.',
         variant: 'destructive',
       });
-    },
-  });
+    }
+    if (removeError) {
+      toast({
+        title: 'Remove Failed',
+        description:
+          'There was an error removing your banner. Please try again.',
+        variant: 'destructive',
+      });
+    }
+  }, [uploadError, removeError]);
 
   const onDropAccepted = useCallback(
     (acceptedFiles: File[]) => {
       if (acceptedFiles.length > 0) {
-        upload(acceptedFiles[0]);
+        uploadBanner(acceptedFiles[0]);
       }
     },
-    [upload],
+    [uploadBanner],
   );
 
   const onDropRejected = useCallback((rejectedFiles: FileRejection[]) => {
@@ -119,16 +165,8 @@ export default function UploadBannerStep() {
     },
     multiple: false,
     maxSize: 5 * 1024 * 1024, // 5MB
+    disabled: !!form.watch('bannerUrl'),
   });
-
-  const handleRemove = () => {
-    form.setValue('bannerUrl', '');
-    updateBannerPayload((prev) => {
-      prev.bannerUrl = '';
-      return prev;
-    });
-    setUploadProgress(0);
-  };
 
   const onSubmit = (data: FormData) => {
     startTransition(() => {
@@ -186,7 +224,7 @@ export default function UploadBannerStep() {
                               <div className="absolute inset-0 size-full bg-black/40 backdrop-blur-[2px]" />
                             </div>
                           </div>
-                          {!isDragActive && !isPending && (
+                          {!isDragActive && !isUploading && (
                             <div className="absolute inset-0 flex items-center justify-center size-full">
                               <div className="text-center text-white">
                                 <CirclePlus className="mx-auto h-14 w-14 animate-pulse text-brand-rose-400 max-sm:size-8" />
@@ -211,11 +249,13 @@ export default function UploadBannerStep() {
                         </div>
                       )}
 
-                      {isPending && (
+                      {(isUploading || isRemoving) && (
                         <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-white/95">
                           <Loader2 className="h-10 w-10 animate-spin text-brand-rose-500" />
                           <p className="mt-4 text-lg font-medium text-gray-800 max-sm:text-sm">
-                            Uploading your banner...
+                            {isUploading
+                              ? 'Uploading your banner...'
+                              : 'Removing your banner...'}
                           </p>
                           <div className="mt-4 w-64 max-sm:hidden">
                             <Progress
@@ -242,7 +282,7 @@ export default function UploadBannerStep() {
                             <div className="absolute inset-0 bg-black/50 backdrop-blur-[2px]" />
                             <div className="z-10 text-center text-white">
                               <p className="mb-4 text-lg font-medium max-sm:hidden">
-                                Click or drag to replace
+                                Click remove first to replace it
                               </p>
                               <Button
                                 variant="destructive"
@@ -250,7 +290,9 @@ export default function UploadBannerStep() {
                                 className="bg-brand-rose-500 hover:bg-brand-rose-600"
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  handleRemove();
+                                  removeBanner(
+                                    payload.uploadBanner.data.bannerUrl!,
+                                  );
                                 }}
                                 type="button"
                               >
@@ -272,9 +314,7 @@ export default function UploadBannerStep() {
 
             <div className="mt-6 text-center text-sm text-gray-500">
               {form.watch('bannerUrl') ? (
-                <p>
-                  Your banner is ready! Click or drag a new image to replace it.
-                </p>
+                <p>Your banner is ready! Click continue to go next step.</p>
               ) : (
                 <p>
                   Recommended size: 1920x1080px (16:9 ratio) for best display

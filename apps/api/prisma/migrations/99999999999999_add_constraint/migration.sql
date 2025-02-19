@@ -37,15 +37,15 @@
 CREATE OR REPLACE FUNCTION restrict_point_balance()
 RETURNS TRIGGER AS $$
 BEGIN
-  IF NEW."type" = 'ADD' THEN
-    IF NEW."pointBalance" < 0 THEN
-      RAISE EXCEPTION 'For ADD type point balance must be positive';
+  IF NEW."type" = 'EARN' THEN
+    IF NEW."point" < 0 THEN
+      RAISE EXCEPTION 'For EARN type point balance must be positive';
     END IF;
   END IF;
 
-  IF NEW."type" = 'SUBSTRACT' THEN
-    IF NEW."pointBalance" > 0 THEN
-      RAISE EXCEPTION 'For SUBSTRACT type point balance must be negative';
+  IF NEW."type" = 'REDEEM' THEN
+    IF NEW."point" > 0 THEN
+      RAISE EXCEPTION 'For REDEEM type point balance must be negative';
     END IF;
   END IF;
   

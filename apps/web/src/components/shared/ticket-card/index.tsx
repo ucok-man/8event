@@ -1,4 +1,4 @@
-import { cn } from '@/lib/utils';
+import { cn, formatRupiah } from '@/lib/utils';
 import { Separator } from '@radix-ui/react-separator';
 import { format } from 'date-fns';
 import { ClockAlert, Users } from 'lucide-react';
@@ -29,9 +29,6 @@ export default function TicketCard({ ticket, action }: Props) {
           : 'border-brand-rose-200 bg-gradient-to-r from-brand-rose-50 to-white',
       )}
     >
-      {/* other child */}
-      {action}
-
       {/* Decorative circles */}
       <div className="absolute -left-4 top-1/2 size-8 -translate-y-1/2 rounded-full bg-white"></div>
       <div className="absolute -right-4 top-1/2 size-8 -translate-y-1/2 rounded-full bg-white"></div>
@@ -77,10 +74,13 @@ export default function TicketCard({ ticket, action }: Props) {
           >
             {ticket.type === 'FREE'
               ? 'Free'
-              : `$${ticket.type === 'PAID' ? ticket.price : 0}`}
+              : `${ticket.type === 'PAID' ? formatRupiah(ticket.price!) : 0}`}
           </span>
         </div>
       </div>
+
+      {/* other child */}
+      {action}
     </div>
   );
 }

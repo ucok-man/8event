@@ -9,12 +9,12 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 
+import { SORTBY_OPTION } from '@/constants';
 import { Search } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import qs from 'query-string';
 import { useEffect, useState } from 'react';
 import { useDebounceValue } from 'usehooks-ts';
-import { SORTBY_OPTION } from './constant';
 import { SortByOptionType } from './types';
 
 export default function SortAndSearch() {
