@@ -151,6 +151,7 @@ model TransactionTicket {
   ticket   Ticket @relation(fields: [ticketId], references: [id])
   ticketId String
 
+  name     String // ticket name
   price    Float // price per individual ticket
   quantity Int // quantity per individual ticket
 

@@ -1,5 +1,8 @@
+import { CheckoutTransactionDTO } from '@/dto/checkout-transaction.dto';
+import { midtransSnap } from '@/midtrans';
 import { prismaclient } from '@/prisma';
 import { Prisma, TransactionStatus } from '@prisma/client';
+import { z } from 'zod';
 
 export class TransactionService {
   getTicketSalesForEach = async (ticketId: string) => {
@@ -70,5 +73,40 @@ export class TransactionService {
         totalTicketSold: sales._sum.priceBeforeDiscount || 0,
       },
     };
+  };
+
+  checkout = async (dto: z.infer<typeof CheckoutTransactionDTO>) => {
+    return await prismaclient.$transaction(async (prismaclient) => {
+      const current = new Date();
+      const threeMonthAfter = new Date();
+      threeMonthAfter.setMonth(current.getMonth() + 3);
+
+      const transaction = await prismaclient.transaction.create({
+        data: {
+          ...dto,
+          expiredAt: threeMonthAfter,
+          tickets: {
+            createMany: {
+              data: dto.tickets.map((ticket) => ({
+                name: ticket.name,
+                price: ticket.price,
+                quantity: ticket.quantity,
+                ticketId: ticket.ticketId,
+              })),
+            },
+          },
+        },
+      });
+
+      // req invoice
+      const result = await midtransSnap.createTransaction({
+        transaction_details: {
+          order_id: transaction.id,
+          gross_amount: transaction.priceAfterDiscount,
+        },
+      });
+
+      return result;
+    });
   };
 }

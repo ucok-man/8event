@@ -330,7 +330,16 @@ export default function TransactionContextProvider({
     error: createError,
     isPending: createPending,
   } = useMutation({
-    mutationFn: async () => {},
+    mutationFn: async () => {
+      const { data } = await apiclient.post(
+        '/transactions/checkout',
+        transactionPayload,
+      );
+      return data;
+    },
+    onSuccess: (data) => {
+      console.log({ data });
+    },
   });
 
   return (

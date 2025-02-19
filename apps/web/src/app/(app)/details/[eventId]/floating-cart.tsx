@@ -4,6 +4,7 @@ import { Icons } from '@/components/shared/icons';
 import SelectableVoucherCard from '@/components/shared/selectable-voucher-card';
 import { Card, CardContent } from '@/components/ui/card';
 import { TransactionContextType } from '@/context/transaction-provider';
+import { toast } from '@/hooks/use-toast';
 import { formatRupiah } from '@/lib/utils';
 
 type Props = Pick<
@@ -16,6 +17,9 @@ type Props = Pick<
   | 'cancelPointBalance'
   | 'disablePointBalance'
   | 'disableVoucher'
+  | 'create'
+  | 'createPending'
+  | 'createError'
 >;
 
 export default function FloatingCart({
@@ -27,10 +31,33 @@ export default function FloatingCart({
   cancelPointBalance,
   disablePointBalance,
   disableVoucher,
+  create,
+  createPending,
+  createError,
 }: Props) {
+  const onCheckout = () => {
+    if (payload.totalTicketQuantity <= 0) {
+      toast({
+        title: 'Unprocessable Request',
+        description: 'Please select ticket first before continue on checkout',
+        variant: 'destructive',
+      });
+      return;
+    }
+    create();
+  };
+
   const {
     buyer: { vouchers, pointBalance },
   } = data!;
+
+  if (createError && createError!.status! >= 500) {
+    toast({
+      title: 'Checkout Failed',
+      description: 'Oops we found some issue, please try again later',
+      variant: 'destructive',
+    });
+  }
 
   return (
     <div className="p-4 md:p-8">
@@ -162,8 +189,12 @@ export default function FloatingCart({
                   </p>
                 </div>
               </div>
-              <button className="bg-blue-700 text-white px-4 py-2 rounded-md font-medium text-sm w-full">
-                Buy Ticket
+              <button
+                className="bg-blue-700 text-white px-4 py-2 rounded-md font-medium text-sm w-full"
+                onClick={onCheckout}
+                disabled={createPending}
+              >
+                {!createPending ? 'Buy Ticket' : 'Processing...'}
               </button>
             </div>
           </CardContent>
