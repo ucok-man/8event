@@ -1,7 +1,9 @@
 import { CheckoutTransactionDTO } from '@/dto/checkout-transaction.dto';
+import { GetTransactionByUserIdDTO } from '@/dto/get-transaction-by-userid.dto';
 import { midtransSnap } from '@/midtrans';
 import { prismaclient } from '@/prisma';
-import { Prisma, TransactionStatus } from '@prisma/client';
+import { TRANSACTION_EXPIRATION_TOKEN, transactionQueue } from '@/queues';
+import { Prisma, Transaction, TransactionStatus } from '@prisma/client';
 import { z } from 'zod';
 
 export class TransactionService {
@@ -78,13 +80,13 @@ export class TransactionService {
   checkout = async (dto: z.infer<typeof CheckoutTransactionDTO>) => {
     return await prismaclient.$transaction(async (prismaclient) => {
       const current = new Date();
-      const threeMonthAfter = new Date();
-      threeMonthAfter.setMonth(current.getMonth() + 3);
+      const twoHoursAfter = new Date();
+      twoHoursAfter.setHours(current.getHours() + 2);
 
       const transaction = await prismaclient.transaction.create({
         data: {
           ...dto,
-          expiredAt: threeMonthAfter,
+          expiredAt: twoHoursAfter,
           tickets: {
             createMany: {
               data: dto.tickets.map((ticket) => ({
@@ -98,15 +100,116 @@ export class TransactionService {
         },
       });
 
+      // update event ticket quantity
+      await Promise.all(
+        dto.tickets.map((ticket) =>
+          prismaclient.ticket.update({
+            where: { id: ticket.ticketId },
+            data: {
+              amount: {
+                decrement: ticket.quantity,
+              },
+            },
+          }),
+        ),
+      );
+
+      // update voucher if exists.
+      // TODO: when transction is accepted by organizer updated expiredAt to null
+      if (dto.voucherId) {
+        await prismaclient.voucher.update({
+          where: {
+            id: dto.voucherId,
+          },
+          data: {
+            status: 'USED',
+          },
+        });
+      }
+
+      // update point balance
+      if (dto.usedPoints && dto.usedPoints > 0) {
+        await prismaclient.pointBalance.create({
+          data: {
+            point: dto.usedPoints,
+            type: 'REDEEM',
+            userId: dto.buyerId,
+          },
+        });
+      }
+
+      // if transaction amount === 0 (FREE Ticket or Covered with discount)
+      // return early go back on controller
+      if (transaction.priceAfterDiscount <= 0) return transaction;
+
+      // if need payment execute below path
+      // spwan new worker
+      await transactionQueue.add(
+        TRANSACTION_EXPIRATION_TOKEN,
+        { transactionId: transaction.id },
+        { delay: 2 * 60 * 60 * 1000 }, // 2 hours delay
+        // { delay: 2 * 60 * 1000 }, // 2 minutes
+      );
+
       // req invoice
-      const result = await midtransSnap.createTransaction({
+      const result: {
+        token: string;
+        redirect_url: string;
+      } = await midtransSnap.createTransaction({
         transaction_details: {
           order_id: transaction.id,
           gross_amount: transaction.priceAfterDiscount,
         },
       });
 
-      return result;
+      return await prismaclient.transaction.update({
+        where: {
+          id: transaction.id,
+        },
+        data: {
+          snaptoken: result.token,
+        },
+      });
+    });
+  };
+
+  getByUserId = async (dto: z.infer<typeof GetTransactionByUserIdDTO>) => {
+    if (!dto.status) {
+      return await prismaclient.transaction.findFirst({
+        where: {
+          buyerId: dto.userId,
+        },
+      });
+    } else {
+      return await prismaclient.transaction.findFirst({
+        where: {
+          buyerId: dto.userId,
+          status: dto.status,
+        },
+      });
+    }
+  };
+
+  getById = async (transactionId: string) => {
+    return await prismaclient.transaction.findUnique({
+      where: {
+        id: transactionId,
+      },
+      include: {
+        tickets: true,
+        voucher: true,
+        buyer: true,
+        event: true,
+      },
+    });
+  };
+
+  update = async (transaction: Transaction) => {
+    return prismaclient.transaction.update({
+      where: {
+        id: transaction.id,
+      },
+      data: transaction,
     });
   };
 }

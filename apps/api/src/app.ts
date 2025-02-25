@@ -7,9 +7,11 @@ import express, {
   Response,
   urlencoded,
 } from 'express';
-import { PORT } from './config';
+import { FRONTEND_URL, PORT } from './config';
 // import { SampleRouter } from './routers/sample.router';
+import cookies from 'cookie-parser';
 import { ApiError } from './errors/interface';
+import { AuthRouter } from './routers/auth.router';
 import { EventsRouter } from './routers/events.router';
 import { MediaRouter } from './routers/media.router';
 import { TicketRouter } from './routers/ticket.router';
@@ -28,9 +30,15 @@ export default class App {
   }
 
   private configure(): void {
-    this.app.use(cors());
+    this.app.use(
+      cors({
+        origin: FRONTEND_URL,
+        credentials: true,
+      }),
+    );
     this.app.use(json());
     this.app.use(urlencoded({ extended: true }));
+    this.app.use(cookies());
   }
 
   private logerror(err: Error) {
@@ -95,6 +103,7 @@ export default class App {
     const ticketRouter = new TicketRouter();
     const userRouter = new UserRouter();
     const transactionRouter = new TransactionRouter();
+    const authRouter = new AuthRouter();
 
     this.app.get('/api', (req: Request, res: Response) => {
       res.json({
@@ -111,6 +120,7 @@ export default class App {
     this.app.use('/api/tickets', ticketRouter.getRouter());
     this.app.use('/api/users', userRouter.getRouter());
     this.app.use('/api/transactions', transactionRouter.getRouter());
+    this.app.use('/api/auth', authRouter.getRouter());
   }
 
   public start(): void {

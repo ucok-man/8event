@@ -1,6 +1,11 @@
 import { Toaster } from '@/components/ui/toaster';
+// import { Toaster as ToasterSooner } from 'sonner';
+
 import { TooltipProvider } from '@/components/ui/tooltip';
+import AuthProvider from '@/context/auth-provider';
+import PaymentNotifProvider from '@/context/payment-notif-provider';
 import QueryProvider from '@/context/query-provider';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import type { Metadata } from 'next';
 import { fontDMSans, fontMontserrat } from './fonts';
 import './globals.css';
@@ -17,17 +22,38 @@ type Props = {
 export default function RootLayout({ children }: Props) {
   return (
     <html className="grainy-light">
+      <head>
+        <script
+          type="text/javascript"
+          src="https://app.sandbox.midtrans.com/snap/snap.js"
+          data-client-key={`${process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY}`}
+          defer
+        ></script>
+      </head>
+
       <QueryProvider>
-        <body>
-          <div
-            className={`${fontDMSans.variable} ${fontMontserrat.variable} font-dmsans antialiased`}
-          >
-            <TooltipProvider>
-              <main className="relative">{children}</main>
-            </TooltipProvider>
-            <Toaster />
-          </div>
-        </body>
+        <AuthProvider>
+          <PaymentNotifProvider>
+            <body>
+              <div
+                className={`${fontDMSans.variable} ${fontMontserrat.variable} font-dmsans antialiased`}
+              >
+                <TooltipProvider>
+                  <main className="relative">{children}</main>
+                  <ReactQueryDevtools initialIsOpen={false} />
+                </TooltipProvider>
+                {/* <ToasterSooner /> */}
+                <Toaster />
+              </div>
+
+              {/* <Script
+                crossOrigin="anonymous"
+                src="https://app.sandbox.midtrans.com/snap/snap.js"
+                data-client-key={}
+              /> */}
+            </body>
+          </PaymentNotifProvider>
+        </AuthProvider>
       </QueryProvider>
     </html>
   );

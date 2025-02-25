@@ -11,6 +11,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
+import { useTransactionContext } from '@/context/transaction-provider';
 import { cn, formatRupiah } from '@/lib/utils';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { format } from 'date-fns';
@@ -59,6 +60,13 @@ export default function SelectableVoucherCard({
   const [selectedVoucher, setSelectedVoucher] = React.useState<
     Voucher | undefined
   >();
+  const { payload } = useTransactionContext();
+
+  React.useEffect(() => {
+    if (!payload.voucherId) {
+      setSelectedVoucher(undefined);
+    }
+  }, [payload.voucherId]);
 
   return (
     <>
@@ -96,6 +104,7 @@ export default function SelectableVoucherCard({
           <Command>
             <CommandList className="p-2 grainy-light">
               <CommandGroup>
+                {/* Voucher cards */}
                 {vouchers.map((voucher) => (
                   <CommandItem
                     key={voucher.id}

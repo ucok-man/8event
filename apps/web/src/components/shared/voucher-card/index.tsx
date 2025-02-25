@@ -1,7 +1,7 @@
 'use client';
 
 import { Card } from '@/components/ui/card';
-import { cn } from '@/lib/utils';
+import { cn, formatRupiah } from '@/lib/utils';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { format } from 'date-fns';
 import { CalendarDays } from 'lucide-react';
@@ -30,9 +30,9 @@ const voucherVariants = cva(
 );
 
 interface VoucherCardProps extends VariantProps<typeof voucherVariants> {
-  amount: string;
-  description: string;
   title: string;
+  amount: number;
+  description: string;
   expiryDate?: Date | string;
   className?: string;
   customGradient?: string;
@@ -76,19 +76,19 @@ export default function VoucherCard({
       {/* Content */}
       <div className="relative space-y-1 sm:space-y-2">
         <div
-          className="text-xs sm:text-sm font-medium tracking-wide uppercase opacity-90 
+          className="text-xs font-medium tracking-wide uppercase opacity-90 
           transition-transform duration-200 group-hover:transform group-hover:-translate-y-0.5"
         >
           {title}
         </div>
         <div
-          className="text-2xl sm:text-4xl font-bold tracking-tight 
+          className="text-3xl  font-bold tracking-tight 
           transition-transform duration-200 group-hover:transform group-hover:-translate-y-0.5"
         >
-          {amount}
+          {formatRupiah(amount)} Off
         </div>
         <div
-          className="text-xs sm:text-sm text-white/90 
+          className="text-xs text-white/90 
           transition-transform duration-200 group-hover:transform group-hover:-translate-y-0.5"
         >
           {description}

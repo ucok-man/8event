@@ -1,4 +1,5 @@
 import { TicketControllers } from '@/controllers/ticket.controller';
+import { withAuthentication, withRole } from '@/middlewares/auth.middleware';
 import { Router } from 'express';
 import catcherror from 'express-async-handler';
 
@@ -13,7 +14,12 @@ export class TicketRouter {
   }
 
   private initializeRoutes(): void {
-    this.router.delete('/id/:ticketId', catcherror(this.controller.delete));
+    this.router.delete(
+      '/id/:ticketId',
+      withAuthentication,
+      withRole('ORGANIZER'),
+      catcherror(this.controller.delete),
+    );
   }
 
   getRouter(): Router {

@@ -6,7 +6,11 @@ import multer from 'multer';
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
-export const fileUpload = (req: Request, res: Response, next: NextFunction) => {
+export const withFileUpload = (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   const uploadmd = upload.fields([{ name: 'file-upload', maxCount: 1 }]);
   uploadmd(req, res, function (err) {
     if (err instanceof multer.MulterError) {

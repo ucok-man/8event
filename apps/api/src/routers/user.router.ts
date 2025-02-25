@@ -1,4 +1,5 @@
 import { UserControllers } from '@/controllers/user.controller';
+import { withAuthentication } from '@/middlewares/auth.middleware';
 import { Router } from 'express';
 import catcherror from 'express-async-handler';
 
@@ -13,7 +14,21 @@ export class UserRouter {
   }
 
   private initializeRoutes(): void {
-    this.router.get('/id/:userId', catcherror(this.controller.getById));
+    this.router.get(
+      '/identity',
+      withAuthentication,
+      catcherror(this.controller.identity),
+    );
+    this.router.get(
+      '/me',
+      withAuthentication,
+      catcherror(this.controller.getCurrentUser),
+    );
+    this.router.patch(
+      '/me',
+      withAuthentication,
+      catcherror(this.controller.updateCurrentUser),
+    );
   }
 
   getRouter(): Router {

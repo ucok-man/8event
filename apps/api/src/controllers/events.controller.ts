@@ -5,22 +5,62 @@ import { GetEventSalesDTO } from '@/dto/get-event-sales.dto';
 import { GetEventSummaryDTO } from '@/dto/get-event-summary.dto';
 import { UpdateEventViewIncrementDTO } from '@/dto/update-event-view-increment.dto';
 import { FailedValidationError } from '@/errors/failed-validation.error';
+import { ApiError } from '@/errors/interface';
 import { InternalSeverError } from '@/errors/internal-server.error';
 import { NotFoundError } from '@/errors/not-found.error';
 import { formatErr } from '@/helpers/format-error';
-import { getOrganizerId } from '@/helpers/get-organizer-id';
+import { getSessionOrganizer } from '@/helpers/session';
 import { EventDetailService } from '@/services/event-detail.service';
 import { EventService } from '@/services/event.service';
-import { MediaService } from '@/services/media.service';
 import { Request, Response } from 'express';
 
 export class EventsController {
   private eventService = new EventService();
-  private mediaService = new MediaService();
   private eventDetailService = new EventDetailService();
 
+  getAll = async (req: Request, res: Response) => {
+    const { data: dto, error } = GetAllEventDTO.safeParse(req.query);
+    if (error) {
+      throw new FailedValidationError(formatErr(error));
+    }
+
+    try {
+      const result = await this.eventService.getAll(dto);
+      res.status(200).json(result);
+    } catch (error) {
+      if (!(error instanceof ApiError)) {
+        const err = error as Error;
+        throw new InternalSeverError(err.message);
+      }
+      throw error;
+    }
+  };
+
+  getById = async (req: Request, res: Response) => {
+    const { data: dto, error } = GetEventByIdDTO.safeParse(req.params);
+    if (error) {
+      throw new FailedValidationError(formatErr(error));
+    }
+
+    try {
+      const event = await this.eventDetailService.getById(dto);
+      if (!event) {
+        throw new NotFoundError();
+      }
+      res.status(200).json({
+        event: event,
+      });
+    } catch (error) {
+      if (!(error instanceof ApiError)) {
+        const err = error as Error;
+        throw new InternalSeverError(err.message);
+      }
+      throw error;
+    }
+  };
+
   create = async (req: Request, res: Response) => {
-    const organizerId = getOrganizerId(req);
+    const organizerId = getSessionOrganizer(req).id;
 
     const { data: dto, error } = CreateEventDTO.safeParse(req.body);
     if (error) {
@@ -33,48 +73,9 @@ export class EventsController {
         event: { id: eventid },
       });
     } catch (error) {
-      if (error instanceof Error) {
-        throw new InternalSeverError(error.message);
-      }
-      throw error;
-    }
-  };
-
-  getAll = async (req: Request, res: Response) => {
-    const { data: dto, error } = GetAllEventDTO.safeParse(req.query);
-    if (error) {
-      throw new FailedValidationError(formatErr(error));
-    }
-
-    try {
-      const result = await this.eventService.getAll(dto);
-      res.status(200).json(result);
-    } catch (error) {
-      if (error instanceof Error) {
-        throw new InternalSeverError(error.message);
-      }
-      throw error;
-    }
-  };
-
-  getById = async (req: Request, res: Response) => {
-    const organizerId = getOrganizerId(req);
-    const { data: dto, error } = GetEventByIdDTO.safeParse(req.params);
-    if (error) {
-      throw new FailedValidationError(formatErr(error));
-    }
-
-    try {
-      const event = await this.eventDetailService.getById(organizerId, dto);
-      if (!event) {
-        throw new NotFoundError();
-      }
-      res.status(200).json({
-        event: event,
-      });
-    } catch (error) {
-      if (error instanceof Error) {
-        throw new InternalSeverError(error.message);
+      if (!(error instanceof ApiError)) {
+        const err = error as Error;
+        throw new InternalSeverError(err.message);
       }
       throw error;
     }
@@ -93,8 +94,9 @@ export class EventsController {
       }
       res.status(200).json({ summary });
     } catch (error) {
-      if (error instanceof Error) {
-        throw new InternalSeverError(error.message);
+      if (!(error instanceof ApiError)) {
+        const err = error as Error;
+        throw new InternalSeverError(err.message);
       }
       throw error;
     }
@@ -113,8 +115,9 @@ export class EventsController {
       }
       res.status(200).json({ ticketSales });
     } catch (error) {
-      if (error instanceof Error) {
-        throw new InternalSeverError(error.message);
+      if (!(error instanceof ApiError)) {
+        const err = error as Error;
+        throw new InternalSeverError(err.message);
       }
       throw error;
     }
@@ -135,8 +138,9 @@ export class EventsController {
       }
       res.status(200).json({ eventId: event.id });
     } catch (error) {
-      if (error instanceof Error) {
-        throw new InternalSeverError(error.message);
+      if (!(error instanceof ApiError)) {
+        const err = error as Error;
+        throw new InternalSeverError(err.message);
       }
       throw error;
     }

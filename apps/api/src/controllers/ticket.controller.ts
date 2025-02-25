@@ -1,5 +1,6 @@
 import { DeleteTicketDTO } from '@/dto/delete-ticket.dto';
 import { FailedValidationError } from '@/errors/failed-validation.error';
+import { ApiError } from '@/errors/interface';
 import { InternalSeverError } from '@/errors/internal-server.error';
 import { NotFoundError } from '@/errors/not-found.error';
 import { formatErr } from '@/helpers/format-error';
@@ -24,8 +25,9 @@ export class TicketControllers {
         ticket: { id: ticket.id },
       });
     } catch (error) {
-      if (error instanceof Error) {
-        throw new InternalSeverError(error.message);
+      if (!(error instanceof ApiError)) {
+        const err = error as Error;
+        throw new InternalSeverError(err.message);
       }
       throw error;
     }

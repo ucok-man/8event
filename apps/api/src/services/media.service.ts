@@ -4,7 +4,8 @@ import { UploadApiOptions } from 'cloudinary';
 import { Readable } from 'stream';
 
 type Media_Folder =
-  | 'minpro-event-ticketing/profile/'
+  | 'minpro-event-ticketing/payment'
+  | 'minpro-event-ticketing/profile'
   | 'minpro-event-ticketing/event/asset'
   | 'minpro-event-ticketing/event/banner';
 
@@ -41,6 +42,20 @@ export class MediaService {
     return await this.upload({
       file,
       folder: 'minpro-event-ticketing/event/banner',
+    });
+  };
+
+  uploadProfilePicture = async (file: Buffer) => {
+    return await this.upload({
+      file,
+      folder: 'minpro-event-ticketing/profile',
+    });
+  };
+
+  uploadPaymentProof = async (file: Buffer) => {
+    return await this.upload({
+      file,
+      folder: 'minpro-event-ticketing/payment',
     });
   };
 

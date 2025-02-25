@@ -115,3 +115,54 @@ export type GetEventSummaryResponse = {
     totalView: number;
   };
 };
+
+export type GetTransactionByUserId = {
+  transaction: {
+    id: string;
+    priceBeforeDiscount: number;
+    priceAfterDiscount: number;
+    eventId: string;
+    buyerId: string;
+    totalTicketQuantity: number;
+    status:
+      | 'WAITING_PAYMENT'
+      | 'WAITING_CONFIRMATION'
+      | 'COMPLETED'
+      | 'CANCELLED'
+      | 'EXPIRED';
+    totalDiscount: number;
+    usedPoints?: number;
+    voucherId?: string;
+    paymentProof?: string;
+    snaptoken?: string;
+    createdAt: string;
+    expiredAt?: string;
+    isPayed: boolean;
+  };
+};
+
+export type CheckoutResponse = {
+  status: 'COMPLETED' | 'NEED_PAYMENT';
+  transaction: {
+    id: string;
+    priceBeforeDiscount: number;
+    priceAfterDiscount: number;
+    eventId: string;
+    buyerId: string;
+    totalTicketQuantity: number;
+    status:
+      | 'WAITING_PAYMENT'
+      | 'WAITING_CONFIRMATION'
+      | 'COMPLETED'
+      | 'CANCELLED'
+      | 'EXPIRED';
+    totalDiscount: number;
+    usedPoints?: number;
+    voucherId?: string;
+    paymentProof?: string;
+    snaptoken?: string;
+    createdAt: string;
+    expiredAt?: string;
+    isPayed: boolean;
+  };
+};

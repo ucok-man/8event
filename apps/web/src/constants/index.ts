@@ -37,12 +37,12 @@ export const SIDEBAR_LINK = [
     items: [
       {
         label: 'Overview',
-        link: '/dashboard/overview',
+        link: '/members/overview',
         icon: Home,
       },
       {
         label: 'My Events',
-        link: '/dashboard/my-events',
+        link: '/members/my-events',
         icon: LayoutDashboard,
       },
     ],
@@ -52,12 +52,12 @@ export const SIDEBAR_LINK = [
     items: [
       {
         label: 'Profile',
-        link: '/dashboard/profile',
+        link: '/members/profile',
         icon: User,
       },
       {
         label: 'Settings',
-        link: '/dashboard/settings',
+        link: '/members/settings',
         icon: Settings,
       },
     ],
@@ -68,22 +68,22 @@ export const CREATE_EVENT_STEPS = [
   {
     title: 'Upload Your Banner',
     baseroute: 'upload-banner',
-    link: '/dashboard/configure/upload-banner',
+    link: '/members/configure/upload-banner',
   },
   {
     title: 'Create Your Event',
     baseroute: 'create-event',
-    link: '/dashboard/configure/create-event',
+    link: '/members/configure/create-event',
   },
   {
     title: 'Create Your Ticket',
     baseroute: 'create-ticket',
-    link: '/dashboard/configure/create-ticket',
+    link: '/members/configure/create-ticket',
   },
   {
     title: 'Review Your Draft',
     baseroute: 'review-draft',
-    link: '/dashboard/configure/review-draft',
+    link: '/members/configure/review-draft',
   },
 ];
 

@@ -2,6 +2,7 @@ import { SAFE_MIME_IMAGE } from '@/constant';
 import { DeleteMediaDTO } from '@/dto/delete-media.dto';
 import { BadRequestError } from '@/errors/bad-request.error';
 import { FailedValidationError } from '@/errors/failed-validation.error';
+import { ApiError } from '@/errors/interface';
 import { InternalSeverError } from '@/errors/internal-server.error';
 import { formatErr } from '@/helpers/format-error';
 import { getFileFromRequest } from '@/helpers/get-file-from-request';
@@ -29,8 +30,9 @@ export class MediaControllers {
         imageUrl: url,
       });
     } catch (error) {
-      if (error instanceof Error) {
-        throw new InternalSeverError(error.message);
+      if (!(error instanceof ApiError)) {
+        const err = error as Error;
+        throw new InternalSeverError(err.message);
       }
       throw error;
     }
@@ -54,8 +56,63 @@ export class MediaControllers {
         imageUrl: url,
       });
     } catch (error) {
-      if (error instanceof Error) {
-        throw new InternalSeverError(error.message);
+      if (!(error instanceof ApiError)) {
+        const err = error as Error;
+        throw new InternalSeverError(err.message);
+      }
+      throw error;
+    }
+  };
+
+  uploadProfilePicture = async (req: Request, res: Response) => {
+    const fileinput = getFileFromRequest(req);
+    const match = SAFE_MIME_IMAGE.find(
+      (safemime) => safemime === fileinput.mimetype,
+    );
+    if (!match) {
+      throw new BadRequestError(
+        'file format not supported, valid format are [jpg, png]',
+      );
+    }
+
+    try {
+      const url = await this.mediaService.uploadProfilePicture(
+        fileinput.buffer,
+      );
+
+      res.status(201).json({
+        imageUrl: url,
+      });
+    } catch (error) {
+      if (!(error instanceof ApiError)) {
+        const err = error as Error;
+        throw new InternalSeverError(err.message);
+      }
+      throw error;
+    }
+  };
+
+  uploadPaymentProof = async (req: Request, res: Response) => {
+    const fileinput = getFileFromRequest(req);
+    const match = SAFE_MIME_IMAGE.find(
+      (safemime) => safemime === fileinput.mimetype,
+    );
+    if (!match) {
+      throw new BadRequestError(
+        'file format not supported, valid format are [jpg, png]',
+      );
+    }
+
+    try {
+      const url = await this.mediaService.uploadPaymentProof(fileinput.buffer);
+
+      res.status(201).json({
+        imageUrl: url,
+      });
+    } catch (error) {
+      if (!(error instanceof ApiError)) {
+        const err = error as Error;
+        throw new InternalSeverError(err.message);
       }
       throw error;
     }
@@ -76,8 +133,9 @@ export class MediaControllers {
         message: 'success removing requested media',
       });
     } catch (error) {
-      if (error instanceof Error) {
-        throw new InternalSeverError(error.message);
+      if (!(error instanceof ApiError)) {
+        const err = error as Error;
+        throw new InternalSeverError(err.message);
       }
       throw error;
     }

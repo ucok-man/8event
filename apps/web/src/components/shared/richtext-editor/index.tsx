@@ -1,6 +1,6 @@
 'use client';
 
-import { apiclient } from '@/lib/axios';
+import { useAuthContext } from '@/context/auth-provider';
 import Link from '@tiptap/extension-link';
 import TaskItem from '@tiptap/extension-task-item';
 import TaskList from '@tiptap/extension-task-list';
@@ -32,6 +32,8 @@ export default function RichTextEditor({ description, onChange }: Props) {
   transition-all duration-200 ease-in-out
   border border-gray-200 rounded-md focus-visible:outline-none focus-visible:outline-0
   `;
+
+  const { apiclient } = useAuthContext();
 
   const editor = useEditor({
     immediatelyRender: false,

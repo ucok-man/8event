@@ -15,8 +15,8 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
+import { useAuthContext } from '@/context/auth-provider';
 import { toast } from '@/hooks/use-toast';
-import { apiclient } from '@/lib/axios';
 import { cn } from '@/lib/utils';
 import { useMutation } from '@tanstack/react-query';
 // import { useEditorStore } from '@/store/use-editor-store';
@@ -165,6 +165,7 @@ export function LinkButton({ editor }: { editor: Editor }) {
 }
 
 export function ImageButton({ editor }: { editor: Editor }) {
+  const { apiclient } = useAuthContext();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [imageUrl, setImageUrl] = useState('');
 

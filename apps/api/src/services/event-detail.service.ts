@@ -10,14 +10,10 @@ export class EventDetailService {
   private transactionService = new TransactionService();
   private ticketService = new TicketService();
 
-  getById = async (
-    organizerId: string,
-    dto: z.infer<typeof GetEventByIdDTO>,
-  ) => {
+  getById = async (dto: z.infer<typeof GetEventByIdDTO>) => {
     const event = await prismaclient.event.findUnique({
       where: {
         id: dto.eventId,
-        organizerId: organizerId,
       },
       include: {
         category: {

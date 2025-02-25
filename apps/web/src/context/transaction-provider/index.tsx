@@ -1,8 +1,14 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 'use client';
 
-import { apiclient } from '@/lib/axios';
-import { GetEventByIdResponse, GetUserByIdResponse } from '@/types';
+// import { useUser } from '@/hooks/use-user';
+// import { apiclient } from '@/lib/axios';
+import { toast } from '@/hooks/use-toast';
+import {
+  CheckoutResponse,
+  GetEventByIdResponse,
+  GetUserByIdResponse,
+} from '@/types';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 import { useParams } from 'next/navigation';
@@ -11,10 +17,14 @@ import {
   ReactNode,
   useCallback,
   useContext,
-  useMemo,
+  useEffect,
   useState,
 } from 'react';
+import Confetti from 'react-dom-confetti';
 import { v4 as uuid } from 'uuid';
+import { useAuthContext } from '../auth-provider';
+import { usePaymentNotifContext } from '../payment-notif-provider';
+import { queryclient } from '../query-provider';
 
 export type TransactionStateType = {
   id: string;
@@ -38,8 +48,9 @@ export type TransactionStateType = {
 export type TransactionContextType = {
   data?: {
     event: GetEventByIdResponse['event'];
-    buyer: GetUserByIdResponse['user'];
+    user: GetUserByIdResponse['user'];
   };
+
   dataError?: AxiosError;
   dataPending: boolean;
   create: () => void;
@@ -67,29 +78,57 @@ export default function TransactionContextProvider({
 }: {
   children: ReactNode;
 }) {
+  const { updatePaymentNotif } = usePaymentNotifContext();
+  const { user, apiclient, status } = useAuthContext();
   const eventId = useParams().eventId as string;
-  const userId = 'bc1a6307-6471-4b3b-b8a4-3aa2bb62c1f5'; // TODO: get actual user id
-  const transactionId = useMemo(() => uuid(), []);
+  const transactionId = uuid();
   const [disablePointBalance, setDisablePointBalance] = useState(false);
   const [disableVoucher, setDisableVoucher] = useState(false);
+
+  const [showConfetti, setShowConfetti] = useState<boolean>(false);
+
+  useEffect(() => {
+    apiclient.patch(`events/id/${eventId}/increment-view`);
+  }, []);
 
   const {
     data,
     error: dataError,
-    isFetching: dataPending,
+    isPending: dataPending,
   } = useQuery({
-    queryKey: ['transaction-context', 'get-event-by-id', eventId, userId],
+    queryKey: ['transaction-context', 'get-event-by-id', eventId, user?.id],
     queryFn: async () => {
-      const [fetchevent, fetchuser] = await Promise.all([
-        apiclient.get(`/events/id/${eventId}`),
-        apiclient.get(`/users/id/${userId}`),
-      ]);
+      if (user) {
+        const [fetchevent, fetchuser] = await Promise.all([
+          apiclient.get(`/events/id/${eventId}`),
+          apiclient.get(`/users/me`),
+        ]);
 
-      return {
-        event: fetchevent.data.event as GetEventByIdResponse['event'],
-        user: fetchuser.data.user as GetUserByIdResponse['user'],
-      };
+        return {
+          event: fetchevent.data.event as GetEventByIdResponse['event'],
+          user: fetchuser.data.user as GetUserByIdResponse['user'],
+        };
+      } else {
+        const fetchevent = await apiclient.get(`/events/id/${eventId}`);
+        return {
+          event: fetchevent.data.event as GetEventByIdResponse['event'],
+          user: {
+            pointBalance: 0,
+            vouchers: [],
+            createdAt: '',
+            email: '',
+            id: '',
+            name: '',
+            referralCode: '',
+            role: 'CUSTOMER',
+            updatedAt: '',
+            profilePicture: '',
+            referredById: '',
+          } as GetUserByIdResponse['user'],
+        };
+      }
     },
+    enabled: status !== 'pending',
   });
 
   const [transactionPayload, setTransactionPayload] =
@@ -98,15 +137,19 @@ export default function TransactionContextProvider({
       priceAfterDiscount: 0,
       priceBeforeDiscount: 0,
       eventId: eventId,
-      buyerId: userId,
+      buyerId: user?.id || '',
       totalTicketQuantity: 0,
       tickets: [],
       totalDiscount: 0,
     });
 
+  useEffect(() => {
+    setTransactionPayload((prev) => ({ ...prev, buyerId: user?.id || '' }));
+  }, [user?.id]);
+
   const addTicket = useCallback(
     (ticketId: string) => {
-      if (dataPending || !data) return;
+      if (dataPending || !data || !data.user) return;
       if (transactionPayload.totalTicketQuantity >= 5) return;
 
       let tickets = [...transactionPayload.tickets];
@@ -150,7 +193,7 @@ export default function TransactionContextProvider({
 
   const substractTicket = useCallback(
     (ticketId: string) => {
-      if (dataPending || !data) return;
+      if (dataPending || !data || !data.user) return;
       if (transactionPayload.totalTicketQuantity <= 0) return;
 
       let tickets = [...transactionPayload.tickets];
@@ -170,8 +213,18 @@ export default function TransactionContextProvider({
 
       const priceBeforeDiscount =
         transactionPayload.priceBeforeDiscount - matchticket.price;
-      const priceAfterDiscount =
-        priceBeforeDiscount - transactionPayload.totalDiscount;
+
+      let totalDiscount = transactionPayload.totalDiscount;
+      let voucherId = transactionPayload.voucherId;
+      let usedPoints = transactionPayload.usedPoints;
+
+      if (priceBeforeDiscount < totalDiscount) {
+        totalDiscount = 0;
+        voucherId = undefined;
+        usedPoints = undefined;
+      }
+
+      const priceAfterDiscount = priceBeforeDiscount - totalDiscount;
       const totalTicketQuantity = transactionPayload.totalTicketQuantity - 1;
 
       setTransactionPayload((prev) => ({
@@ -180,6 +233,9 @@ export default function TransactionContextProvider({
         priceAfterDiscount: priceAfterDiscount,
         totalTicketQuantity: totalTicketQuantity,
         tickets: tickets,
+        totalDiscount: totalDiscount,
+        voucherId: voucherId,
+        usedPoints: usedPoints,
       }));
     },
     [transactionPayload, dataPending, data],
@@ -187,7 +243,7 @@ export default function TransactionContextProvider({
 
   const addVoucher = useCallback(
     (voucherId: string) => {
-      if (dataPending || !data) return;
+      if (dataPending || !data || !data.user) return;
 
       const matchvoucher = data.user.vouchers.find(
         (voucher) => voucher.id === voucherId,
@@ -240,7 +296,7 @@ export default function TransactionContextProvider({
   );
 
   const cancelVoucher = useCallback(() => {
-    if (dataPending || !data) return;
+    if (dataPending || !data || !data.user.id) return;
 
     const usedVoucherId = transactionPayload.voucherId;
     if (!usedVoucherId) return;
@@ -268,7 +324,7 @@ export default function TransactionContextProvider({
 
   const addPointBalance = useCallback(
     (amount: number) => {
-      if (dataPending || !data) return;
+      if (dataPending || !data || !data.user) return;
       if (amount <= 0 || amount > data.user.pointBalance) {
         throw new Error(
           'point balance added must be greater than zero or less than available point',
@@ -308,7 +364,7 @@ export default function TransactionContextProvider({
   );
 
   const cancelPointBalance = useCallback(() => {
-    if (dataPending || !data) return;
+    if (dataPending || !data || !data.user) return;
     if (!transactionPayload.usedPoints) return;
 
     const totalDiscount =
@@ -335,17 +391,39 @@ export default function TransactionContextProvider({
         '/transactions/checkout',
         transactionPayload,
       );
-      return data;
+      return data as CheckoutResponse;
     },
-    onSuccess: (data) => {
-      console.log({ data });
+    onSuccess: async (data) => {
+      if (data.status === 'NEED_PAYMENT') {
+        updatePaymentNotif();
+      } else {
+        setShowConfetti(true);
+        toast({
+          title: '🎉 Payment Success',
+          description: 'For more information, check your email for your tikets',
+          variant: 'default',
+        });
+      }
+
+      queryclient.invalidateQueries({
+        queryKey: ['transaction-context'],
+      });
+      setTransactionPayload({
+        id: transactionId,
+        priceAfterDiscount: 0,
+        priceBeforeDiscount: 0,
+        eventId: eventId,
+        buyerId: user?.id || '',
+        totalTicketQuantity: 0,
+        tickets: [],
+        totalDiscount: 0,
+      });
     },
   });
-
   return (
     <TransactionContext.Provider
       value={{
-        data: data ? { event: data.event, buyer: data.user } : undefined,
+        data: data,
         dataError: dataError ? (dataError as AxiosError) : undefined,
         dataPending: dataPending,
         create: createTransaction,
@@ -362,7 +440,31 @@ export default function TransactionContextProvider({
         disableVoucher: disableVoucher,
       }}
     >
-      {children}
+      <>
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 z-50 flex select-none justify-center overflow-hidden"
+        >
+          <Confetti
+            active={showConfetti}
+            config={{
+              angle: 90,
+              spread: 360,
+              startVelocity: 40,
+              elementCount: 70,
+              dragFriction: 0.12,
+              duration: 4000,
+              stagger: 3,
+              width: '10px',
+              height: '10px',
+              perspective: '500px',
+              colors: ['#a864fd', '#29cdff', '#78ff44', '#ff718d', '#fdff6a'],
+            }}
+          />
+        </div>
+
+        {children}
+      </>
     </TransactionContext.Provider>
   );
 }

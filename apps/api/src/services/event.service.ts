@@ -67,7 +67,6 @@ export class EventService {
   };
 
   getAll = async (dto: z.infer<typeof GetAllEventDTO>) => {
-    console.log({ dto });
     const searchTerm = getSearch({ search: dto.search || '' });
     const organizerId = getOrganizerId({ organizerId: dto.organizerId });
     const eventType = getEventType({ type: dto.eventType });

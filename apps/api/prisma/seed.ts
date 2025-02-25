@@ -1899,10 +1899,11 @@ async function SEED_USER(): Promise<{
       id: organizerId,
       name: 'John Doe',
       email: 'john@john.com',
-      password: '12345678',
-      profilePicture: 'https://example.com/profile.jpg',
+      password: '$2a$12$g4OpJ3.Vezr4bZDz2dBy.OBuQoXWQccypaclZQUxT4njRSswLEIKe', // 12345678
+      profilePicture:
+        'https://res.cloudinary.com/dx6hmxiv3/image/upload/v1740309140/minpro-event-ticketing/users/profile/trail-of-the-fireflies_jktzug.jpg',
       role: Role.ORGANIZER,
-      referralCode: 'REFCODE' + organizerId,
+      referralCode: 'REFF-12345',
     },
   });
 
@@ -1911,10 +1912,11 @@ async function SEED_USER(): Promise<{
       id: userId,
       name: 'Alice Chan',
       email: 'alice@alice.com',
-      password: '12345678',
-      profilePicture: 'https://example.com/profile.jpg',
+      password: '$2a$12$g4OpJ3.Vezr4bZDz2dBy.OBuQoXWQccypaclZQUxT4njRSswLEIKe', // 12345678
+      profilePicture:
+        'https://res.cloudinary.com/dx6hmxiv3/image/upload/v1740309164/minpro-event-ticketing/users/profile/echoes-of-luminaria_xzojxa.jpg',
       role: Role.CUSTOMER,
-      referralCode: 'REFCODE' + userId,
+      referralCode: 'REFF-54321',
       vouchers: {
         createMany: {
           data: [
