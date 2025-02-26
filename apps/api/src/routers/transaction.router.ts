@@ -26,6 +26,18 @@ export class TransactionRouter {
       catcherror(this.controller.getByUserId),
     );
 
+    this.router.get(
+      '/eid/:eventId/action',
+      withAuthentication,
+      catcherror(this.controller.getAllForAction),
+    );
+
+    this.router.get(
+      '/eid/:eventId/summary',
+      withAuthentication,
+      catcherror(this.controller.getEventTransactionSummary),
+    );
+
     this.router.patch(
       '/id/:transactionId',
       withAuthentication,
@@ -35,7 +47,17 @@ export class TransactionRouter {
     this.router.patch(
       '/id/:transactionId/proof',
       withAuthentication,
-      catcherror(this.controller.update),
+      catcherror(this.controller.updatePaymentProof),
+    );
+    this.router.patch(
+      '/id/:transactionId/accept',
+      withAuthentication,
+      catcherror(this.controller.acceptPayment),
+    );
+    this.router.patch(
+      '/id/:transactionId/reject',
+      withAuthentication,
+      catcherror(this.controller.rejectPayment),
     );
   }
 

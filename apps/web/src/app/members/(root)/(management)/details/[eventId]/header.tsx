@@ -14,10 +14,10 @@ export default function Header() {
   const { apiclient } = useAuthContext();
 
   const { data, isError, error, isPending } = useQuery({
-    queryKey: ['event-detail', eventId],
+    queryKey: ['event-detail', 'event-detail-header', eventId],
     queryFn: async () => {
       const { data } = await apiclient.get(`/events/id/${eventId}`);
-      return data.event as GetEventByIdResponse;
+      return data.event as GetEventByIdResponse['event'];
     },
     placeholderData: keepPreviousData,
   });
@@ -36,15 +36,14 @@ export default function Header() {
     }
   }
 
+  if (!isPending && !data) return null;
+
   return (
     <div>
       {!isPending && (
         <div className="mt-8">
           <div className="mb-8">
-            <EventHeading
-              title={data!.event.name || ''}
-              className="mb-4 text-xl"
-            />
+            <EventHeading title={data.name || ''} className="mb-4 text-xl" />
             <Separator className="" />
           </div>
         </div>

@@ -50,7 +50,10 @@ export default function PublishBar() {
       startTransition(() => {
         setStorageToDefault();
         queryclient.invalidateQueries({
-          queryKey: ['my-events', 'event-detail'],
+          queryKey: ['my-events', 'event-detail', 'event-discovery'],
+        });
+        queryclient.refetchQueries({
+          queryKey: ['my-events', 'event-detail', 'event-discovery'],
         });
         toast({
           title: `Success ${intend} Event`,
@@ -59,7 +62,7 @@ export default function PublishBar() {
         });
         if (payload.createEvent.data.id) {
           router.replace(
-            `/members/event-details/${payload.createEvent.data.id}/summary`,
+            `/members/details/${payload.createEvent.data.id}/summary`,
           );
         } else {
           router.replace('/members/my-events');

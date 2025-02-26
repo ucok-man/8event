@@ -16,7 +16,7 @@ export default function DateRange({ startDate, endDate, className }: Props) {
     <span className={cn('text-gray-700', className)}>
       {isEqual
         ? format(start, 'EEE, MMMM d, yyyy')
-        : `${format(start, 'MMMM d')} - ${format(new Date(endDate), 'MMMM d, yyyy')}`}
+        : `${format(start, 'MMMM d')} - ${format(end, 'MMMM d, yyyy')}`}
     </span>
   );
 }

@@ -20,7 +20,7 @@ export default function SigninPage() {
           <p className="text-muted-foreground text-center">
             Join{' '}
             <Link
-              href={'/members/auth/sinup'}
+              href={'/members/auth/signup'}
               className="text-brand-blue-900 underline underline-offset-2 font-medium"
             >
               our members

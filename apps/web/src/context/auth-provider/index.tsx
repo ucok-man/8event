@@ -28,7 +28,10 @@ export type AuthContextValue = {
   user: LoginUser | null;
   apiclient: AxiosInstance;
   status: UserStatus;
-  login: (payload: { email: string; password: string }) => Promise<void>;
+  login: (
+    payload: { email: string; password: string },
+    role: 'CUSTOMER' | 'ORGANIZER',
+  ) => Promise<void>;
   logout: () => Promise<void>;
   update: () => Promise<void>;
 };
@@ -60,8 +63,6 @@ export default function AuthProvider({ children }: Props) {
   const [user, setUser] = useState<LoginUser | null>(null);
   const [status, setStatus] = useState<UserStatus>('pending');
   const [accessToken, setAccessToken] = useState<string | null>(null);
-
-  console.log({ status });
 
   /**
    * logout: Clear user session and token on client side.
@@ -113,10 +114,16 @@ export default function AuthProvider({ children }: Props) {
    * login: Obtain the access token, store it, then fetch user info.
    */
   const login = useCallback(
-    async (payload: { email: string; password: string }) => {
+    async (
+      payload: { email: string; password: string },
+      role: 'CUSTOMER' | 'ORGANIZER',
+    ) => {
       try {
         setStatus('pending');
-        const { data } = await apiclient.post('/auth/login', payload);
+        const { data } = await apiclient.post('/auth/login', {
+          ...payload,
+          role: role,
+        });
         setAccessToken(data.accessToken);
 
         // Fetch user with a one-time header override (Bearer token)
@@ -140,7 +147,7 @@ export default function AuthProvider({ children }: Props) {
   useEffect(() => {
     const requestInterceptor = apiclient.interceptors.request.use(
       (config) => {
-        if (config.url?.endsWith('login') || config.url?.endsWith('register')) {
+        if (!config?.url?.startsWith('/auth')) {
           return config;
         }
         if (accessToken) {
@@ -180,9 +187,12 @@ export default function AuthProvider({ children }: Props) {
     const responseInterceptor = apiclient.interceptors.response.use(
       (response) => response,
       async (error) => {
-        if (error.response?.status === 401) {
+        if (
+          error.response?.status === 401 &&
+          !error.config.url.startsWith('/auth')
+        ) {
           console.log({
-            log: 'request failed attempt to refresh',
+            log: 'request failed with 401 attempt to refresh',
             req: error.config.url,
           });
           try {

@@ -10,6 +10,7 @@ import { TimeType } from '@/components/shared/time-picker/time-type';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useAuthContext } from '@/context/auth-provider';
 import {
   TransactionContextType,
   TransactionStateType,
@@ -47,6 +48,8 @@ export default function EventDetail({
   addTicket,
   substractTicket,
 }: Props) {
+  const { user } = useAuthContext();
+
   return (
     <div className="p-4 md:p-8 grow">
       <div className="mx-auto w-full max-w-4xl">
@@ -158,6 +161,9 @@ export default function EventDetail({
                             {isOpen && (
                               <div className="size-full flex justify-end items-center px-6 gap-x-3">
                                 <button
+                                  disabled={
+                                    user?.role !== 'CUSTOMER' || !user.id
+                                  }
                                   className="px-2 rounded-full border border-brand-blue-600 text-brand-blue-600 font-medium"
                                   onClick={() => addTicket(ticket.id)}
                                 >
@@ -165,6 +171,9 @@ export default function EventDetail({
                                 </button>
                                 <span>{count || 0}</span>
                                 <button
+                                  disabled={
+                                    user?.role !== 'CUSTOMER' || !user.id
+                                  }
                                   className="px-2 rounded-full border border-brand-blue-600 text-brand-blue-600 font-medium"
                                   onClick={() => substractTicket(ticket.id)}
                                 >

@@ -16,21 +16,22 @@ import { GetEventByIdSalesPayload } from './types';
 export default function SalesPage() {
   const { eventId } = useParams();
   const maxw450 = useMediaQuery('(max-width: 450px)');
-  const { apiclient } = useAuthContext();
+  const { apiclient, status } = useAuthContext();
 
   if (Array.isArray(eventId)) {
     return notFound();
   }
 
-  const { data, isError, error, isFetching } = useQuery({
+  const { data, isError, error, isPending } = useQuery({
     queryKey: ['event-detail', 'event-detail-sales', eventId],
     queryFn: async () => {
       const { data } = await apiclient.get(`/events/id/${eventId}/sales`);
       return data.ticketSales as GetEventByIdSalesPayload;
     },
+    enabled: status !== 'pending',
   });
 
-  if (isFetching) {
+  if (isPending) {
     return (
       <div className="p-8 text-center">
         <div className="text-base text-muted-foreground">
@@ -54,9 +55,9 @@ export default function SalesPage() {
     }
   }
 
-  if (!data) return notFound();
-
+  if (!isPending && !data) return notFound();
   const { tickets, summary } = data;
+
   const datacolumn: DataColumnType[] = tickets.map((ticket) => ({
     ticketName: ticket.name,
     price: ticket.price ? ticket.price : undefined,

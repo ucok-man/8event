@@ -29,7 +29,7 @@ export default function EventCard({ event }: Props) {
     <Card className="group relative flex flex-col overflow-hidden bg-white transition-all hover:shadow-lg cursor-pointer">
       {/* Action */}
       <Link
-        href={`/members/event-details/${event.id}/summary`}
+        href={`/members/details/${event.id}/summary`}
         className="absolute inset-0 -translate-y-full group-hover:translate-y-0 transition-all duration-300 z-20"
       >
         <div className="flex size-full items-center justify-center bg-brand-blue-950/20">

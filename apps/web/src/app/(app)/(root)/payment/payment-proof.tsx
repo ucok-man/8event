@@ -11,6 +11,7 @@ import {
 import { Progress } from '@/components/ui/progress';
 import { useAuthContext } from '@/context/auth-provider';
 import { usePaymentNotifContext } from '@/context/payment-notif-provider';
+import { queryclient } from '@/context/query-provider';
 import { toast } from '@/hooks/use-toast';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@tanstack/react-query';
@@ -148,7 +149,7 @@ export default function PaymentProof({}: Props) {
 
   const { mutate: submit, isPending } = useMutation({
     mutationFn: async (proof: string) => {
-      return await apiclient.post(
+      return await apiclient.patch(
         `/transactions/id/${pendingTransaction?.id}/proof`,
         {
           paymentProof: proof,
@@ -159,6 +160,12 @@ export default function PaymentProof({}: Props) {
     onSuccess: () => {
       setShowConfetti(true);
       updatePaymentNotif();
+      queryclient.invalidateQueries({
+        queryKey: ['event-detail'],
+      });
+      queryclient.refetchQueries({
+        queryKey: ['event-detail'],
+      });
       toast({
         title: '🎉 Payment Successfully Processed',
         description: 'For more information check your email',

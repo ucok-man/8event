@@ -38,7 +38,7 @@ export default function HeroCarousel() {
         className="absolute inset-0 opacity-90"
       />
 
-      <div className="absolute inset-0 z-10 flex size-full items-center justify-center py-8 lg:px-16 xl:py-16">
+      <div className="absolute inset-0 z-0 flex size-full items-center justify-center py-8 lg:px-16 xl:py-16">
         <MaxWidthWrapper>
           <BrandCarousel items={items} />
         </MaxWidthWrapper>

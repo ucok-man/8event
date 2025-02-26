@@ -1,5 +1,6 @@
 import Footer from '@/components/shared/footer';
 import PaymentToast from '@/components/shared/payment-toast';
+import PaymentNotifProvider from '@/context/payment-notif-provider';
 import Navbar from './navbar';
 
 type Props = {
@@ -8,11 +9,13 @@ type Props = {
 
 export default function AppLayout({ children }: Props) {
   return (
-    <div>
-      <Navbar />
-      <div>{children}</div>
-      <Footer />
-      <PaymentToast />
-    </div>
+    <PaymentNotifProvider>
+      <div>
+        <Navbar />
+        <div>{children}</div>
+        <Footer />
+        <PaymentToast />
+      </div>
+    </PaymentNotifProvider>
   );
 }

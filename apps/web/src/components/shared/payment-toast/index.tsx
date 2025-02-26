@@ -12,7 +12,7 @@ export default function PaymentToast() {
       <motion.div
         className="min-h-[72px] w-[82%] lg:w-[386px] rounded-lg grainy-light p-4 pr-6 shadow-lg border animate-alternate-grainy max-lg:mx-auto"
         style={{
-          zIndex: 1000,
+          zIndex: 50,
         }}
         whileInView={{ opacity: 1, x: 0 }}
         initial={{ opacity: 0, x: 400 }}

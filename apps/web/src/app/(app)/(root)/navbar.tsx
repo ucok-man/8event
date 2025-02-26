@@ -52,7 +52,7 @@ export default function Navbar() {
               {/* <div className="mr-2">
                 <Notification />
               </div> */}
-              {status !== 'pending' && !user && (
+              {status !== 'pending' && (!user || user.role !== 'CUSTOMER') && (
                 <Link href={'/auth/signin'}>
                   <button className="flex items-center rounded-md px-2 py-1 text-base font-medium text-white">
                     <LogIn className="mr-2 size-5" />
@@ -60,7 +60,9 @@ export default function Navbar() {
                   </button>
                 </Link>
               )}
-              {status !== 'pending' && user && <UserAvatar />}
+              {status !== 'pending' && user && user.role === 'CUSTOMER' && (
+                <UserAvatar />
+              )}
             </div>
           </div>
         </MaxWidthWrapper>

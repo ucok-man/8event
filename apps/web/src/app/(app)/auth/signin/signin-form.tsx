@@ -40,31 +40,31 @@ export function SigninForm() {
   async function onSubmit(values: FormData) {
     setIsLoading(true);
     try {
-      await login(values);
+      await login(values, 'CUSTOMER');
       form.reset();
       startTransition(() => {
         router.push('/');
       });
     } catch (error) {
-      if (error instanceof AxiosError && error.status! === 422) {
-        form.setError('email', {
-          type: 'onChange',
-          message: 'Invalid email or password',
+      if (error instanceof AxiosError && error.status! >= 500) {
+        toast({
+          title: 'Server Error',
+          description: 'sorry we have problem in our server, try again later',
+          variant: 'destructive',
         });
-        form.setError('password', {
-          type: 'onChange',
-          message: 'Invalid email or password',
-        });
-        form.setValue('password', '');
+        form.reset();
         setIsLoading(false);
         return;
       }
-      toast({
-        title: 'Server Error',
-        description: 'sorry we have problem in our server, try again later',
-        variant: 'destructive',
+      form.setError('email', {
+        type: 'onChange',
+        message: 'Invalid email or password',
       });
-      form.reset();
+      form.setError('password', {
+        type: 'onChange',
+        message: 'Invalid email or password',
+      });
+      form.setValue('password', '');
       setIsLoading(false);
       return;
     }

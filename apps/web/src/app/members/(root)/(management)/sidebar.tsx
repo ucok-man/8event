@@ -47,22 +47,22 @@ export default function Sidebar() {
           items: [
             {
               label: 'Summary',
-              link: `/members/event-details/${eid}/summary`,
+              link: `/members/details/${eid}/summary`,
               icon: Atom,
             },
             {
               label: 'Sales',
-              link: `/members/event-details/${eid}/sales`,
+              link: `/members/details/${eid}/sales`,
               icon: CircleDollarSignIcon,
             },
             {
               label: 'Transactions',
-              link: `/members/event-details/${eid}/transactions`,
+              link: `/members/details/${eid}/transactions`,
               icon: Handshake,
             },
             {
               label: 'Feedback',
-              link: `/members/event-details/${eid}/feedback`,
+              link: `/members/details/${eid}/feedback`,
               icon: MessagesSquare,
             },
           ],
@@ -78,7 +78,7 @@ export default function Sidebar() {
   }, []);
 
   useEffect(() => {
-    const match = pathname.match(/^\/members\/event-details\/([^/]+)/);
+    const match = pathname.match(/^\/members\/details\/([^/]+)/);
     if (match) {
       addEventSection(match[1]);
     } else {

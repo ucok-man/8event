@@ -51,6 +51,15 @@ export default function FloatingCart({
       return;
     }
 
+    if (data.user.role !== 'CUSTOMER') {
+      toast({
+        title: 'Unprocessable Request',
+        description: 'Please login with your customer account to checkout',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     if (pendingTransaction) {
       toast({
         title: 'Unprocessable Request',

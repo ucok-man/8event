@@ -5,13 +5,13 @@ import { toast } from '@/hooks/use-toast';
 import { GetTransactionByUserId } from '@/types';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
-import { usePathname } from 'next/navigation';
+// import { usePathname } from 'next/navigation';
 import {
   createContext,
   ReactNode,
   useCallback,
   useContext,
-  useEffect,
+  // useEffect,
   useRef,
   useState,
 } from 'react';
@@ -42,7 +42,7 @@ export default function PaymentNotifProvider({ children }: Props) {
   const { user, apiclient, status } = useAuthContext();
 
   const snapinit = useRef<boolean>(false);
-  const pathname = usePathname();
+  // const pathname = usePathname();
   const [isPaymentToastShowed, setIsPaymentToastShowed] =
     useState<boolean>(false);
   const [pendingTransaction, setPendingTransaction] = useState<
@@ -50,7 +50,7 @@ export default function PaymentNotifProvider({ children }: Props) {
   >(null);
 
   // get transaction
-  const { error, isPending } = useQuery({
+  const { error, isPending, refetch } = useQuery({
     queryKey: ['payment-notif', user?.id],
     queryFn: async () => {
       if (!user?.id) return null;
@@ -65,12 +65,20 @@ export default function PaymentNotifProvider({ children }: Props) {
         setPendingTransaction(null);
         setIsPaymentToastShowed(false);
       }
+
+      console.log({ log: 'payment notif is runing', data: data });
+
       return data.transaction as GetTransactionByUserId['transaction'];
     },
     enabled: status !== 'pending', // This ensures the query runs only when user is loaded
   });
 
   if (error && error instanceof AxiosError) {
+    if (error.status === 404 && pendingTransaction && isPaymentToastShowed) {
+      setPendingTransaction(null);
+      setIsPaymentToastShowed(false);
+    }
+
     if (error.status! >= 500) {
       toast({
         title: 'Failed to Get Transaction Data',
@@ -83,7 +91,6 @@ export default function PaymentNotifProvider({ children }: Props) {
   // update transaction isPayed
   const { mutate: updateTransaction } = useMutation({
     mutationFn: async (transactionId: string) => {
-      console.log('AWWWW');
       await apiclient.patch(`/transactions/id/${transactionId}`, {
         isPayed: true,
       });
@@ -99,11 +106,18 @@ export default function PaymentNotifProvider({ children }: Props) {
     },
   });
 
-  useEffect(() => {
-    if (isPaymentToastShowed) {
-      updatePaymentNotif();
-    }
-  }, [pathname]);
+  const updatePaymentNotif = useCallback(() => {
+    queryclient.invalidateQueries({
+      queryKey: ['payment-notif'],
+    });
+    refetch();
+  }, [refetch]);
+
+  // useEffect(() => {
+  //   if (isPaymentToastShowed) {
+  //     updatePaymentNotif();
+  //   }
+  // }, [pathname, isPaymentToastShowed, updatePaymentNotif]);
 
   // useEffect(() => {
   //   if (!isPending && data && !error) {
@@ -123,12 +137,6 @@ export default function PaymentNotifProvider({ children }: Props) {
 
   const closePaymentToast = useCallback(() => {
     setIsPaymentToastShowed(false);
-  }, []);
-
-  const updatePaymentNotif = useCallback(() => {
-    queryclient.invalidateQueries({
-      queryKey: ['payment-notif'],
-    });
   }, []);
 
   const showsnap = useCallback(() => {
@@ -152,10 +160,8 @@ export default function PaymentNotifProvider({ children }: Props) {
   }, []);
 
   console.log({
-    pendingTransaction,
-    isPending,
-    snapinit: snapinit.current,
-    loading: isPending,
+    log: 'Current state of transaction context',
+    state: pendingTransaction,
   });
 
   return (

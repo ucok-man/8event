@@ -2,7 +2,10 @@ import { CheckoutTransactionDTO } from '@/dto/checkout-transaction.dto';
 import { GetTransactionByUserIdDTO } from '@/dto/get-transaction-by-userid.dto';
 import { midtransSnap } from '@/midtrans';
 import { prismaclient } from '@/prisma';
-import { TRANSACTION_EXPIRATION_TOKEN, transactionQueue } from '@/queues';
+import {
+  TRANSACTION_EXP_WAIT_PAYMENT_TOKEN,
+  transactionWaitPaymentQueue,
+} from '@/queues';
 import { Prisma, Transaction, TransactionStatus } from '@prisma/client';
 import { z } from 'zod';
 
@@ -22,21 +25,23 @@ export class TransactionService {
   };
 
   getTicketSalesForAll = async (eventId: string) => {
-    const query = Prisma.sql`
-    SELECT 
-      COALESCE(SUM(tr."totalDiscount"),0)::FLOAT AS "totalDiscount",
-      COALESCE(SUM(tr."priceBeforeDiscount"),0)::FLOAT AS "totalTicketSales",
-      COALESCE(SUM(tr."priceAfterDiscount"),0)::FLOAT AS "totalIncome"
-    FROM "Transaction" tr
-    JOIN "TransactionTicket" tt ON tr."id" = tt."transactionId"
-    WHERE tr."status" = 'COMPLETED' AND tr."eventId" = ${eventId};`;
+    const result = await prismaclient.transaction.aggregate({
+      where: {
+        status: 'COMPLETED',
+        eventId,
+      },
+      _sum: {
+        totalDiscount: true,
+        priceBeforeDiscount: true,
+        priceAfterDiscount: true,
+      },
+    });
 
-    const result: {
-      totalDiscount: number;
-      totalTicketSales: number;
-      totalIncome: number;
-    }[] = await prismaclient.$queryRaw(query);
-    return result[0];
+    return {
+      totalDiscount: result._sum.totalDiscount || 0,
+      totalTicketSales: result._sum.priceBeforeDiscount || 0,
+      totalIncome: result._sum.priceAfterDiscount || 0,
+    };
   };
 
   getEventTransactionSummary = async (eventId: string) => {
@@ -55,7 +60,7 @@ export class TransactionService {
     const sales = await prismaclient.transaction.aggregate({
       _sum: {
         priceAfterDiscount: true,
-        priceBeforeDiscount: true,
+        totalTicketQuantity: true,
       },
       where: {
         status: TransactionStatus.COMPLETED,
@@ -72,7 +77,7 @@ export class TransactionService {
       },
       sales: {
         totalIncome: sales._sum.priceAfterDiscount || 0,
-        totalTicketSold: sales._sum.priceBeforeDiscount || 0,
+        totalTicketSold: sales._sum.totalTicketQuantity || 0,
       },
     };
   };
@@ -131,7 +136,7 @@ export class TransactionService {
       if (dto.usedPoints && dto.usedPoints > 0) {
         await prismaclient.pointBalance.create({
           data: {
-            point: dto.usedPoints,
+            point: -dto.usedPoints,
             type: 'REDEEM',
             userId: dto.buyerId,
           },
@@ -144,9 +149,9 @@ export class TransactionService {
 
       // if need payment execute below path
       // spwan new worker
-      await transactionQueue.add(
-        TRANSACTION_EXPIRATION_TOKEN,
-        { transactionId: transaction.id },
+      await transactionWaitPaymentQueue.add(
+        TRANSACTION_EXP_WAIT_PAYMENT_TOKEN,
+        { transactionId: transaction.id, tickets: dto.tickets },
         { delay: 2 * 60 * 60 * 1000 }, // 2 hours delay
         // { delay: 2 * 60 * 1000 }, // 2 minutes
       );
@@ -179,12 +184,22 @@ export class TransactionService {
         where: {
           buyerId: dto.userId,
         },
+        include: {
+          tickets: true,
+          voucher: true,
+          buyer: true,
+        },
       });
     } else {
       return await prismaclient.transaction.findFirst({
         where: {
           buyerId: dto.userId,
           status: dto.status,
+        },
+        include: {
+          tickets: true,
+          voucher: true,
+          buyer: true,
         },
       });
     }
@@ -199,7 +214,26 @@ export class TransactionService {
         tickets: true,
         voucher: true,
         buyer: true,
-        event: true,
+      },
+    });
+  };
+
+  getAllForAction = async (eventId: string) => {
+    return await prismaclient.transaction.findMany({
+      where: {
+        eventId: eventId,
+        status: {
+          in: [
+            TransactionStatus.WAITING_CONFIRMATION,
+            TransactionStatus.COMPLETED,
+            TransactionStatus.CANCELLED,
+          ],
+        },
+      },
+      include: {
+        tickets: true,
+        voucher: true,
+        buyer: true,
       },
     });
   };
@@ -209,7 +243,24 @@ export class TransactionService {
       where: {
         id: transaction.id,
       },
-      data: transaction,
+      data: {
+        isPayed: transaction.isPayed,
+        paymentProof: transaction.paymentProof,
+        snaptoken: transaction.snaptoken,
+        status: transaction.status,
+        usedPoints: transaction.usedPoints,
+        expiredAt: transaction.expiredAt,
+        // Below should be not muatated, but anyway
+        id: transaction.id,
+        buyerId: transaction.buyerId,
+        createdAt: transaction.createdAt,
+        eventId: transaction.eventId,
+        voucherId: transaction.voucherId,
+        priceAfterDiscount: transaction.priceAfterDiscount,
+        priceBeforeDiscount: transaction.priceBeforeDiscount,
+        totalDiscount: transaction.totalDiscount,
+        totalTicketQuantity: transaction.totalTicketQuantity,
+      },
     });
   };
 }

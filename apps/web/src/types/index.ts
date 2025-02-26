@@ -166,3 +166,92 @@ export type CheckoutResponse = {
     isPayed: boolean;
   };
 };
+
+export type GetAllTransactionForActionResponse = {
+  transactions: {
+    id: string;
+    status: 'WAITING_CONFIRMATION' | 'COMPLETED' | 'CANCELLED';
+    priceBeforeDiscount: number;
+    priceAfterDiscount: number;
+    isPayed: boolean;
+    paymentProof: string;
+    snaptoken?: string;
+    createdAt: string;
+    expiredAt?: string;
+    eventId: string;
+    buyerId: string;
+    totalTicketQuantity: number;
+    totalDiscount: number;
+    usedPoints?: number;
+    voucherId?: string;
+    tickets: {
+      transactionId: string;
+      ticketId: string;
+      name: string;
+      price: number;
+      quantity: number;
+    }[];
+    voucher?: {
+      id: string;
+      name: string;
+      description: string;
+      price: number;
+      status: 'USED';
+      createdAt: string;
+      expiredAt: string;
+      userId: string;
+    };
+    buyer: {
+      id: string;
+      name: string;
+      email: string;
+      password: string;
+      profilePicture: string;
+      role: string;
+      createdAt: string;
+      updatedAt: string;
+      referralCode: string;
+      referredById: string;
+    };
+  }[];
+};
+
+export type AcceptRejectPaymentResponse = {
+  transaction: {
+    id: string;
+    priceBeforeDiscount: number;
+    priceAfterDiscount: number;
+    eventId: string;
+    buyerId: string;
+    totalTicketQuantity: number;
+    status:
+      | 'WAITING_PAYMENT'
+      | 'WAITING_CONFIRMATION'
+      | 'COMPLETED'
+      | 'CANCELLED'
+      | 'EXPIRED';
+    totalDiscount: number;
+    usedPoints?: number;
+    voucherId?: string;
+    isPayed: boolean;
+    paymentProof?: string;
+    snaptoken?: string;
+    createdAt: Date;
+    expiredAt?: Date;
+  };
+};
+
+export type GetEventTransactionSummaryResponse = {
+  summary: {
+    transaction: {
+      total: number;
+      completed: number;
+      cancelled: number;
+      waitingConfirmation: number;
+    };
+    sales: {
+      totalIncome: number;
+      totalTicketSold: number;
+    };
+  };
+};

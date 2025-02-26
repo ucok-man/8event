@@ -36,7 +36,6 @@ export function SignupForm() {
       name: '',
       email: '',
       password: '',
-      referralCode: '',
     },
   });
 
@@ -44,7 +43,7 @@ export function SignupForm() {
     mutationFn: async (params: FormData) => {
       const { data } = await apiclient.post('/auth/register', {
         ...params,
-        role: 'CUSTOMER',
+        role: 'ORGANIZER',
       });
       return { user: data.user, params: params };
     },
@@ -55,14 +54,14 @@ export function SignupForm() {
             email: params.email,
             password: params.password,
           },
-          'CUSTOMER',
+          'ORGANIZER',
         );
         startTransition(() => {
           router.push('/');
         });
       } catch (error) {
         startTransition(() => {
-          router.push('/auth/signin');
+          router.push('/members/auth/signin');
         });
       } finally {
         form.reset();
@@ -142,20 +141,6 @@ export function SignupForm() {
               <FormLabel>Password</FormLabel>
               <FormControl>
                 <Input type="password" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="referralCode"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Referral Code (Optional)</FormLabel>
-              <FormControl>
-                <Input placeholder="Enter referral code" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

@@ -57,7 +57,7 @@ export function BrandCarousel({ items }: Props) {
   };
 
   return (
-    <div className="relative size-full overflow-hidden">
+    <div className="relative z-0 size-full overflow-hidden">
       <Carousel
         setApi={setApi}
         opts={{

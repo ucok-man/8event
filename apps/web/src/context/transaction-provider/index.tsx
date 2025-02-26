@@ -395,8 +395,17 @@ export default function TransactionContextProvider({
     },
     onSuccess: async (data) => {
       if (data.status === 'NEED_PAYMENT') {
+        queryclient.invalidateQueries({
+          queryKey: ['event-detail', 'members-overview'], // in members page
+        });
         updatePaymentNotif();
       } else {
+        queryclient.invalidateQueries({
+          queryKey: ['event-detail'],
+        });
+        queryclient.refetchQueries({
+          queryKey: ['event-detail'],
+        });
         setShowConfetti(true);
         toast({
           title: '🎉 Payment Success',

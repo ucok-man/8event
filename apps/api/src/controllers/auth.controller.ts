@@ -98,6 +98,7 @@ export class AuthControllers {
         withPassword: true,
       });
       if (!user) throw new InvalidCredentialError();
+      if (user.role !== dto.role) throw new InvalidCredentialError();
 
       const match = await compare(dto.password, user.password);
       if (!match) throw new InvalidCredentialError();

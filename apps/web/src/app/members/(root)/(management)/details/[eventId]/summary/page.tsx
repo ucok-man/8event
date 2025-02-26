@@ -11,9 +11,9 @@ import ContentSummary from './content-summary';
 
 export default function SummaryPage() {
   const { eventId } = useParams();
-  const { apiclient } = useAuthContext();
+  const { status, apiclient } = useAuthContext();
 
-  const { data, isError, error, isFetching } = useQuery({
+  const { data, isError, error, isPending } = useQuery({
     queryKey: ['event-detail', 'event-detail-summary', eventId],
     queryFn: async () => {
       const [eventres, summaryres] = await Promise.all([
@@ -25,9 +25,10 @@ export default function SummaryPage() {
         summary: summaryres.data.summary as GetEventSummaryResponse['summary'],
       };
     },
+    enabled: status !== 'pending',
   });
 
-  if (isFetching) {
+  if (isPending) {
     return (
       <div className="p-8 text-center">
         <div className="text-base text-muted-foreground">
@@ -51,7 +52,7 @@ export default function SummaryPage() {
     }
   }
 
-  if (!data || Array.isArray(eventId)) return notFound();
+  if (!isPending && !data) return notFound();
   const { event, summary } = data;
 
   return (
