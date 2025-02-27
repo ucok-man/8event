@@ -5,28 +5,36 @@ import { GetEventTransactionSummaryDTO } from '@/dto/get-event-transaction-summa
 import { GetTransactionByUserIdDTO } from '@/dto/get-transaction-by-userid.dto';
 import { UpdatePaymentProofDTO } from '@/dto/update-payment-proof.dto';
 import { UpdateTransactionDTO } from '@/dto/update-transaction.dto';
+import { BadRequestError } from '@/errors/bad-request.error';
 import { FailedValidationError } from '@/errors/failed-validation.error';
 import { ApiError } from '@/errors/interface';
 import { InternalSeverError } from '@/errors/internal-server.error';
 import { NotFoundError } from '@/errors/not-found.error';
 import { formatErr } from '@/helpers/format-error';
+import { formatRupiah } from '@/helpers/format-rupiah';
+import { getSessionCustomer } from '@/helpers/session';
 import { prismaclient } from '@/prisma';
 import {
   TRANSACTION_EXP_WAIT_CONFIRM_TOKEN,
   transactionWaitConfirmQueue,
 } from '@/queues';
 import { EventDetailService } from '@/services/event-detail.service';
+import { SMTPService } from '@/services/smtp.service';
 import { TransactionService } from '@/services/transaction.service';
 import { UserService } from '@/services/user.service';
 import { TransactionStatus } from '@prisma/client';
 import { Request, Response } from 'express';
 
+const mockto = 'gokixa1827@calmpros.com';
+
 export class TransactionControllers {
   private transactionService = new TransactionService();
   private eventDetailService = new EventDetailService();
   private userService = new UserService();
+  private smtpService = new SMTPService();
 
   checkout = async (req: Request, res: Response) => {
+    const session = getSessionCustomer(req);
     const { data: dto, error } = CheckoutTransactionDTO.safeParse(req.body);
     if (error) {
       throw new FailedValidationError(formatErr(error));
@@ -45,7 +53,17 @@ export class TransactionControllers {
       transaction.expiredAt = null;
       transaction.isPayed = true;
       const updated = await this.transactionService.update(transaction);
-      // TODO: send smptp mailer
+
+      this.smtpService.send({
+        subject: 'Your Donation Has Been Accepted',
+        to: session.email,
+        template: 'accept-payment.pug',
+        data: {
+          receiver: session.email,
+          title: 'Donation Accepted',
+        },
+      });
+
       res.status(200).json({ transaction: updated, status: 'COMPLETED' });
     } catch (error) {
       if (!(error instanceof ApiError)) {
@@ -123,6 +141,11 @@ export class TransactionControllers {
         dto.transactionId,
       );
       if (!transaction) throw new NotFoundError();
+      if (transaction.status !== 'WAITING_PAYMENT') {
+        throw new BadRequestError(
+          `Invalid action for current transaction status ${transaction.status}`,
+        );
+      }
 
       const tigaHariKedepan = new Date();
       tigaHariKedepan.setDate(tigaHariKedepan.getDate() + 3);
@@ -140,8 +163,44 @@ export class TransactionControllers {
       );
 
       const updated = await this.transactionService.update(transaction);
+      const event = await this.eventDetailService.getById({
+        eventId: updated.eventId,
+      });
+      if (!event)
+        throw new InternalSeverError(
+          `cannot find event with id ${updated.eventId}`,
+        );
 
-      //TODO: SEND SMTP MAILER
+      this.smtpService.send({
+        template: 'customer-payment-pending.pug',
+        to: transaction.buyer.email,
+        subject: 'Your Donation Is Being Processed',
+        data: {
+          title: 'Donation In Progress',
+          receiver: transaction.buyer.email,
+          event: {
+            name: event.name,
+            tickets: transaction.tickets,
+            donation: formatRupiah(updated.priceAfterDiscount),
+          },
+        },
+      });
+
+      this.smtpService.send({
+        template: 'organizer-payment-pending.pug',
+        to: event.organizer.email,
+        subject: 'New Transaction For Your Event',
+        data: {
+          title: 'New Transaction',
+          receiver: event.organizer.email,
+          event: {
+            name: event.name,
+            buyer: transaction.buyer.email,
+            tickets: transaction.tickets,
+            totalPrice: formatRupiah(updated.priceAfterDiscount),
+          },
+        },
+      });
 
       res.status(200).json({ transaction: updated });
     } catch (error) {
@@ -194,12 +253,26 @@ export class TransactionControllers {
       );
       if (!transaction) throw new NotFoundError();
 
+      if (transaction.status !== 'WAITING_CONFIRMATION') {
+        throw new BadRequestError(
+          `Invalid action for current transaction status ${transaction.status}`,
+        );
+      }
+
       transaction.expiredAt = null; // create new expired at for waiting confirmation
       transaction.status = TransactionStatus.COMPLETED;
 
       const updated = await this.transactionService.update(transaction);
 
-      //TODO: SEND SMTP MAILER
+      this.smtpService.send({
+        subject: 'Your Donation Has Been Accepted',
+        to: transaction.buyer.email,
+        template: 'accept-payment.pug',
+        data: {
+          receiver: transaction.buyer.email,
+          title: 'Donation Accepted',
+        },
+      });
 
       res.status(200).json({ transaction: updated });
     } catch (error) {
@@ -224,6 +297,11 @@ export class TransactionControllers {
         dto.transactionId,
       );
       if (!transaction) throw new NotFoundError();
+      if (transaction.status !== 'WAITING_CONFIRMATION') {
+        throw new BadRequestError(
+          `Invalid action for current transaction status ${transaction.status}`,
+        );
+      }
 
       transaction.expiredAt = new Date(); // update to current date
       transaction.status = TransactionStatus.CANCELLED;
@@ -262,7 +340,15 @@ export class TransactionControllers {
         });
       });
 
-      //TODO: SEND SMTP MAILER
+      this.smtpService.send({
+        subject: 'Your Donation Has Been Rejected',
+        to: transaction.buyer.email,
+        template: 'cancel-payment.pug',
+        data: {
+          receiver: transaction.buyer.email,
+          title: 'Donation Rejected',
+        },
+      });
 
       res.status(200).json({ transaction: updated });
     } catch (error) {

@@ -4,7 +4,9 @@ import PaginationButton from '@/components/shared/pagination-button';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuthContext } from '@/context/auth-provider';
 import { toast } from '@/hooks/use-toast';
+import { opacityUp } from '@/lib/animation-template';
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
+import { motion } from 'motion/react';
 import { useRouter } from 'next/navigation';
 import qs from 'query-string';
 import { useState } from 'react';
@@ -84,52 +86,47 @@ export default function Content({ search, sortBy, page }: Props) {
   if (error) {
     toast({
       title: 'Search Error',
-      description: 'We encountered some issue, please try again!',
+      description: 'We encountered some issue, please try again later',
       variant: 'destructive',
     });
-    return (
-      <div className="p-8 text-center">
-        <div className="text-base text-muted-foreground">
-          😮 We encountered some issue, please try again!
-        </div>
-      </div>
-    );
+    return null;
   }
-
-  if (!isClient) return <div></div>;
+  if (!data) return null;
 
   return (
-    <Tabs
-      value={activeTab}
-      onValueChange={(val) => handleTabChange(val)}
-      className="w-full"
-    >
-      <TabsList className="mb-8 grid w-full grid-cols-3 grainy-dark">
-        <TabsTrigger
-          value="active"
-          className="data-[state=active]:bg-brand-blue-600 data-[state=active]:text-white"
-        >
-          Active {isMobile && 'Events'}
-        </TabsTrigger>
-        <TabsTrigger
-          value="draft"
-          className="data-[state=active]:bg-brand-blue-600 data-[state=active]:text-white"
-        >
-          Draft {isMobile && 'Events'}
-        </TabsTrigger>
-        <TabsTrigger
-          value="past"
-          className="data-[state=active]:bg-brand-blue-600 data-[state=active]:text-white"
-        >
-          Past {isMobile && 'Events'}
-        </TabsTrigger>
-      </TabsList>
+    <motion.div {...opacityUp}>
+      <Tabs
+        value={activeTab}
+        onValueChange={(val) => handleTabChange(val)}
+        className="w-full"
+      >
+        <TabsList className="mb-8 grid w-full grid-cols-3 grainy-dark">
+          <TabsTrigger
+            value="active"
+            className="data-[state=active]:bg-brand-blue-600 data-[state=active]:text-white"
+          >
+            Active {isMobile && 'Events'}
+          </TabsTrigger>
+          <TabsTrigger
+            value="draft"
+            className="data-[state=active]:bg-brand-blue-600 data-[state=active]:text-white"
+          >
+            Draft {isMobile && 'Events'}
+          </TabsTrigger>
+          <TabsTrigger
+            value="past"
+            className="data-[state=active]:bg-brand-blue-600 data-[state=active]:text-white"
+          >
+            Past {isMobile && 'Events'}
+          </TabsTrigger>
+        </TabsList>
 
-      <ContentActiveEvent events={data.events} />
-      <ContentDraftEvent events={data.events} />
-      <ContentPastEvent events={data.events} />
+        <ContentActiveEvent events={data.events} />
+        <ContentDraftEvent events={data.events} />
+        <ContentPastEvent events={data.events} />
 
-      <PaginationButton metadata={data.metadata} />
-    </Tabs>
+        <PaginationButton metadata={data.metadata} />
+      </Tabs>
+    </motion.div>
   );
 }

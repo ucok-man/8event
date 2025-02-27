@@ -73,3 +73,79 @@ export function sourceDateIsAfterEqualTarget(
 export function targetIsAfterEqualCurrentDate(target: string | Date) {
   return isSameDay(new Date(), new Date(target)) || isAfter(target, new Date());
 }
+
+/* ---------------------------------------------------------------- */
+/*                               OTHER                              */
+/* ---------------------------------------------------------------- */
+export function daysInThisMonth() {
+  return new Date(
+    new Date().getFullYear(),
+    new Date().getMonth() + 1,
+    0,
+  ).getDate();
+}
+
+export function getWeeklyRangesInThisMonth() {
+  const totalDays = daysInThisMonth();
+  const ranges: number[] = [];
+  for (let i = 1; i <= totalDays; i += 7) {
+    ranges.push(Math.min(i + 6, totalDays));
+  }
+  return ranges;
+}
+
+export function getDateFromDayInThisMonth(day: number) {
+  const year = new Date().getFullYear();
+  const month = new Date().getMonth(); // 0-based index
+  return new Date(year, month, day);
+}
+
+export function getFirstDateOfThisMonth() {
+  const year = new Date().getFullYear();
+  const month = new Date().getMonth(); // 0-based index
+  return new Date(year, month, 1);
+}
+
+// Zero index base
+export function getMonthFromNumber(month: number): string {
+  const months = [
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
+  ];
+
+  if (month < 0 || month > 11) {
+    throw new Error('Invalid month number. Must be between 0 and 11.');
+  }
+
+  return months[month];
+}
+
+// zero based index
+export function getFirstDateOfMonthFromNumber(monthIndex: number): Date {
+  if (monthIndex < 0 || monthIndex > 11) {
+    throw new Error('Invalid month index. Must be between 0 and 11.');
+  }
+
+  const currentYear = new Date().getFullYear();
+  return new Date(currentYear, monthIndex, 1);
+}
+
+// zero based index
+export function getLastDateOfMonthFromNumber(monthIndex: number): Date {
+  if (monthIndex < 0 || monthIndex > 11) {
+    throw new Error('Invalid month index. Must be between 0 and 11.');
+  }
+
+  const currentYear = new Date().getFullYear();
+  return new Date(currentYear, monthIndex + 1, 0); // Setting day to 0 gets the last day of the previous month
+}

@@ -15,6 +15,7 @@ import {
   TransactionContextType,
   TransactionStateType,
 } from '@/context/transaction-provider';
+import { fadeInUp } from '@/lib/animation-template';
 import {
   currentDateIsAfterEqual,
   currentDateIsBefore,
@@ -24,6 +25,7 @@ import {
 import { cn, getEventCategory } from '@/lib/utils';
 import { GetEventByIdResponse } from '@/types';
 import { format } from 'date-fns';
+import { motion } from 'motion/react';
 
 const proseStyle = `
 prose max-w-none
@@ -51,7 +53,7 @@ export default function EventDetail({
   const { user } = useAuthContext();
 
   return (
-    <div className="p-4 md:p-8 grow">
+    <motion.div {...fadeInUp} className="p-4 md:p-8 grow">
       <div className="mx-auto w-full max-w-4xl">
         <Card className="shadow-xl border-0">
           <CardHeader className="p-0">
@@ -192,6 +194,6 @@ export default function EventDetail({
           </CardContent>
         </Card>
       </div>
-    </div>
+    </motion.div>
   );
 }

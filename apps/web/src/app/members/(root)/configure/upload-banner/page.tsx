@@ -20,6 +20,7 @@ import { Progress } from '@/components/ui/progress';
 import { useAuthContext } from '@/context/auth-provider';
 import { useCreateEventContext } from '@/context/create-event-provider';
 import { toast } from '@/hooks/use-toast';
+import { opacityUp } from '@/lib/animation-template';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@tanstack/react-query';
 import {
@@ -30,6 +31,7 @@ import {
   Upload,
   X,
 } from 'lucide-react';
+import { motion } from 'motion/react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState, useTransition } from 'react';
@@ -179,7 +181,7 @@ export default function UploadBannerStep() {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)}>
+      <motion.form {...opacityUp} onSubmit={form.handleSubmit(onSubmit)}>
         <Card className="mx-auto max-w-4xl shadow-lg">
           <CardHeader className="space-y-4 border-b bg-white px-8 py-6">
             <div className="flex items-center gap-3">
@@ -335,7 +337,7 @@ export default function UploadBannerStep() {
             </div>
           </CardContent>
         </Card>
-      </form>
+      </motion.form>
     </Form>
   );
 }

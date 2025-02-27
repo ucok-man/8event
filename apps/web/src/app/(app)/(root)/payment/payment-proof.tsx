@@ -11,7 +11,6 @@ import {
 import { Progress } from '@/components/ui/progress';
 import { useAuthContext } from '@/context/auth-provider';
 import { usePaymentNotifContext } from '@/context/payment-notif-provider';
-import { queryclient } from '@/context/query-provider';
 import { toast } from '@/hooks/use-toast';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@tanstack/react-query';
@@ -160,12 +159,7 @@ export default function PaymentProof({}: Props) {
     onSuccess: () => {
       setShowConfetti(true);
       updatePaymentNotif();
-      queryclient.invalidateQueries({
-        queryKey: ['event-detail'],
-      });
-      queryclient.refetchQueries({
-        queryKey: ['event-detail'],
-      });
+      // refetchNow(['event-detail']); // this will not sync accros device
       toast({
         title: '🎉 Payment Successfully Processed',
         description: 'For more information check your email',

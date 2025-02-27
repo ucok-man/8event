@@ -5,8 +5,10 @@ import ErrorState from '@/components/shared/error-state';
 import PendingState from '@/components/shared/pending-state';
 import { useAuthContext } from '@/context/auth-provider';
 import { toast } from '@/hooks/use-toast';
+import { opacityUp } from '@/lib/animation-template';
 import { GetAllEventsResponse } from '@/types';
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
+import { motion } from 'motion/react';
 import { useRouter } from 'next/navigation';
 import qs from 'query-string';
 import { useEffect } from 'react';
@@ -72,7 +74,7 @@ export default function Content(props: Props) {
   if (!isClient || !data) return null;
 
   return (
-    <div className="min-h-[75vh]">
+    <motion.div {...opacityUp} className="min-h-[75vh]">
       {data.events.length >= 1 && (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {data.events.map((event) => (
@@ -89,6 +91,6 @@ export default function Content(props: Props) {
           ctaAction={() => router.replace('/explore')}
         />
       )}
-    </div>
+    </motion.div>
   );
 }

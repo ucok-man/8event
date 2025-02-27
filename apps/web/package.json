@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "serve": "next start -p $PORT",
+    "serve": "dotenv -e .env -- sh -c 'next start -p $PORT'",
     "lint": "next lint",
     "test": "echo 'testing web service...'"
   },
@@ -89,6 +89,7 @@
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "@typescript-eslint/parser": "^8.21.0",
+    "dotenv-cli": "^8.0.0",
     "eslint": "^8.57.1",
     "eslint-config-next": "14.2.23",
     "eslint-plugin-tailwindcss": "^3.18.0",

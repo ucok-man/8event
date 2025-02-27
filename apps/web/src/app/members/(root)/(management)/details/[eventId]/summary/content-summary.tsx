@@ -4,7 +4,7 @@ import StatCard from '@/components/shared/stat-card';
 import { useCreateEventContext } from '@/context/create-event-provider';
 import { formatRupiah } from '@/lib/utils';
 import { GetEventByIdResponse, GetEventSummaryResponse } from '@/types';
-import { NotepadText, Ticket, Users, WalletCards } from 'lucide-react';
+import { EyeIcon, NotepadText, Ticket, WalletCards } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 
 type Props = {
@@ -53,25 +53,29 @@ export default function ContentSummary({ summary, event }: Props) {
     <div className="w-full xl:w-[700px] relative h-fit xl:sticky xl:top-8">
       <div className="flex flex-col justify-center gap-2">
         <StatCard
-          title="Income"
+          title="Revenue"
           value={formatRupiah(summary.totalIncome)}
           icon={<WalletCards className="h-6 w-6 text-blue-600" />}
+          description="Total earning from this event"
         />
         <StatCard
-          title="Ticket Sold"
+          title="Attendees"
           value={summary.totalTicketSold}
           subtitle={`/${summary.totalTicket}`}
           icon={<Ticket className="h-6 w-6 text-orange-600" />}
+          description="Pepole attending this event / total seat available"
         />
         <StatCard
           title="Transactions"
           value={summary.totalTransaction}
           icon={<NotepadText className="h-6 w-6 text-purple-600" />}
+          description="Total transactions for this event"
         />
         <StatCard
           title="Visitors"
           value={summary.totalView}
-          icon={<Users className="h-6 w-6 text-green-600" />}
+          icon={<EyeIcon className="h-6 w-6 text-green-600" />}
+          description="Total people seeing for this event"
         />
       </div>
 

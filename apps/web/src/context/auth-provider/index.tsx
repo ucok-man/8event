@@ -191,10 +191,6 @@ export default function AuthProvider({ children }: Props) {
           error.response?.status === 401 &&
           !error.config.url.startsWith('/auth')
         ) {
-          console.log({
-            log: 'request failed with 401 attempt to refresh',
-            req: error.config.url,
-          });
           try {
             const newToken = await refreshAccessToken();
             error.config.headers.Authorization = `Bearer ${newToken}`;

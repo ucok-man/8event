@@ -3,6 +3,8 @@
 import ErrorState from '@/components/shared/error-state';
 import PendingState from '@/components/shared/pending-state';
 import { useTransactionContext } from '@/context/transaction-provider';
+import { opacityUp } from '@/lib/animation-template';
+import { motion } from 'motion/react';
 import { notFound, useRouter } from 'next/navigation';
 import EventDetail from './event-detail';
 import FloatingCart from './floating-cart';
@@ -26,7 +28,7 @@ export default function Content() {
   }
 
   return (
-    <div className="flex size-full flex-row lg:gap-6">
+    <motion.div {...opacityUp} className="flex size-full flex-row lg:gap-6">
       <EventDetail event={data!.event} {...transactionctx} />
 
       <div className="hidden lg:block">
@@ -35,6 +37,6 @@ export default function Content() {
       <div className="block lg:hidden">
         <FloatingCartMobile {...transactionctx} />
       </div>
-    </div>
+    </motion.div>
   );
 }

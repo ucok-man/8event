@@ -6,8 +6,10 @@ import { Card, CardContent } from '@/components/ui/card';
 import { usePaymentNotifContext } from '@/context/payment-notif-provider';
 import { TransactionContextType } from '@/context/transaction-provider';
 import { toast } from '@/hooks/use-toast';
+import { fadeInUp } from '@/lib/animation-template';
 import { formatRupiah } from '@/lib/utils';
 import { Loader2 } from 'lucide-react';
+import { motion } from 'motion/react';
 
 type Props = Pick<
   TransactionContextType,
@@ -92,7 +94,7 @@ export default function FloatingCart({
   const { vouchers, pointBalance } = data?.user;
 
   return (
-    <div className="p-4 md:p-8 size-full">
+    <motion.div {...fadeInUp} className="p-4 md:p-8 size-full">
       <div className="relative size-full w-[360px]">
         <Card className="sticky top-28 border-0 shadow-xl grainy-light w-full">
           <CardContent className="grainy-light">
@@ -239,6 +241,6 @@ export default function FloatingCart({
           </CardContent>
         </Card>
       </div>
-    </div>
+    </motion.div>
   );
 }

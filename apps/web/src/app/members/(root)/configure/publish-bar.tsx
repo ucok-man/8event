@@ -5,7 +5,7 @@ import Spinner from '@/components/shared/spinner';
 import { Button } from '@/components/ui/button';
 import { useAuthContext } from '@/context/auth-provider';
 import { useCreateEventContext } from '@/context/create-event-provider';
-import { queryclient } from '@/context/query-provider';
+import { refetchNow } from '@/context/query-provider';
 import { toast } from '@/hooks/use-toast';
 import { useMutation } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
@@ -49,12 +49,7 @@ export default function PublishBar() {
       setShowConfetti(true);
       startTransition(() => {
         setStorageToDefault();
-        queryclient.invalidateQueries({
-          queryKey: ['my-events', 'event-detail', 'event-discovery'],
-        });
-        queryclient.refetchQueries({
-          queryKey: ['my-events', 'event-detail', 'event-discovery'],
-        });
+        refetchNow(['my-events', 'event-detail']);
         toast({
           title: `Success ${intend} Event`,
           description: `${intend === 'Publish' ? 'Your event has been published.' : 'Your event has been saved.'}`,

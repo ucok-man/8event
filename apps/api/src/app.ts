@@ -7,7 +7,7 @@ import express, {
   Response,
   urlencoded,
 } from 'express';
-import { FRONTEND_URL, PORT } from './config';
+import { FRONTEND_URL, NODE_ENV, PORT } from './config';
 // import { SampleRouter } from './routers/sample.router';
 import cookies from 'cookie-parser';
 import { ApiError } from './errors/interface';
@@ -109,7 +109,7 @@ export default class App {
       res.json({
         status: 'available',
         system_info: {
-          environment: process.env.NODE_ENV,
+          environment: NODE_ENV,
           version: this.version,
         },
       });

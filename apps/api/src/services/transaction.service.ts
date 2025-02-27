@@ -120,7 +120,6 @@ export class TransactionService {
       );
 
       // update voucher if exists.
-      // TODO: when transction is accepted by organizer updated expiredAt to null
       if (dto.voucherId) {
         await prismaclient.voucher.update({
           where: {
@@ -234,6 +233,10 @@ export class TransactionService {
         tickets: true,
         voucher: true,
         buyer: true,
+      },
+
+      orderBy: {
+        createdAt: 'desc',
       },
     });
   };

@@ -10,7 +10,9 @@ import {
 } from '@/components/ui/select';
 
 import { SORTBY_OPTION } from '@/constants';
+import { opacityUp } from '@/lib/animation-template';
 import { Search } from 'lucide-react';
+import { motion } from 'motion/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import qs from 'query-string';
 import { useEffect, useState } from 'react';
@@ -41,7 +43,10 @@ export default function SortAndSearch() {
   }, [debouncedSearch, sortBy]);
 
   return (
-    <div className="mb-8 grid gap-6 md:grid-cols-[2fr,1fr]">
+    <motion.div
+      {...opacityUp}
+      className="mb-8 grid gap-6 md:grid-cols-[2fr,1fr]"
+    >
       <div className="relative">
         <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
         <Input
@@ -73,6 +78,6 @@ export default function SortAndSearch() {
           </SelectContent>
         </Select>
       </div>
-    </div>
+    </motion.div>
   );
 }

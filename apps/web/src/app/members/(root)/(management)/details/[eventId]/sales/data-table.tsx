@@ -52,7 +52,7 @@ export function DataTable<TData, TValue>({
   const footerItems: FooterRowsProp['items'] = [
     { label: 'Total Sales', value: summary.totalTicketSales },
     { label: 'Total Discount (-)', value: summary.totalDiscount },
-    { label: 'Total Income', value: summary.totalIncome },
+    { label: 'Total Revenue', value: summary.totalIncome },
   ];
 
   return (

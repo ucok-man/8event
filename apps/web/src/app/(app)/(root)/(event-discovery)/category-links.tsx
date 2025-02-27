@@ -2,13 +2,15 @@ import { HorizontalScrollContainer } from '@/components/shared/horizontal-scroll
 import MaxWidthWrapper from '@/components/shared/max-width-wrapper';
 import { Button } from '@/components/ui/button';
 import { EVENT_CATEGORY } from '@/constants';
+import { fadeInUp } from '@/lib/animation-template';
+import { motion } from 'motion/react';
 import Link from 'next/link';
 
 export default function CategoryLink() {
   return (
     <MaxWidthWrapper className="my-8">
       <h2 className="text-xl font-bold mb-4">Category Events</h2>
-      <div className="">
+      <motion.div {...fadeInUp} className="">
         <HorizontalScrollContainer>
           {EVENT_CATEGORY.map((category, idx) => (
             <Link
@@ -24,7 +26,7 @@ export default function CategoryLink() {
             </Link>
           ))}
         </HorizontalScrollContainer>
-      </div>
+      </motion.div>
     </MaxWidthWrapper>
   );
 }

@@ -103,6 +103,7 @@ export type GetUserByIdResponse = {
     updatedAt: string;
     referralCode: string;
     referredById?: string;
+    rating: number;
   };
 };
 
@@ -252,6 +253,19 @@ export type GetEventTransactionSummaryResponse = {
     sales: {
       totalIncome: number;
       totalTicketSold: number;
+    };
+  };
+};
+
+export type GetEventsStatistic = {
+  statistic: {
+    yearly: { month: string; events: number; ticketSold: number }[];
+    monthly: { day: string; events: number; ticketSold: number }[];
+    stats: {
+      totalEvents: number;
+      totalTicketSold: number;
+      averageRating: number;
+      totalRevenue: number;
     };
   };
 };

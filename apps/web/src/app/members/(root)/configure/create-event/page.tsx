@@ -41,6 +41,7 @@ import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { CREATE_EVENT_STEPS, EVENT_CATEGORY } from '@/constants';
 import { useCreateEventContext } from '@/context/create-event-provider';
+import { fadeInUp, opacityUp } from '@/lib/animation-template';
 import { cn, validbanner } from '@/lib/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { format } from 'date-fns';
@@ -51,6 +52,7 @@ import {
   MapPin,
   PartyPopper,
 } from 'lucide-react';
+import { motion } from 'motion/react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState, useTransition } from 'react';
 import 'react-clock/dist/Clock.css';
@@ -109,7 +111,7 @@ export default function CreateEventForm() {
   if (redirectPath || !isClient) return <div></div>;
 
   return (
-    <div>
+    <motion.div {...opacityUp}>
       <Card className="mx-auto max-w-4xl shadow-lg">
         <CardHeader className="space-y-4 border-b bg-white px-8 py-6">
           <div className="flex items-center gap-3">
@@ -126,7 +128,8 @@ export default function CreateEventForm() {
 
         <CardContent className="space-y-8 bg-white px-8 py-6">
           <Form {...form}>
-            <form
+            <motion.form
+              {...fadeInUp}
               onSubmit={form.handleSubmit(onContinue)}
               className="space-y-8"
             >
@@ -498,10 +501,10 @@ export default function CreateEventForm() {
                   />
                 </div>
               </div>
-            </form>
+            </motion.form>
           </Form>
         </CardContent>
       </Card>
-    </div>
+    </motion.div>
   );
 }

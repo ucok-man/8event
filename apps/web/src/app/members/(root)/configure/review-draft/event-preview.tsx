@@ -6,7 +6,9 @@ import TicketCard from '@/components/shared/ticket-card';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { fadeInUp } from '@/lib/animation-template';
 import { cn, getEventCategory } from '@/lib/utils';
+import { motion } from 'motion/react';
 
 type Props = {
   event: {
@@ -61,7 +63,7 @@ prose-img:rounded-md prose-img:shadow-md
 
 export default function EventPreview({ event, tickets }: Props) {
   return (
-    <div className="p-4 md:p-8">
+    <motion.div {...fadeInUp} className="p-4 md:p-8">
       <div className="mx-auto max-w-4xl">
         <Card className="shadow-xl border-0">
           <CardHeader className="p-0">
@@ -141,6 +143,6 @@ export default function EventPreview({ event, tickets }: Props) {
           </CardContent>
         </Card>
       </div>
-    </div>
+    </motion.div>
   );
 }

@@ -5,8 +5,10 @@ import EventDateTime from '@/components/shared/event-date-time';
 import EventLoaction from '@/components/shared/event-location';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
+import { fadeInUp } from '@/lib/animation-template';
 import { cn, getEventCategory } from '@/lib/utils';
 import { GetEventByIdResponse } from '@/types';
+import { motion } from 'motion/react';
 
 const proseStyle = `
 prose max-w-none
@@ -24,7 +26,7 @@ type Props = {
 
 export default function ContentEvent({ event }: Props) {
   return (
-    <div className="size-full">
+    <motion.div {...fadeInUp} className="size-full">
       <Card className="shadow-md border-0">
         <CardHeader className="p-0 grainy-light">
           <div className="relative aspect-video overflow-hidden rounded-t-lg">
@@ -71,6 +73,6 @@ export default function ContentEvent({ event }: Props) {
           />
         </CardContent>
       </Card>
-    </div>
+    </motion.div>
   );
 }

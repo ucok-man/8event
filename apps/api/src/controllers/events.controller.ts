@@ -145,4 +145,18 @@ export class EventsController {
       throw error;
     }
   };
+
+  getStatistic = async (req: Request, res: Response) => {
+    const session = getSessionOrganizer(req);
+    try {
+      const statistic = await this.eventService.getStatistic(session.id);
+      res.status(200).json({ statistic });
+    } catch (error) {
+      if (!(error instanceof ApiError)) {
+        const err = error as Error;
+        throw new InternalSeverError(err.message);
+      }
+      throw error;
+    }
+  };
 }

@@ -2,9 +2,11 @@
 
 import { useAuthContext } from '@/context/auth-provider';
 import { toast } from '@/hooks/use-toast';
+import { opacityUp } from '@/lib/animation-template';
 import { GetEventByIdResponse, GetEventSummaryResponse } from '@/types';
 import { useQuery } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
+import { motion } from 'motion/react';
 import { notFound, useParams } from 'next/navigation';
 import ContentEvent from './content-event';
 import ContentSummary from './content-summary';
@@ -52,15 +54,18 @@ export default function SummaryPage() {
     }
   }
 
-  if (!isPending && !data) return notFound();
+  if (!isPending && !data) return null;
   const { event, summary } = data;
 
   return (
     <div className="mt-8">
-      <div className="flex flex-col-reverse xl:flex-row size-full gap-8">
+      <motion.div
+        {...opacityUp}
+        className="flex flex-col-reverse xl:flex-row size-full gap-8"
+      >
         <ContentEvent event={event} />
         <ContentSummary summary={summary} event={event} />
-      </div>
+      </motion.div>
     </div>
   );
 }

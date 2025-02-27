@@ -1,9 +1,13 @@
 'use client';
 
-import { toTitleCase } from '@/lib/utils';
+import { cn, toTitleCase } from '@/lib/utils';
 import { usePathname } from 'next/navigation';
 
-export default function NavInfo() {
+type Props = {
+  className?: string;
+};
+
+export default function NavInfo({ className }: Props) {
   const pathname = usePathname();
 
   let currentpath = 'Dashboard';
@@ -15,7 +19,12 @@ export default function NavInfo() {
 
   return (
     <div>
-      <div className="font-bold text-brand-blue-900 text-3xl tracking-wide">
+      <div
+        className={cn(
+          'font-bold text-brand-blue-900 text-3xl tracking-wide',
+          className,
+        )}
+      >
         {toTitleCase(currentpath)}
       </div>
     </div>

@@ -16,7 +16,6 @@ import {
   useState,
 } from 'react';
 import { useAuthContext } from '../auth-provider';
-import { queryclient } from '../query-provider';
 
 export type PaymentNotifContextValue = {
   isPending: boolean;
@@ -65,9 +64,6 @@ export default function PaymentNotifProvider({ children }: Props) {
         setPendingTransaction(null);
         setIsPaymentToastShowed(false);
       }
-
-      console.log({ log: 'payment notif is runing', data: data });
-
       return data.transaction as GetTransactionByUserId['transaction'];
     },
     enabled: status !== 'pending', // This ensures the query runs only when user is loaded
@@ -107,9 +103,6 @@ export default function PaymentNotifProvider({ children }: Props) {
   });
 
   const updatePaymentNotif = useCallback(() => {
-    queryclient.invalidateQueries({
-      queryKey: ['payment-notif'],
-    });
     refetch();
   }, [refetch]);
 
@@ -158,11 +151,6 @@ export default function PaymentNotifProvider({ children }: Props) {
       snapinit.current = false;
     }
   }, []);
-
-  console.log({
-    log: 'Current state of transaction context',
-    state: pendingTransaction,
-  });
 
   return (
     <PaymentNotifContext.Provider

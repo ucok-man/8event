@@ -5,8 +5,10 @@ import SelectableVoucherCard from '@/components/shared/selectable-voucher-card';
 import { usePaymentNotifContext } from '@/context/payment-notif-provider';
 import { TransactionContextType } from '@/context/transaction-provider';
 import { toast } from '@/hooks/use-toast';
+import { fadeInUp } from '@/lib/animation-template';
 import { cn, formatRupiah } from '@/lib/utils';
 import { ChevronUp, Loader2 } from 'lucide-react';
+import { motion } from 'motion/react';
 import { useState } from 'react';
 
 type Props = Pick<
@@ -93,7 +95,7 @@ export default function FloatingCartMobile({
   const { vouchers, pointBalance } = data.user;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50">
+    <motion.div {...fadeInUp} className="fixed bottom-0 left-0 right-0 z-50">
       <div className="bg-white border-t shadow-lg">
         {/* Trigger button for expansion */}
         <button
@@ -265,6 +267,6 @@ export default function FloatingCartMobile({
           </div>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }

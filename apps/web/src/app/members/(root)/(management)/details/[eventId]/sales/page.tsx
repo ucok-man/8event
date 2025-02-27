@@ -3,10 +3,12 @@
 import StatCard from '@/components/shared/stat-card';
 import { useAuthContext } from '@/context/auth-provider';
 import { toast } from '@/hooks/use-toast';
+import { fadeInUp, opacityUp } from '@/lib/animation-template';
 import { cn, formatRupiah } from '@/lib/utils';
 import { useQuery } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
-import { Minus, Plus, WalletCards } from 'lucide-react';
+import { Minus, Plus, Ticket, WalletCards } from 'lucide-react';
+import { motion } from 'motion/react';
 import { notFound, useParams } from 'next/navigation';
 import { useMediaQuery } from 'usehooks-ts';
 import { columns, DataColumnType } from './columns';
@@ -55,7 +57,7 @@ export default function SalesPage() {
     }
   }
 
-  if (!isPending && !data) return notFound();
+  if (!isPending && !data) return null;
   const { tickets, summary } = data;
 
   const datacolumn: DataColumnType[] = tickets.map((ticket) => ({
@@ -67,10 +69,18 @@ export default function SalesPage() {
   }));
 
   return (
-    <div className="w-full">
+    <motion.div {...opacityUp} className="w-full">
       <div className="mb-12 mt-9">
         <div className="text-gray-500 font-semibold">Summary</div>
-        <div className="flex gap-4 max-w-5xl max-lg:flex-col">
+        <div className="flex max-w-7xl gap-4 max-xl:flex-col">
+          <StatCard
+            title="Total Ticket Sold"
+            value={tickets.reduce(
+              (sum, current) => sum + current.ticketSold,
+              0,
+            )}
+            icon={<Ticket className="h-6 w-6 text-green-600" />}
+          />
           <StatCard
             title="Total Ticket Sales"
             value={formatRupiah(summary.totalTicketSales)}
@@ -82,14 +92,14 @@ export default function SalesPage() {
             icon={<Minus className="h-6 w-6 text-orange-600" />}
           />
           <StatCard
-            title="Total Income"
+            title="Total Revenue"
             value={formatRupiah(summary.totalIncome)}
             icon={<WalletCards className="h-6 w-6 text-purple-600" />}
           />
         </div>
       </div>
 
-      <div>
+      <motion.div {...fadeInUp}>
         <div className="mb-4 text-gray-500 font-semibold">
           Online Ticket Sales
         </div>
@@ -102,7 +112,7 @@ export default function SalesPage() {
         >
           <DataTable columns={columns} data={datacolumn} summary={summary} />
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }

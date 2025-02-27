@@ -13,6 +13,17 @@ export const queryclient = new QueryClient({
   },
 });
 
+export const refetchNow = (querykey: string[]) => {
+  querykey.forEach((key) => {
+    queryclient.invalidateQueries({
+      queryKey: [key],
+    });
+    queryclient.refetchQueries({
+      queryKey: [key],
+    });
+  });
+};
+
 type Props = {
   children: React.ReactNode;
 };

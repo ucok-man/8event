@@ -2,7 +2,9 @@
 'use client';
 
 import { useCreateEventContext } from '@/context/create-event-provider';
+import { opacityUp } from '@/lib/animation-template';
 import { validbanner, validEvent, validTicket } from '@/lib/utils';
+import { motion } from 'motion/react';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { useIsClient } from 'usehooks-ts';
@@ -31,7 +33,7 @@ export default function ReviewDraft() {
   if (redirectPath || !isClient) return <div></div>;
 
   return (
-    <div>
+    <motion.div {...opacityUp}>
       <EventPreview
         event={{
           bannerUrl: payload.uploadBanner.data?.bannerUrl as any,
@@ -39,6 +41,6 @@ export default function ReviewDraft() {
         }}
         tickets={payload.createTicket.data as any}
       />
-    </div>
+    </motion.div>
   );
 }

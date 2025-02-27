@@ -1,5 +1,6 @@
 'use client';
 
+import { Icons } from '@/components/shared/icons';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   Form,
@@ -20,26 +21,29 @@ import { Separator } from '@/components/ui/separator';
 import { useAuthContext } from '@/context/auth-provider';
 import { refetchNow } from '@/context/query-provider';
 import { toast } from '@/hooks/use-toast';
+import { fadeInUp, opacityUp } from '@/lib/animation-template';
+import { cn } from '@/lib/utils';
 import { GetUserByIdResponse } from '@/types';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { Loader2, LucideIcon, Mail, PencilLine, QrCode, X } from 'lucide-react';
+import { format } from 'date-fns';
+import { Loader2, LucideIcon, Mail, PencilLine, Star, X } from 'lucide-react';
+import { motion } from 'motion/react';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { Icons } from '../icons';
 import { NameSchema } from './validation';
 
 type FormData = z.infer<typeof NameSchema>;
 
-export default function ProfileTab() {
+export default function ProfilePage() {
   const { user: session, apiclient, update: updateSession } = useAuthContext();
   const [nameOpen, setNameOpen] = useState(false);
 
   const {
     data: user,
     error,
-    isFetching,
+    isPending,
   } = useQuery({
     queryKey: ['profile', session?.id],
     queryFn: async () => {
@@ -112,23 +116,34 @@ export default function ProfileTab() {
     if (nameOpen === false) form.reset();
   }, [nameOpen]);
 
-  useEffect(() => {
-    if (error)
-      toast({
-        title: 'Unable Get User Detail',
-        description: 'Sorry we found some issue on the server. Try again later',
-        variant: 'destructive',
-      });
-  }, [error]);
+  if (isPending) {
+    return (
+      <div className="p-8 text-center">
+        <div className="text-base text-muted-foreground">
+          🤔 Preparing your data...
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    toast({
+      title: 'Unable Get User Detail',
+      description: 'Sorry we found some issue on the server. Try again later',
+      variant: 'destructive',
+    });
+    return null;
+  }
+  if (!user) return null;
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h3 className="text-lg font-semibold text-gray-700">Profile details</h3>
+    <motion.div {...opacityUp} className="mt-8">
+      <motion.div {...fadeInUp} className="mb-8">
+        <h3 className="text-xl font-semibold text-gray-700">Profile details</h3>
         <Separator className="mt-4" />
-      </div>
+      </motion.div>
 
-      <div className="space-y-4">
+      <motion.div {...fadeInUp} className="mb-8">
         <div className="flex items-center justify-start space-x-4">
           {/* Avatar */}
           <div className="relative">
@@ -234,26 +249,31 @@ export default function ProfileTab() {
               </Popover>
             </div>
             <div className="text-xs text-gray-500">
-              Point Balance {user?.pointBalance || 0}
+              Member since{' '}
+              {format(new Date(user?.createdAt || Date.now()), 'MMM dd, yyyy')}
             </div>
           </div>
         </div>
-      </div>
+      </motion.div>
 
       <Card
         title="Email addresses"
         value={user?.email || ''}
         subvalue="Primary"
         icon={Mail}
+        className="max-w-xl shadow-sm mb-8 text-gray-700"
+        iconClass="text-brand-rose-500"
       />
 
       <Card
-        title="Referral Code"
-        value={user?.referralCode || ''}
-        subvalue="Invite other and get point balance"
-        icon={QrCode}
+        title="Creator Rating"
+        value={user.rating.toFixed(2)}
+        subvalue="Based on event reviews"
+        icon={Star}
+        className="max-w-xl shadow-sm text-gray-700"
+        iconClass="text-yellow-500"
       />
-    </div>
+    </motion.div>
   );
 }
 
@@ -262,18 +282,32 @@ type CardProp = {
   value: string;
   subvalue: string;
   icon: LucideIcon;
+  className?: string;
+  iconClass?: string;
 };
 
-function Card({ title, value, subvalue, icon }: CardProp) {
+function Card({
+  title,
+  value,
+  subvalue,
+  icon,
+  className,
+  iconClass,
+}: CardProp) {
   const Icon = icon;
 
   return (
-    <div className="space-y-4">
+    <motion.div {...fadeInUp} className={cn('space-y-4', className)}>
       <h3 className="text-lg font-medium">{title}</h3>
       <div className="space-y-2">
         <div className="flex items-center justify-between p-3 border rounded-lg">
           <div className="flex items-center space-x-3">
-            <Icon className="size-5 text-muted-foreground !text-brand-blue-800" />
+            <Icon
+              className={cn(
+                'size-5 text-muted-foreground text-brand-blue-800',
+                iconClass,
+              )}
+            />
             <div>
               <p className="font-medium ">{value}</p>
               <p className="text-sm text-muted-foreground">{subvalue}</p>
@@ -281,6 +315,6 @@ function Card({ title, value, subvalue, icon }: CardProp) {
           </div>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }

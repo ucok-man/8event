@@ -24,7 +24,7 @@ import Confetti from 'react-dom-confetti';
 import { v4 as uuid } from 'uuid';
 import { useAuthContext } from '../auth-provider';
 import { usePaymentNotifContext } from '../payment-notif-provider';
-import { queryclient } from '../query-provider';
+import { refetchNow } from '../query-provider';
 
 export type TransactionStateType = {
   id: string;
@@ -124,6 +124,7 @@ export default function TransactionContextProvider({
             updatedAt: '',
             profilePicture: '',
             referredById: '',
+            rating: 0,
           } as GetUserByIdResponse['user'],
         };
       }
@@ -395,17 +396,8 @@ export default function TransactionContextProvider({
     },
     onSuccess: async (data) => {
       if (data.status === 'NEED_PAYMENT') {
-        queryclient.invalidateQueries({
-          queryKey: ['event-detail', 'members-overview'], // in members page
-        });
         updatePaymentNotif();
       } else {
-        queryclient.invalidateQueries({
-          queryKey: ['event-detail'],
-        });
-        queryclient.refetchQueries({
-          queryKey: ['event-detail'],
-        });
         setShowConfetti(true);
         toast({
           title: '🎉 Payment Success',
@@ -414,9 +406,8 @@ export default function TransactionContextProvider({
         });
       }
 
-      queryclient.invalidateQueries({
-        queryKey: ['transaction-context'],
-      });
+      refetchNow(['transaction-context']);
+
       setTransactionPayload({
         id: transactionId,
         priceAfterDiscount: 0,

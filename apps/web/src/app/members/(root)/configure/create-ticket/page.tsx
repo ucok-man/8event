@@ -20,6 +20,7 @@ import { CREATE_EVENT_STEPS } from '@/constants';
 import { useAuthContext } from '@/context/auth-provider';
 import { useCreateEventContext } from '@/context/create-event-provider';
 import { toast } from '@/hooks/use-toast';
+import { fadeInUp, opacityUp } from '@/lib/animation-template';
 import { validEvent, validbanner } from '@/lib/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
@@ -29,6 +30,7 @@ import {
   Ticket,
   Trash2Icon,
 } from 'lucide-react';
+import { motion } from 'motion/react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState, useTransition } from 'react';
 import { useForm } from 'react-hook-form';
@@ -192,7 +194,7 @@ export default function TicketCreation() {
   if (redirectPath || !isClient) return <div></div>;
 
   return (
-    <div className="container py-10 mx-auto">
+    <motion.div {...opacityUp} className="container py-10 mx-auto">
       <Card className="mx-auto max-w-4xl shadow-lg">
         <CardHeader className="space-y-4 border-b bg-white px-8 py-6">
           <div className="flex items-center gap-3">
@@ -208,7 +210,10 @@ export default function TicketCreation() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-8 bg-white px-8 py-6">
-          <div className="flex gap-4 max-sm:flex-col max-sm:w-full">
+          <motion.div
+            {...fadeInUp}
+            className="flex gap-4 max-sm:flex-col max-sm:w-full"
+          >
             <Button
               onClick={() =>
                 openDialog({
@@ -231,7 +236,7 @@ export default function TicketCreation() {
             >
               Create Paid Ticket
             </Button>
-          </div>
+          </motion.div>
 
           {tickets.length > 0 && (
             <div className="space-y-4">
@@ -337,6 +342,6 @@ export default function TicketCreation() {
           </div>
         </CardContent>
       </Card>
-    </div>
+    </motion.div>
   );
 }

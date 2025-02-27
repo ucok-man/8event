@@ -4,7 +4,7 @@ export class BadRequestError extends ApiError {
   constructor(errmsg: string) {
     super({
       errmsg,
-      status: 401,
+      status: 400,
     });
   }
 }

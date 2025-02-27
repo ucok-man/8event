@@ -15,7 +15,7 @@ export class JWTService {
     refreshPayload: { email: string },
   ) => {
     const accessToken = sign(accessPayload, JWT_ACCESS_SECRET, {
-      expiresIn: '5s',
+      expiresIn: '1m',
     });
     const refreshToken = sign(refreshPayload, JWT_REFRESH_SECRET, {
       expiresIn: '1d',

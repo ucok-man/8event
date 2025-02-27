@@ -118,7 +118,7 @@ export default function Sidebar() {
                       <SidebarMenuButton
                         onClick={() => router.push(item.link)}
                         className={cn(
-                          'transition-all duration-200 ease-in-out hover:bg-brand-blue-100/50 text-muted-foreground',
+                          'transition-all duration-200 ease-in-out hover:bg-brand-blue-100/50 hover:text-brand-blue-900 text-muted-foreground',
                           isActive &&
                             'bg-brand-blue-100/60 text-brand-blue-900',
                         )}

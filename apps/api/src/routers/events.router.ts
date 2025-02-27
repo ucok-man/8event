@@ -39,6 +39,12 @@ export class EventsRouter {
       withRole('ORGANIZER'),
       catcherror(this.controller.getTicketSales),
     );
+    this.router.get(
+      '/statistic',
+      withAuthentication,
+      withRole('ORGANIZER'),
+      catcherror(this.controller.getStatistic),
+    );
   }
 
   getRouter(): Router {

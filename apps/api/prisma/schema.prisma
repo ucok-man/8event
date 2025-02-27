@@ -212,7 +212,6 @@ enum VoucherStatus {
   USED
 }
 
-// TODO: change this to service instead
 view RecordOrganizerAverageRating {
   organizerId   String @unique // this will be user id with role Organizer only
   averageRating Float // calculated from average all review rating for the event ever created for this organizer

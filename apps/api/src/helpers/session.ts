@@ -22,5 +22,5 @@ export function getSessionOrganizer(req: Request) {
 export function getSessionCustomer(req: Request) {
   const user = getSessionAccess(req);
   if (user.role !== 'CUSTOMER') throw new UnauthorizedError();
-  return { ...req['user'], role: 'CUSTOMER' };
+  return { ...user, role: 'CUSTOMER' };
 }

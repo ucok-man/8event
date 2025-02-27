@@ -41,7 +41,7 @@ export default function FeaturedEvent() {
       <div>
         <h2 className="mb-4 text-xl font-bold">Trending Event</h2>
         {events.length >= 1 && (
-          <div className="w-full">
+          <div className="size-full">
             <CardCarousel
               slideToScroll={1}
               items={events.map((event) => (

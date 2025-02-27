@@ -64,6 +64,29 @@ export const SIDEBAR_LINK = [
   },
 ];
 
+export const USER_POPOVER_LINK = [
+  {
+    label: 'Overview',
+    link: '/members/overview',
+    icon: Home,
+  },
+  {
+    label: 'My Events',
+    link: '/members/my-events',
+    icon: LayoutDashboard,
+  },
+  {
+    label: 'Profile',
+    link: '/members/profile',
+    icon: User,
+  },
+  {
+    label: 'Settings',
+    link: '/members/settings',
+    icon: Settings,
+  },
+];
+
 export const CREATE_EVENT_STEPS = [
   {
     title: 'Upload Your Banner',

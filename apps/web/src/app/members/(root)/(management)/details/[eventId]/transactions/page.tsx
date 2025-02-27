@@ -3,6 +3,7 @@
 import StatCard from '@/components/shared/stat-card';
 import { useAuthContext } from '@/context/auth-provider';
 import { toast } from '@/hooks/use-toast';
+import { fadeInUp, opacityUp } from '@/lib/animation-template';
 import { cn } from '@/lib/utils';
 import {
   GetAllTransactionForActionResponse,
@@ -11,6 +12,7 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 import { Hourglass, NotepadText, ShieldBan, ShieldCheck } from 'lucide-react';
+import { motion } from 'motion/react';
 import { notFound, useParams } from 'next/navigation';
 import { useMediaQuery } from 'usehooks-ts';
 import { columns, DataColumnType } from './columns';
@@ -67,7 +69,7 @@ export default function TransactionPage() {
     }
   }
 
-  if (!isPending && !data) return notFound();
+  if (!isPending && !data) return null;
 
   const { transactions, summary } = data;
 
@@ -91,7 +93,7 @@ export default function TransactionPage() {
   }));
 
   return (
-    <div>
+    <motion.div {...opacityUp}>
       <div className="mb-12 mt-9">
         <div className="font-semibold text-gray-500">Summary</div>
         <div className="flex max-w-7xl gap-4 max-xl:flex-col">
@@ -117,7 +119,7 @@ export default function TransactionPage() {
           />
         </div>
       </div>
-      <div>
+      <motion.div {...fadeInUp}>
         <div className="mb-4 text-gray-500 font-semibold">
           Online Ticket Sales
         </div>
@@ -130,7 +132,7 @@ export default function TransactionPage() {
         >
           <DataTable columns={columns} data={datacolumn} />
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }

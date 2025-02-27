@@ -5,7 +5,10 @@ import { resolve } from 'path';
 const envFile = '.env';
 
 config({ path: resolve(__dirname, `../${envFile}`) });
-config({ path: resolve(__dirname, `../${envFile}.local`), override: true });
+config({
+  path: resolve(__dirname, `../${envFile}.local`),
+  override: true,
+});
 
 // Load all environment variables from .env file
 export const NODE_ENV = process.env.NODE_ENV || 'development';
@@ -18,3 +21,6 @@ export const FRONTEND_URL = process.env.FRONTEND_URL || '';
 export const REDIS_URL = process.env.REDIS_URL || '';
 export const SMTP_PASSWORD = process.env.SMTP_PASSWORD || '';
 export const SMTP_USER = process.env.SMTP_USER || '';
+export const CLOUDINARY_CLOUD_NAME = process.env.CLOUDINARY_CLOUD_NAME || '';
+export const CLOUDINARY_API_KEY = process.env.CLOUDINARY_API_KEY || '';
+export const CLOUDINARY_API_SECRET = process.env.CLOUDINARY_API_SECRET || '';

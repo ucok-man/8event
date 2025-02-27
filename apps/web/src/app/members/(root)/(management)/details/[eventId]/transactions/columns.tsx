@@ -8,7 +8,7 @@ import {
 } from '@/components/ui/popover';
 import { Separator } from '@/components/ui/separator';
 import { useAuthContext } from '@/context/auth-provider';
-import { queryclient } from '@/context/query-provider';
+import { refetchNow } from '@/context/query-provider';
 import { toast } from '@/hooks/use-toast';
 import { cn, formatRupiah } from '@/lib/utils';
 import { AcceptRejectPaymentResponse } from '@/types';
@@ -255,12 +255,7 @@ export const columns: ColumnDef<DataColumnType>[] = [
         },
 
         onSuccess: () => {
-          queryclient.invalidateQueries({
-            queryKey: ['event-detail'],
-          });
-          queryclient.refetchQueries({
-            queryKey: ['event-detail'],
-          });
+          refetchNow(['event-detail', 'dashboard-overview']);
           setActionType('');
         },
       });

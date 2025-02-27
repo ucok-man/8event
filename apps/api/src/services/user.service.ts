@@ -38,9 +38,16 @@ export class UserService {
       throw new Error('negative sum point balances result');
     }
 
+    const rating = await prismaclient.recordOrganizerAverageRating.findUnique({
+      where: {
+        organizerId: user.id,
+      },
+    });
+
     return {
       ...user,
       pointBalance: sum,
+      rating: rating?.averageRating || 0,
     };
   };
 
@@ -77,9 +84,16 @@ export class UserService {
       throw new Error('negative sum point balances result');
     }
 
+    const rating = await prismaclient.recordOrganizerAverageRating.findUnique({
+      where: {
+        organizerId: user.id,
+      },
+    });
+
     return {
       ...user,
       pointBalance: sum,
+      rating: rating?.averageRating || 0,
     };
   };
 
@@ -119,9 +133,16 @@ export class UserService {
       throw new Error('negative sum point balances result');
     }
 
+    const rating = await prismaclient.recordOrganizerAverageRating.findUnique({
+      where: {
+        organizerId: user.id,
+      },
+    });
+
     return {
       ...user,
       pointBalance: sum,
+      rating: rating?.averageRating || 0,
     };
   };
 
