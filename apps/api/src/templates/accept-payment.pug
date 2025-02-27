@@ -1,0 +1,33 @@
+extends layout.pug
+
+block headerContent
+  tr
+    td.text-paragraph
+      p Hi 
+        b= receiver
+  tr
+    td.text-paragraph
+      p Thank you! Your donation has been received. These funds will be used to help our hungry employees.
+  tr
+    td.text-paragraph
+      p Here is a link to print your transaction. Show it to the event committee when the event starts
+
+block mainContent
+  tr
+    td(style="padding: 32px 32px; text-align: center;")
+      table(width="100%" style="background: linear-gradient(to right, #2d34c8, #4a90e2); border-radius: 8px; font-size: 14px; color: #ffffff; padding: 24px; text-align: center;")
+        tr
+          td(style="padding: 20px;")
+            table(width="100%")
+              tr
+                td(style="padding: 12px 0;")
+                  a(
+                    href="https://www.youtube.com/watch?v=9A5sxxFX8zM" 
+                    style="display: inline-block; background-color: #ffffff; color: #2d34c8; padding: 12px 24px; font-size: 16px; font-weight: bold; text-decoration: none; border-radius: 6px; transition: background-color 0.3s ease, color 0.3s ease;"
+                  ) Print Your Transaction
+
+block footerContent
+  tr
+    td.text-paragraph
+      p If you need more help please contact our call center at +62 123-1234-123 or via email at support@8event.com
+

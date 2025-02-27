@@ -1,0 +1,137 @@
+doctype html
+html(lang="en")
+  head
+    meta(charset="UTF-8")
+    meta(http-equiv="X-UA-Compatible" content="IE=edge")
+    meta(name="viewport" content="width=device-width, initial-scale=1.0")
+    title 8Event - #{title}
+    style(type="text/css").
+      body {
+        margin: 0;
+        background-color: #F0F6FF;
+      }
+
+      table {
+        border-spacing: 0;
+      }
+
+      td {
+        padding: 0;
+      }
+
+      img {
+        border: 0;
+      }
+
+      .wrapper {
+        width: 100%;
+        table-layout: fixed;
+        padding-bottom: 60px;
+      }
+
+      .main {
+        background-color: #ffffff;
+        margin: 0 auto;
+        width: 100%;
+        max-width: 600px;
+        border-spacing: 0;
+        font-family: sans-serif;
+        color: #494A4A;
+        box-shadow: 0 4px 8px rgba(30, 44, 106, 0.1);
+        border-radius: 12px;
+      }
+
+      .container {
+        width: 100%; 
+        height: 100%; 
+        background-color: #F0F6FF; 
+        padding-top: 30px;
+      }
+
+      .logo {
+        margin-top: 30px;
+        margin-bottom: 24px;
+      }
+
+      .logo-image {
+        width: 152px; 
+        height: 40px;
+      }
+      
+      .content-box {
+        padding: 4px 12px;
+        border-radius: 4px;
+        display: inline;
+        font-size: 12px;
+      }
+
+      .otp-box {
+        padding: 4px 12px;
+        border-radius: 4px;
+        display: inline;
+        font-size: 12px;
+        font-weight: 500;
+      }
+
+      .otp-safe {
+        color: #344d70;
+        background-color: #e7effa;
+        border: 1px solid #cfd7e1;
+        padding: 10px;
+        font-size: 42px;
+        font-weight: bold;
+        font-family: sans-serif;
+        letter-spacing: 4px;
+      }
+
+      .bold {
+        font-weight: 700;
+        color: black;
+      }
+
+      .link a {
+        text-decoration: underline;
+        color: #151416;
+        font-size: 14px;
+        font-weight: 500;
+      }
+      .text-paragraph {
+        padding: 8px 32px; 
+        font-size: 14px; 
+        line-height: 20px; 
+        letter-spacing: 0.003em; 
+        font-weight: 400; 
+        color: #151416;
+      }
+  body.container
+    center.wrapper
+      table.logo
+        tr
+          td
+            img.logo-image(src="https://www.loket.com/images/logo-loket-blue.png" alt="Logo")
+      table.main(width="100%")
+        tr
+          td(height="8" style="background-color: #2d34c8; border-top-left-radius: 100px; border-top-right-radius: 100px;")
+        
+        block headerContent 
+
+        block mainContent
+
+        block footerContent
+
+        tr
+          td.text-paragraph(style="padding:16px 32px;")
+            p Salam hangat, 8EVENT
+      
+      table(style="font-size: 12px;")
+        tr.link
+          td(style="text-align: center; padding: 32px 32px 0px 32px;")
+            p tel:
+              a(href="tel:01231231234") +62 123-123-1234
+              |  - email:
+              a(href="mailto:support@8event.com") support@8event.com
+        tr.link
+          td(style="text-align: center;")
+            a(href="https://www.example.com") Privacy Policy
+            |  -
+            a(href="https://www.example.com") Terms & Condition

@@ -12,9 +12,39 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-enum Role {
-  CUSTOMER
-  ORGANIZER
+model PointBalance {
+  id        String           @id @default(uuid())
+  user      User             @relation(fields: [userId], references: [id])
+  userId    String
+  point     Float // this can be negative or positive
+  type      PointBalanceType
+  createdAt DateTime         @default(now()) @db.Timestamptz
+  // expiredAt DateTime?  @db.Timestamptz // missing feature
+}
+
+model Voucher {
+  id          String        @id @default(uuid())
+  name        String
+  description String
+  price       Float
+  status      VoucherStatus @default(NOT_USE)
+  createdAt   DateTime      @default(now()) @db.Timestamptz
+  expiredAt   DateTime?     @db.Timestamptz
+
+  user   User   @relation(fields: [userId], references: [id])
+  userId String
+
+  transactions Transaction[]
+}
+
+model AuthToken {
+  id               String   @id @default(uuid())
+  accessToken      String
+  refreshToken     String
+  refreshExpiredAt DateTime @db.Timestamptz
+
+  user  User   @relation(fields: [email], references: [email])
+  email String @unique
 }
 
 model User {
@@ -24,39 +54,25 @@ model User {
   password       String
   profilePicture String?
   role           Role
-  pointsBalance  Int      @default(0)
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  createdAt      DateTime @default(now()) @db.Timestamptz
+  updatedAt      DateTime @updatedAt @db.Timestamptz
 
   referralCode String  @unique // A special code that this user gets. They can share it with others to invite them to sign up.
   referrals    User[]  @relation("SignupReferral") // A list of users who signed up using this user's referral code.
   referredBy   User?   @relation("SignupReferral", fields: [referredById], references: [id]) // The user who invited this user to sign up (if they used a referral code).
   referredById String? // The ID of the user who invited this user (if a referral code was used).
 
-  organizedEvents Event[]       @relation("UserOrganizedEvents")
+  pointBalances   PointBalance[]
+  organizedEvents Event[]        @relation("UserOrganizedEvents")
   transactions    Transaction[]
   reviews         Review[]
-  coupons         Coupon[]
-}
-
-// create manual view on migration. Dont update this manually on app
-view UserInfo {
-  organizerId   String @unique // this will be user id with role Organizer only
-  averageRating Float // calculated from average all review rating for the event ever created for this organizer
+  vouchers        Voucher[]
+  authToken       AuthToken[]
 }
 
 model EventCategory {
   id   String @id @default(uuid())
-  name String
-
-  events Event[]
-}
-
-model Location {
-  id        String @id @default(uuid())
-  address   String
-  latitude  Float
-  longitude Float
+  name String @unique
 
   events Event[]
 }
@@ -64,66 +80,67 @@ model Location {
 model Event {
   id          String   @id @default(uuid())
   name        String
+  bannerUrl   String
   description String
-  eventImage  String
-  startDate   DateTime
-  endDate     DateTime
-  // totalCapacity Int // Should be managed programmatically
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  startDate   DateTime @db.Timestamptz
+  endDate     DateTime @db.Timestamptz
+  startTime   String
+  endTime     String
+  createdAt   DateTime @default(now()) @db.Timestamptz
+  updatedAt   DateTime @updatedAt @db.Timestamptz
+  views       Int      @default(0)
 
-  category   EventCategory @relation(fields: [categoryId], references: [id])
-  categoryId String
+  isEventOnline Boolean
+  urlStreaming  String?
+  placeName     String?
+  placeCity     String?
+  placeAddress  String?
 
-  location   Location @relation(fields: [locationId], references: [id])
-  locationId String
+  isPublished Boolean @default(false)
 
   organizer   User   @relation("UserOrganizedEvents", fields: [organizerId], references: [id])
   organizerId String
 
-  tickets      Ticket[]
+  category   EventCategory @relation(fields: [categoryId], references: [id])
+  categoryId String
+
+  tickets Ticket[]
+
   transactions Transaction[]
   reviews      Review[]
-  coupons      Coupon[]
-}
-
-// create manual view on migration. Dont update this manually on app
-view EventInfo {
-  eventId   String @unique // this will be event id
-  totalSeat Int // calculated from ticket.seatsAvailable
 }
 
 model Ticket {
-  id             String   @id @default(uuid())
-  type           String
-  price          Float
-  isFree         Boolean // check constraint (if true 'price' should be 0) on migration
-  seatsAvailable Int // this will be used to calculate total seat available for an event
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  id            String     @id @default(uuid())
+  type          TicketType
+  name          String
+  description   String
+  initialAmount Int // immutable
+  amount        Int
+  startDate     DateTime   @db.Timestamptz
+  endDate       DateTime   @db.Timestamptz
+  startTime     String
+  endTime       String
+  price         Float?
+  createdAt     DateTime   @default(now()) @db.Timestamptz
+  updatedAt     DateTime   @updatedAt @db.Timestamptz
 
   event   Event  @relation(fields: [eventId], references: [id])
   eventId String
 
-  transactions Transaction[]
-}
-
-enum TransactionStatus {
-  WAITING_PAYMENT
-  WAITING_CONFIRMATION
-  COMPLETED
-  CANCELLED
+  transactions TransactionTicket[]
 }
 
 model Transaction {
-  id             String            @id @default(uuid())
-  status         TransactionStatus
-  ticketQuantity Int
-  totalPrice     Float
-  usedPoints     Int               @default(0)
-  paymentProof   String?
-  createdAt      DateTime          @default(now())
-  expiresAt      DateTime
+  id                  String            @id @default(uuid())
+  status              TransactionStatus @default(WAITING_PAYMENT)
+  priceBeforeDiscount Float
+  priceAfterDiscount  Float
+  isPayed             Boolean           @default(false) // this is updated when user pay on midtrans
+  paymentProof        String?
+  snaptoken           String?
+  createdAt           DateTime          @default(now()) @db.Timestamptz
+  expiredAt           DateTime?         @db.Timestamptz
 
   event   Event  @relation(fields: [eventId], references: [id])
   eventId String
@@ -131,45 +148,71 @@ model Transaction {
   buyer   User   @relation(fields: [buyerId], references: [id])
   buyerId String
 
+  totalTicketQuantity Int
+  tickets             TransactionTicket[]
+
+  totalDiscount Float
+  usedPoints    Float?
+  voucher       Voucher? @relation(fields: [voucherId], references: [id])
+  voucherId     String?
+}
+
+model TransactionTicket {
+  transaction   Transaction @relation(fields: [transactionId], references: [id])
+  transactionId String
+
   ticket   Ticket @relation(fields: [ticketId], references: [id])
   ticketId String
 
-  coupon   Coupon? @relation(fields: [couponId], references: [id])
-  couponId String?
-}
+  name     String // ticket name
+  price    Float // price per individual ticket
+  quantity Int // quantity per individual ticket
 
-enum CouponStatus {
-  NOT_USED
-  IN_USE
-  USED
-}
-
-model Coupon {
-  id                 String       @id @default(uuid())
-  userId             String
-  code               String       @unique
-  discountPercentage Int
-  couponStatus       CouponStatus
-  startDate          DateTime     @default(now())
-  endDate            DateTime
-
-  event   Event  @relation(fields: [eventId], references: [id])
-  eventId String
-
-  user User @relation(fields: [userId], references: [id])
-
-  transactions Transaction[]
+  @@id([transactionId, ticketId])
 }
 
 model Review {
   id        String   @id @default(uuid())
-  rating    Int      @default(0) // check constraint to max of 5 on migration // value 0 mean user dont give rating;
+  rating    Int      @default(0) // check constraint to max of 5 on migration, value 0 mean user dont give rating;
   comment   String
-  createdAt DateTime @default(now())
+  createdAt DateTime @default(now()) @db.Timestamptz
 
   event   Event  @relation(fields: [eventId], references: [id])
   eventId String
 
-  customer   User   @relation(fields: [customerId], references: [id]) // user who review the event
-  customerId String
+  createdBy   User   @relation(fields: [createdById], references: [id])
+  createdById String
+}
+
+enum TransactionStatus {
+  WAITING_PAYMENT
+  WAITING_CONFIRMATION
+  COMPLETED
+  CANCELLED
+  EXPIRED
+}
+
+enum Role {
+  CUSTOMER
+  ORGANIZER
+}
+
+enum PointBalanceType {
+  EARN
+  REDEEM
+}
+
+enum TicketType {
+  FREE
+  PAID
+}
+
+enum VoucherStatus {
+  NOT_USE
+  USED
+}
+
+view RecordOrganizerAverageRating {
+  organizerId   String @unique // this will be user id with role Organizer only
+  averageRating Float // calculated from average all review rating for the event ever created for this organizer
 }

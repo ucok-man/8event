@@ -1,0 +1,53 @@
+extends layout.pug
+
+block headerContent
+  tr
+    td.text-paragraph
+      p Hi 
+        b= receiver
+  tr
+    td.text-paragraph
+      p You have a new pending transaction. Below is the detailed transaction.
+
+block mainContent
+  td(style="padding: 32px 32px; text-align: center;")
+    table(width="100%" style="background: linear-gradient(to right, #f0f6ff, #dce7ff); border-radius: 8px; font-size: 14px; color: #151416; padding: 24px; text-align: left; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);")
+      tr
+        td(style="padding: 20px;")
+          table(width="100%")
+            //- Event Name
+            tr
+              td(style="padding: 10px 0; font-weight: bold; font-size: 16px; color: #151416;")
+                p Event: 
+                  span(style="color: #2d34c8; font-weight: bold;")= event.name
+
+            //- Buyer
+            tr
+              td(style="padding: 10px 0;")
+                div(style="font-weight: bold; font-size: 14px; margin-bottom: 8px; color: #151416;")
+                  | Buyer: #{event.buyer}
+
+            //- Ticket Details
+            tr
+              td(style="padding: 10px 0;")
+                div(style="font-weight: bold; font-size: 14px; margin-bottom: 8px; color: #151416;")
+                  | Ticket Details:
+                ul(style="list-style: none; padding-left: 0; color: #151416; border-radius: 6px; padding: 12px; ")
+                  each ticket in event.tickets
+                    li(style="padding: 8px 12px; border-bottom: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center;")
+                      strong(style="color: #151416;")= ticket.name
+                      span(style="font-weight: bold;") (#{ticket.quantity})
+
+            //- Total Price
+            tr
+              td(style="padding-top: 12px; font-size: 14px; font-weight: bold; color: #151416; text-align: center;")
+                p Total Transaction: 
+                  span(style="color: #E63946; font-size: 18px; font-weight: bold; padding: 6px 12px; border-radius: 4px; display: inline-block;") #{event.totalPrice}  
+
+block footerContent
+  tr
+    td.text-paragraph
+      p Please process it within 3 days. If it exceeds the limit, this transaction will be automatically canceled.
+  tr
+    td.text-paragraph
+      p If you need more help please contact our call center at +62 123-1234-123 or via email at support@8event.com
