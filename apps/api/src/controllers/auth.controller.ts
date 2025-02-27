@@ -1,4 +1,4 @@
-import { JWT_REFRESH_SECRET, NODE_ENV } from '@/config';
+import { FRONTEND_URL, JWT_REFRESH_SECRET, NODE_ENV } from '@/config';
 import { AuthLoginDTO } from '@/dto/auth-login.dto';
 import { AuthRegisterDTO } from '@/dto/auth-register.dto';
 import { FailedValidationError } from '@/errors/failed-validation.error';
@@ -117,9 +117,10 @@ export class AuthControllers {
       res.cookie('jwt-token', token.refreshToken, {
         httpOnly: true, // cannot access in javascript
         secure: NODE_ENV === 'development' ? false : true, // https only
-        sameSite: 'lax', // allow cross site cookie
+        sameSite: NODE_ENV === 'development' ? 'lax' : 'none', // allow cross site cookie
         path: '/',
         expires: token.refreshExpiredAt,
+        domain: NODE_ENV === 'development' ? undefined : FRONTEND_URL,
       });
 
       res.status(200).json({ accessToken: token.accessToken });
@@ -153,9 +154,10 @@ export class AuthControllers {
       res.cookie('jwt-token', token.refreshToken, {
         httpOnly: true, // cannot access in javascript
         secure: NODE_ENV === 'development' ? false : true, // https only
-        sameSite: 'lax', // allow cross site cookie
+        sameSite: NODE_ENV === 'development' ? 'lax' : 'none', // allow cross site cookie
         path: '/',
         expires: token.refreshExpiredAt,
+        domain: NODE_ENV === 'development' ? undefined : FRONTEND_URL,
       });
 
       res.status(200).json({
@@ -179,7 +181,8 @@ export class AuthControllers {
     res.clearCookie('jwt-token', {
       httpOnly: true, // cannot access in javascript
       secure: NODE_ENV === 'development' ? false : true, // https only
-      sameSite: 'lax', // allow cross site cookie
+      sameSite: NODE_ENV === 'development' ? 'lax' : 'none', // allow cross site cookie
+      domain: NODE_ENV === 'development' ? undefined : FRONTEND_URL,
       path: '/',
     });
     res.status(204).json({});
