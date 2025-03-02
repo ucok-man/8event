@@ -6,6 +6,9 @@
   "prisma": {
     "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
   },
+  "engines": {
+    "node": ">=18.18"
+  },
   "scripts": {
     "dev": "cross-env NODE_ENV=development concurrently -k \"ts-node-dev -r tsconfig-paths/register src/index.ts\" \"ts-node-dev -r tsconfig-paths/register src/workers.ts\"",
     "build": "rimraf dist && tsc && tsc-alias && copy-folder src/templates dist/templates",
