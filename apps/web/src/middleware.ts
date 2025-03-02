@@ -5,7 +5,10 @@ import { NextResponse } from 'next/server';
 export async function middleware(req: NextRequest) {
   try {
     const apiUrl = process.env.NEXT_PUBLIC_BACKEND_URL + '/auth/identity';
-
+    console.log({
+      apiUrl: apiUrl,
+      cookie: req.headers.get('cookie'),
+    });
     const res = await fetch(apiUrl, {
       headers: { cookie: req.headers.get('cookie') || '' }, // Forward cookies
       credentials: 'include', // Allow cookies in cross-origin requests
