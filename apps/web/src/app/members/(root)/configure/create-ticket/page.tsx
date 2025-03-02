@@ -260,15 +260,17 @@ export default function TicketCreation() {
                         <>
                           {/* Error indicator */}
                           {haserror && (
-                            <div className="absolute flex w-full justify-center pt-4 z-20 animate-pulse">
-                              <Tooltip>
-                                <TooltipTrigger>
-                                  <Info className="text-red-500 size-5" />
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                  <p>This ticket has error. Please fix it</p>
-                                </TooltipContent>
-                              </Tooltip>
+                            <div className="absolute inset-0 flex w-full justify-center pt-4.5 animate-pulse">
+                              <div className="relative top-8">
+                                <Tooltip>
+                                  <TooltipTrigger>
+                                    <Info className="text-red-500 size-5" />
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <p>This ticket has error. Please fix it</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </div>
                             </div>
                           )}
 

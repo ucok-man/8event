@@ -17,10 +17,12 @@ import {
 } from '@/context/transaction-provider';
 import { fadeInUp } from '@/lib/animation-template';
 import {
-  currentDateIsAfterEqual,
-  currentDateIsBefore,
+  currentDate,
   currentTimeIsAfterEqual,
   currentTimeIsBefore,
+  dateFrom,
+  firstIsAfterEqualSecondDate,
+  firstIsBeforeSecondDate,
 } from '@/lib/datetime-utils';
 import { cn, getEventCategory } from '@/lib/utils';
 import { GetEventByIdResponse } from '@/types';
@@ -135,11 +137,16 @@ export default function EventDetail({
                 <div className="space-y-4">
                   {event.tickets.map((ticket, index) => {
                     const isNotOpen =
-                      currentDateIsBefore(ticket.startDate) ||
-                      currentTimeIsBefore(ticket.startTime as TimeType);
+                      firstIsBeforeSecondDate(
+                        currentDate(),
+                        ticket.startDate,
+                      ) || currentTimeIsBefore(ticket.startTime as TimeType);
 
                     const isOpen =
-                      currentDateIsAfterEqual(ticket.startDate) &&
+                      firstIsAfterEqualSecondDate(
+                        currentDate(),
+                        ticket.startDate,
+                      ) &&
                       currentTimeIsAfterEqual(ticket.startTime as TimeType);
 
                     const count = payload.tickets.find(
@@ -156,7 +163,7 @@ export default function EventDetail({
                               <div className="size-full flex justify-end items-center px-6 gap-x-1 text-red-600 font-semibold">
                                 <span>Open At</span>
                                 <span>
-                                  {format(new Date(ticket.startDate), 'MMM d')}
+                                  {format(dateFrom(ticket.startDate), 'MMM d')}
                                 </span>
                               </div>
                             )}

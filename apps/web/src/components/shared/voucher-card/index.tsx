@@ -1,6 +1,7 @@
 'use client';
 
 import { Card } from '@/components/ui/card';
+import { dateFrom } from '@/lib/datetime-utils';
 import { cn, formatRupiah } from '@/lib/utils';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { format } from 'date-fns';
@@ -100,7 +101,7 @@ export default function VoucherCard({
           >
             <CalendarDays className="w-3 h-3" />
             <span>
-              Valid until: {format(new Date(expiryDate), 'MMM d, yyyy')}
+              Valid until: {format(dateFrom(expiryDate), 'MMM d, yyyy')}
             </span>
           </div>
         )}

@@ -1,4 +1,4 @@
-import { FRONTEND_URL, JWT_REFRESH_SECRET, NODE_ENV } from '@/config';
+import { JWT_REFRESH_SECRET, NODE_ENV } from '@/config';
 import { AuthLoginDTO } from '@/dto/auth-login.dto';
 import { AuthRegisterDTO } from '@/dto/auth-register.dto';
 import { FailedValidationError } from '@/errors/failed-validation.error';
@@ -6,11 +6,13 @@ import { ApiError } from '@/errors/interface';
 import { InternalSeverError } from '@/errors/internal-server.error';
 import { InvalidAuthTokenError } from '@/errors/invalid-auth-token.error';
 import { InvalidCredentialError } from '@/errors/invalid-credential.error';
+import { currentDate } from '@/helpers/datetime-utils';
 import { formatErr } from '@/helpers/format-error';
 import { generateReferralCode } from '@/helpers/generate-referral-code';
 import { JWTService } from '@/services/jwt.service';
 import { UserService } from '@/services/user.service';
 import bcrypt, { compare } from 'bcrypt';
+import { addMonths } from 'date-fns';
 import { Request, Response } from 'express';
 import { JwtPayload, verify } from 'jsonwebtoken';
 
@@ -41,7 +43,7 @@ export class AuthControllers {
         if (!referred || (referred && referred.role === 'ORGANIZER'))
           throw new FailedValidationError({
             referralCode: {
-              _errors: 'Referral code is not exists',
+              _errors: 'Referral code did not exists',
             },
           });
         addVoucher = true;
@@ -61,9 +63,7 @@ export class AuthControllers {
       });
 
       if (addVoucher) {
-        const sekarang = new Date();
-        const tigaBulanKedepan = new Date();
-        tigaBulanKedepan.setMonth(sekarang.getMonth() + 3);
+        const tigaBulanKedepan = addMonths(currentDate(), 3);
 
         await this.userService.addVoucher({
           name: 'Referral Rewards',
@@ -119,8 +119,8 @@ export class AuthControllers {
         secure: NODE_ENV === 'development' ? false : true, // https only
         sameSite: NODE_ENV === 'development' ? 'lax' : 'none', // allow cross site cookie
         path: '/',
+        // domain: NODE_ENV === 'development' ? undefined : FRONTEND_URL,
         expires: token.refreshExpiredAt,
-        domain: NODE_ENV === 'development' ? undefined : FRONTEND_URL,
       });
 
       res.status(200).json({ accessToken: token.accessToken });
@@ -156,8 +156,8 @@ export class AuthControllers {
         secure: NODE_ENV === 'development' ? false : true, // https only
         sameSite: NODE_ENV === 'development' ? 'lax' : 'none', // allow cross site cookie
         path: '/',
+        // domain: NODE_ENV === 'development' ? undefined : FRONTEND_URL,
         expires: token.refreshExpiredAt,
-        domain: NODE_ENV === 'development' ? undefined : FRONTEND_URL,
       });
 
       res.status(200).json({
@@ -182,9 +182,35 @@ export class AuthControllers {
       httpOnly: true, // cannot access in javascript
       secure: NODE_ENV === 'development' ? false : true, // https only
       sameSite: NODE_ENV === 'development' ? 'lax' : 'none', // allow cross site cookie
-      domain: NODE_ENV === 'development' ? undefined : FRONTEND_URL,
       path: '/',
+      // domain: NODE_ENV === 'development' ? undefined : FRONTEND_URL,
     });
     res.status(204).json({});
+  };
+
+  identity = async (req: Request, res: Response) => {
+    const cookies = req.cookies;
+    if (!cookies['jwt-token']) throw new InvalidAuthTokenError();
+    try {
+      const refreshToken = cookies['jwt-token'];
+      let session: (JwtPayload & { email: string }) | string;
+      try {
+        session = verify(refreshToken, JWT_REFRESH_SECRET) as JwtPayload & {
+          email: string;
+        };
+      } catch (error) {
+        throw new InvalidAuthTokenError();
+      }
+      const user = await this.userService.getByEmail(session.email);
+      res.status(200).json({
+        user: user,
+      });
+    } catch (error) {
+      if (!(error instanceof ApiError)) {
+        const err = error as Error;
+        throw new InternalSeverError(err.message);
+      }
+      throw error;
+    }
   };
 }

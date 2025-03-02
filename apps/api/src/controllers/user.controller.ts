@@ -75,11 +75,4 @@ export class UserControllers {
       throw error;
     }
   };
-
-  identity = async (req: Request, res: Response) => {
-    const user = getSessionAccess(req);
-    res.status(200).json({
-      user: user,
-    });
-  };
 }

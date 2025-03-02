@@ -4,7 +4,7 @@ import { NextResponse } from 'next/server';
 
 export async function middleware(req: NextRequest) {
   try {
-    const apiUrl = process.env.NEXT_PUBLIC_BACKEND_URL + '/api/users/identity';
+    const apiUrl = process.env.NEXT_PUBLIC_BACKEND_URL + '/auth/identity';
 
     const res = await fetch(apiUrl, {
       headers: { cookie: req.headers.get('cookie') || '' }, // Forward cookies
@@ -33,8 +33,8 @@ export async function middleware(req: NextRequest) {
       user: { role: 'CUSTOMER' | 'ORGANIZER' };
     };
 
-    const userIsCustomer = user.role === 'CUSTOMER';
-    const userIsOrganizer = user.role === 'ORGANIZER';
+    const userIsCustomer = user?.role === 'CUSTOMER';
+    const userIsOrganizer = user?.role === 'ORGANIZER';
 
     // 🔹 If a CUSTOMER tries to access `/members/*` (except `/members/auth`)
     if (
@@ -49,10 +49,8 @@ export async function middleware(req: NextRequest) {
     if (userIsOrganizer && requestPath.startsWith('/payment')) {
       return NextResponse.rewrite(new URL('/404', req.url)); // Show 404 page
     }
-
     return NextResponse.next(); // Proceed if authorized
   } catch (error) {
-    console.log({ error });
     throw error;
   }
 }

@@ -194,10 +194,14 @@ export class EventService {
   };
 
   getStatistic = async (organizerId: string) => {
-    /* ----------------------------- STAS ----------------------------- */
-    const totalEvents = await prismaclient.event.count({
+    /* ----------------------------- STATS ----------------------------- */
+    const events = await prismaclient.event.findMany({
+      select: {
+        id: true,
+      },
       where: {
         organizerId: organizerId,
+        isPublished: true,
       },
     });
     const {
@@ -209,6 +213,12 @@ export class EventService {
       _sum: {
         totalTicketQuantity: true,
         priceAfterDiscount: true,
+      },
+      where: {
+        status: 'COMPLETED',
+        eventId: {
+          in: events.map((e) => e.id),
+        },
       },
     });
 
@@ -226,22 +236,26 @@ export class EventService {
         const mindate =
           idx === 0
             ? getFirstDateOfThisMonth()
-            : getDateFromDayInThisMonth(dayrange[idx - 1]);
+            : getDateFromDayInThisMonth(dayrange[idx - 1] + 1);
         const maxdate = getDateFromDayInThisMonth(day);
 
-        const events = await prismaclient.event.findMany({
+        mindate.setHours(0, 0);
+        maxdate.setHours(23, 59);
+
+        const eventfounds = await prismaclient.event.findMany({
           where: {
-            createdAt: {
+            startDate: {
               gte: mindate,
               lte: maxdate,
             },
             organizerId: organizerId,
+            isPublished: true,
           },
           select: {
             id: true,
           },
         });
-
+        // console.log({ eventfounds, day, mindate, maxdate });
         const {
           _sum: { totalTicketQuantity: ticketSold },
         } = await prismaclient.transaction.aggregate({
@@ -249,19 +263,19 @@ export class EventService {
             totalTicketQuantity: true,
           },
           where: {
-            createdAt: {
-              gte: mindate,
-              lte: maxdate,
-            },
+            // createdAt: {
+            //   gte: mindate,
+            //   lte: maxdate,
+            // },
             eventId: {
-              in: events.map((e) => e.id),
+              in: eventfounds.map((e) => e.id),
             },
             status: TransactionStatus.COMPLETED,
           },
         });
 
         return {
-          events: events.length,
+          events: eventfounds.length,
           ticketSold: ticketSold || 0,
         };
       }),
@@ -280,13 +294,17 @@ export class EventService {
         const mindate = getFirstDateOfMonthFromNumber(idx);
         const maxdate = getLastDateOfMonthFromNumber(idx);
 
+        mindate.setHours(0, 0);
+        maxdate.setHours(23, 59);
+
         const events = await prismaclient.event.findMany({
           where: {
-            createdAt: {
+            startDate: {
               gte: mindate,
               lte: maxdate,
             },
             organizerId: organizerId,
+            isPublished: true,
           },
           select: {
             id: true,
@@ -300,10 +318,10 @@ export class EventService {
             totalTicketQuantity: true,
           },
           where: {
-            createdAt: {
-              gte: mindate,
-              lte: maxdate,
-            },
+            // createdAt: {
+            //   gte: mindate,
+            //   lte: maxdate,
+            // },
             eventId: {
               in: events.map((e) => e.id),
             },
@@ -333,10 +351,10 @@ export class EventService {
         ...monthlycontent[idx],
       })),
       stats: {
-        totalEvents,
-        totalTicketSold,
+        totalEvents: events.length || 0,
+        totalTicketSold: totalTicketSold || 0,
         averageRating: averageRating?.averageRating || 0.0,
-        totalRevenue,
+        totalRevenue: totalRevenue || 0,
       },
     };
   };

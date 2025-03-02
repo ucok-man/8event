@@ -1,6 +1,7 @@
 import { JWT_ACCESS_SECRET, JWT_REFRESH_SECRET } from '@/config';
+import { currentDate, dateFrom } from '@/helpers/datetime-utils';
 import { prismaclient } from '@/prisma';
-import { isAfter } from 'date-fns';
+import { addDays, isAfter } from 'date-fns';
 import { sign } from 'jsonwebtoken';
 
 export class JWTService {
@@ -21,8 +22,7 @@ export class JWTService {
       expiresIn: '1d',
     });
 
-    const refreshExpiredAt = new Date();
-    refreshExpiredAt.setDate(refreshExpiredAt.getDate() + 1);
+    const refreshExpiredAt = addDays(currentDate(), 1);
 
     await prismaclient.authToken.upsert({
       create: {
@@ -55,10 +55,10 @@ export class JWTService {
     });
     if (!existingToken) return null;
 
-    const currentDate = new Date();
-    const refreshExpiredAt = new Date(existingToken.refreshExpiredAt);
+    const today = currentDate();
+    const refreshExpiredAt = dateFrom(existingToken.refreshExpiredAt);
 
-    if (isAfter(currentDate, refreshExpiredAt)) {
+    if (isAfter(today, refreshExpiredAt)) {
       return null; // unauthorized
     }
 
@@ -79,7 +79,7 @@ export class JWTService {
       { email: existingToken.user.email },
       JWT_REFRESH_SECRET,
       {
-        expiresIn: `${refreshExpiredAt.getTime() - currentDate.getTime()}ms`,
+        expiresIn: `${refreshExpiredAt.getTime() - today.getTime()}ms`,
       },
     );
 

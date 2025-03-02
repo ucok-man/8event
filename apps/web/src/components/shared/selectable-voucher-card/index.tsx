@@ -12,6 +12,7 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 import { useTransactionContext } from '@/context/transaction-provider';
+import { dateFrom } from '@/lib/datetime-utils';
 import { cn, formatRupiah } from '@/lib/utils';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { format } from 'date-fns';
@@ -147,7 +148,7 @@ export default function SelectableVoucherCard({
                             <CalendarDays className="mr-1 size-1 text-xs" />
                             Valid until:{' '}
                             {format(
-                              new Date(voucher.expiryDate),
+                              dateFrom(voucher.expiryDate),
                               'MMM d, yyyy',
                             )}
                           </div>

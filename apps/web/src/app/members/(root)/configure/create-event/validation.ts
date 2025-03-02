@@ -1,8 +1,8 @@
 import { TimeType } from '@/components/shared/time-picker/time-type';
 import {
-  sourceDateIsAfterEqualTarget,
+  firstIsBeforeEqualSecondDate,
   sourceTimeIsAfterTarget,
-  targetIsAfterEqualCurrentDate,
+  targetIsAfterCurrentDate,
 } from '@/lib/datetime-utils';
 import { z } from 'zod';
 
@@ -110,13 +110,13 @@ export const CreateEventSchema = z
     },
   )
   .refine(
-    (data) => sourceDateIsAfterEqualTarget(data.endDate, data.startDate),
+    (data) => firstIsBeforeEqualSecondDate(data.startDate, data.endDate),
     {
       message: 'End date must be after or equal start date',
       path: ['endDate'],
     },
   )
-  .refine((data) => targetIsAfterEqualCurrentDate(data.startDate), {
+  .refine((data) => targetIsAfterCurrentDate(data.startDate), {
     message: 'Event start must be in the future',
     path: ['startDate'],
   })

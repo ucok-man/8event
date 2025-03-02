@@ -57,7 +57,7 @@ export function SignupForm() {
           'ORGANIZER',
         );
         startTransition(() => {
-          router.push('/');
+          router.push('/members/overview');
         });
       } catch (error) {
         startTransition(() => {

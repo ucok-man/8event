@@ -1,3 +1,4 @@
+import { dateFrom } from '@/lib/datetime-utils';
 import { cn, formatRupiah } from '@/lib/utils';
 import { Separator } from '@radix-ui/react-separator';
 import { format } from 'date-fns';
@@ -50,8 +51,8 @@ export default function TicketCard({ ticket, action }: Props) {
             <div className="flex items-center gap-2 max-sm:w-full max-sm:justify-start">
               <ClockAlert className="size-5 text-gray-500" />
               <span className="text-sm text-gray-600">
-                {format(new Date(ticket.startDate), 'MMM d')} -{' '}
-                {format(new Date(ticket.endDate), 'MMM d, yyyy')}
+                {format(dateFrom(ticket.startDate), 'MMM d')} -{' '}
+                {format(dateFrom(ticket.endDate), 'MMM d, yyyy')}
               </span>
             </div>
             <div className="flex items-center gap-2 max-sm:w-full max-sm:justify-start">
