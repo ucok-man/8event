@@ -22,6 +22,9 @@
     "tsconfig": "*",
     "turbo": "latest"
   },
+  "engines": {
+    "node": ">=18.18"
+  },
   "name": "finpro-nextjs-express-prisma",
   "packageManager": "npm@8.15.0",
   "workspaces": [
