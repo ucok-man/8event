@@ -1,5 +1,6 @@
+import { dateFrom } from '@/lib/datetime-utils';
 import { cn } from '@/lib/utils';
-import { compareDesc, format } from 'date-fns';
+import { format, isSameDay } from 'date-fns';
 
 type Props = {
   startDate: string;
@@ -8,9 +9,9 @@ type Props = {
 };
 
 export default function DateRange({ startDate, endDate, className }: Props) {
-  const start = new Date(startDate);
-  const end = new Date(endDate);
-  const isEqual = compareDesc(startDate, endDate) === 0;
+  const start = dateFrom(startDate);
+  const end = dateFrom(endDate);
+  const isEqual = isSameDay(startDate, endDate);
 
   return (
     <span className={cn('text-gray-700', className)}>

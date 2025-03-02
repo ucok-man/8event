@@ -1,5 +1,16 @@
 import { TimeType } from '@/types/time-type';
-import { format, isAfter, isBefore, isSameDay, startOfDay } from 'date-fns';
+import { TZDate } from '@date-fns/tz';
+import {
+  endOfMonth,
+  format,
+  getDaysInMonth,
+  isAfter,
+  isBefore,
+  isSameDay,
+  setDate,
+  startOfDay,
+  startOfMonth,
+} from 'date-fns';
 
 /* ---------------------------------------------------------------- */
 /*                               TIME                               */
@@ -12,7 +23,7 @@ export function timeToFloat(time: TimeType): number {
 }
 
 export function currentTimeIsBefore(target: TimeType) {
-  const currentTime = format(new Date(), 'HH:mm');
+  const currentTime = format(currentDate(), 'HH:mm');
   const ct = timeToFloat(currentTime as TimeType);
   return ct < timeToFloat(target);
 }
@@ -22,7 +33,7 @@ export function sourceTimeIsBeforeTarget(src: TimeType, target: TimeType) {
 }
 
 export function currentTimeIsAfterEqual(target: TimeType) {
-  const currentTime = format(new Date(), 'HH:mm');
+  const currentTime = format(currentDate(), 'HH:mm');
   const ct = timeToFloat(currentTime as TimeType);
   return ct >= timeToFloat(target);
 }
@@ -35,54 +46,73 @@ export function sourceTimeIsAfterTarget(src: TimeType, target: TimeType) {
 /*                               DATE                               */
 /* ---------------------------------------------------------------- */
 
-export function currentDateIsBefore(target: string | Date) {
-  return isBefore(startOfDay(new Date()), startOfDay(new Date(target)));
+export function currentDate() {
+  return new TZDate();
 }
 
-export function currentDateIsAfterEqual(target: string | Date) {
+export function dateFrom(date: string | Date) {
+  return typeof date === 'string' ? new TZDate(date) : new TZDate(date);
+}
+
+export function targetIsBeforeCurrentDate(target: string | Date) {
+  return isBefore(startOfDay(target), startOfDay(currentDate()));
+}
+
+export function targetIsAfterCurrentDate(target: string | Date) {
+  return isAfter(startOfDay(target), startOfDay(currentDate()));
+}
+
+export function targetIsBeforeEqualCurrentDate(target: string | Date) {
   return (
-    isSameDay(new Date(), new Date(target)) ||
-    isAfter(startOfDay(new Date()), startOfDay(new Date(target)))
-  );
-}
-
-export function sourceDateIsBeforeTarget(
-  src: string | Date,
-  target: string | Date,
-) {
-  return isBefore(startOfDay(new Date(src)), startOfDay(new Date(target)));
-}
-
-export function sourceDateIsAfterTarget(
-  src: string | Date,
-  target: string | Date,
-) {
-  return isAfter(startOfDay(new Date(src)), startOfDay(new Date(target)));
-}
-
-export function sourceDateIsAfterEqualTarget(
-  src: string | Date,
-  target: string | Date,
-) {
-  return (
-    isAfter(startOfDay(new Date(src)), startOfDay(new Date(target))) ||
-    isSameDay(new Date(src), new Date(target))
+    isSameDay(target, currentDate()) ||
+    isBefore(startOfDay(target), startOfDay(currentDate()))
   );
 }
 
 export function targetIsAfterEqualCurrentDate(target: string | Date) {
-  return isSameDay(new Date(), new Date(target)) || isAfter(target, new Date());
+  return (
+    isSameDay(target, currentDate()) ||
+    isAfter(startOfDay(target), startOfDay(currentDate()))
+  );
+}
+
+export function firstIsBeforeSecondDate(
+  first: string | Date,
+  second: string | Date,
+) {
+  return isBefore(startOfDay(first), startOfDay(second));
+}
+
+export function firstIsAfterSecondDate(
+  first: string | Date,
+  second: string | Date,
+) {
+  return isAfter(startOfDay(first), startOfDay(second));
+}
+
+export function firstIsBeforeEqualSecondDate(
+  first: string | Date,
+  second: string | Date,
+) {
+  return (
+    isSameDay(first, second) || isBefore(startOfDay(first), startOfDay(second))
+  );
+}
+
+export function firstIsAfterEqualSecondDate(
+  first: string | Date,
+  second: string | Date,
+) {
+  return (
+    isSameDay(first, second) || isAfter(startOfDay(first), startOfDay(second))
+  );
 }
 
 /* ---------------------------------------------------------------- */
 /*                               OTHER                              */
 /* ---------------------------------------------------------------- */
-export function daysInThisMonth() {
-  return new Date(
-    new Date().getFullYear(),
-    new Date().getMonth() + 1,
-    0,
-  ).getDate();
+export function daysInThisMonth(): number {
+  return getDaysInMonth(currentDate());
 }
 
 export function getWeeklyRangesInThisMonth() {
@@ -94,16 +124,12 @@ export function getWeeklyRangesInThisMonth() {
   return ranges;
 }
 
-export function getDateFromDayInThisMonth(day: number) {
-  const year = new Date().getFullYear();
-  const month = new Date().getMonth(); // 0-based index
-  return new Date(year, month, day);
+export function getDateFromDayInThisMonth(day: number): Date {
+  return setDate(currentDate(), day);
 }
 
 export function getFirstDateOfThisMonth() {
-  const year = new Date().getFullYear();
-  const month = new Date().getMonth(); // 0-based index
-  return new Date(year, month, 1);
+  return startOfMonth(currentDate());
 }
 
 // Zero index base
@@ -130,22 +156,18 @@ export function getMonthFromNumber(month: number): string {
   return months[month];
 }
 
-// zero based index
 export function getFirstDateOfMonthFromNumber(monthIndex: number): Date {
   if (monthIndex < 0 || monthIndex > 11) {
     throw new Error('Invalid month index. Must be between 0 and 11.');
   }
 
-  const currentYear = new Date().getFullYear();
-  return new Date(currentYear, monthIndex, 1);
+  return startOfMonth(new TZDate(currentDate().getFullYear(), monthIndex));
 }
 
-// zero based index
 export function getLastDateOfMonthFromNumber(monthIndex: number): Date {
   if (monthIndex < 0 || monthIndex > 11) {
     throw new Error('Invalid month index. Must be between 0 and 11.');
   }
 
-  const currentYear = new Date().getFullYear();
-  return new Date(currentYear, monthIndex + 1, 0); // Setting day to 0 gets the last day of the previous month
+  return endOfMonth(new TZDate(currentDate().getFullYear(), monthIndex));
 }

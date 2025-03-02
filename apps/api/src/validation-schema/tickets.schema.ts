@@ -1,5 +1,5 @@
 import {
-  sourceDateIsAfterEqualTarget,
+  firstIsAfterEqualSecondDate,
   sourceTimeIsAfterTarget,
   targetIsAfterEqualCurrentDate,
 } from '@/helpers/datetime-utils';
@@ -36,7 +36,7 @@ export const TicketsSchema = z
         },
       )
       .refine(
-        (data) => sourceDateIsAfterEqualTarget(data.endDate, data.startDate),
+        (data) => firstIsAfterEqualSecondDate(data.endDate, data.startDate),
         {
           message: 'End date must be after or equal start date',
           path: ['endDate'],

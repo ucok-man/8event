@@ -1,4 +1,14 @@
+import { currentDate, dateFrom } from '@/helpers/datetime-utils';
 import { Prisma } from '@prisma/client';
+import {
+  addDays,
+  addMonths,
+  addWeeks,
+  format,
+  startOfDay,
+  startOfMonth,
+  startOfWeek,
+} from 'date-fns';
 
 export function getOrganizerId({ organizerId }: { organizerId?: string }) {
   if (organizerId) {
@@ -20,10 +30,19 @@ export function getSearch({ search }: { search: string }) {
 }
 
 export function getEventType({ type }: { type: string }) {
+  const timetoday = format(currentDate(), 'HH:mm');
+  const startofday = startOfDay(currentDate());
+
   if (type === 'active') {
-    return Prisma.sql`AND e."startDate" >= ${new Date()} AND e."isPublished" = ${true}`;
+    return Prisma.sql`AND e."isPublished" = ${true} AND (
+      e."startDate" > ${startofday}
+      OR (e."startDate" = ${startofday} AND e."startTime" > ${timetoday})
+    )`;
   } else if (type === 'past') {
-    return Prisma.sql`AND e."startDate" < ${new Date()} AND e."isPublished" = ${true}`;
+    return Prisma.sql`AND e."isPublished" = ${true} AND (
+      e."startDate" < ${startofday} 
+      OR (e."startDate" = ${startofday} AND e."startTime" < ${timetoday})
+    )`;
   } else if (type === 'draft') {
     return Prisma.sql`AND e."isPublished" = ${false}`;
   } else return Prisma.sql``;
@@ -54,42 +73,26 @@ export function getCategory({ category }: { category: string }) {
 }
 
 export function getStartTime({ startTime }: { startTime: string }) {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0); // Set to midnight today
+  const today = startOfDay(currentDate());
+  const tomorrow = addDays(dateFrom(today), 1);
+  const dayAfterTomorrow = addDays(dateFrom(tomorrow), 1);
 
-  const tomorrow = new Date(today);
-  tomorrow.setDate(today.getDate() + 1); // Set to midnight tomorrow
+  const startOfCurrentWeek = startOfWeek(currentDate(), { weekStartsOn: 1 });
+  const startOfNextWeek = startOfWeek(addWeeks(currentDate(), 1), {
+    weekStartsOn: 1,
+  });
 
-  const dayAfterTomorrow = new Date(today);
-  dayAfterTomorrow.setDate(today.getDate() + 2); // Set to midnight the day after tomorrow
-
-  // Calculate the start of the week (Sunday)
-  const dayOfWeek = today.getDay(); // 0 (Sunday) to 6 (Saturday)
-  const startOfWeek = new Date(today);
-  startOfWeek.setDate(today.getDate() - dayOfWeek);
-
-  // Calculate the start of next week (next Sunday)
-  const startOfNextWeek = new Date(startOfWeek);
-  startOfNextWeek.setDate(startOfWeek.getDate() + 7);
-
-  // Calculate the start of the month (first day of the month)
-  const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-
-  // Calculate the start of the next month (first day of next month)
-  const startOfNextMonth = new Date(
-    today.getFullYear(),
-    today.getMonth() + 1,
-    1,
-  );
+  const startOfCurrentMonth = startOfMonth(currentDate());
+  const startOfNextMonth = startOfMonth(addMonths(currentDate(), 1));
 
   if (startTime === 'this_day') {
     return Prisma.sql`AND e."startDate" >= ${today} AND e."startDate" < ${tomorrow}`;
   } else if (startTime === 'tomorrow') {
     return Prisma.sql`AND e."startDate" >= ${tomorrow} AND e."startDate" < ${dayAfterTomorrow}`;
   } else if (startTime === 'this_week') {
-    return Prisma.sql`AND e."startDate" >= ${startOfWeek} AND e."startDate" < ${startOfNextWeek}`;
+    return Prisma.sql`AND e."startDate" >= ${startOfCurrentWeek} AND e."startDate" < ${startOfNextWeek}`;
   } else if (startTime === 'this_month') {
-    return Prisma.sql`AND e."startDate" >= ${startOfMonth} AND e."startDate" < ${startOfNextMonth}`;
+    return Prisma.sql`AND e."startDate" >= ${startOfCurrentMonth} AND e."startDate" < ${startOfNextMonth}`;
   } else return Prisma.sql``;
 }
 

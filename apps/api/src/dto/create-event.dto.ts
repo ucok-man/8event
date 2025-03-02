@@ -1,3 +1,8 @@
+import {
+  dateFrom,
+  firstIsAfterSecondDate,
+  targetIsBeforeCurrentDate,
+} from '@/helpers/datetime-utils';
 import { z } from 'zod';
 import { EventSchema } from '../validation-schema/event.schema';
 import { TicketsSchema } from '../validation-schema/tickets.schema';
@@ -9,10 +14,11 @@ export const CreateEventDTO = z
   })
   .superRefine((data, ctx) => {
     data.tickets.forEach((ticket, index) => {
-      const startDate = new Date(ticket.startDate);
+      const startDate = dateFrom(ticket.startDate);
 
       if (
-        !(startDate > new Date() && startDate < new Date(data.event.startDate))
+        targetIsBeforeCurrentDate(startDate) &&
+        firstIsAfterSecondDate(startDate, data.event.startDate)
       ) {
         ctx.addIssue({
           code: 'invalid_date',

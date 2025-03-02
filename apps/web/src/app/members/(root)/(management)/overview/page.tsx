@@ -32,7 +32,7 @@ export default function OverviewPage() {
       const { data } = await apiclient.get('/events/statistic');
       return data.statistic as GetEventsStatistic['statistic'];
     },
-    enabled: status !== 'pending',
+    enabled: !!user?.id && status !== 'pending',
   });
 
   const [selectedView, setSelectedView] = useState<'yearly' | 'monthly'>(
@@ -44,7 +44,7 @@ export default function OverviewPage() {
   >(data?.yearly || []);
 
   useEffect(() => {
-    if (data) {
+    if (data?.yearly && data?.monthly) {
       setChartData(selectedView === 'yearly' ? data.yearly : data.monthly);
     }
   }, [data, selectedView]);

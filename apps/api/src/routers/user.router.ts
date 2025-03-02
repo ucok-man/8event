@@ -15,11 +15,6 @@ export class UserRouter {
 
   private initializeRoutes(): void {
     this.router.get(
-      '/identity',
-      withAuthentication,
-      catcherror(this.controller.identity),
-    );
-    this.router.get(
       '/me',
       withAuthentication,
       catcherror(this.controller.getCurrentUser),

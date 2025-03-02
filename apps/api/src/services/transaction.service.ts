@@ -1,5 +1,6 @@
 import { CheckoutTransactionDTO } from '@/dto/checkout-transaction.dto';
 import { GetTransactionByUserIdDTO } from '@/dto/get-transaction-by-userid.dto';
+import { currentDate } from '@/helpers/datetime-utils';
 import { midtransSnap } from '@/midtrans';
 import { prismaclient } from '@/prisma';
 import {
@@ -7,6 +8,7 @@ import {
   transactionWaitPaymentQueue,
 } from '@/queues';
 import { Prisma, Transaction, TransactionStatus } from '@prisma/client';
+import { addHours } from 'date-fns';
 import { z } from 'zod';
 
 export class TransactionService {
@@ -84,9 +86,7 @@ export class TransactionService {
 
   checkout = async (dto: z.infer<typeof CheckoutTransactionDTO>) => {
     return await prismaclient.$transaction(async (prismaclient) => {
-      const current = new Date();
-      const twoHoursAfter = new Date();
-      twoHoursAfter.setHours(current.getHours() + 2);
+      const twoHoursAfter = addHours(currentDate(), 2);
 
       const transaction = await prismaclient.transaction.create({
         data: {

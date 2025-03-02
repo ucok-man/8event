@@ -10,6 +10,7 @@ import { FailedValidationError } from '@/errors/failed-validation.error';
 import { ApiError } from '@/errors/interface';
 import { InternalSeverError } from '@/errors/internal-server.error';
 import { NotFoundError } from '@/errors/not-found.error';
+import { currentDate } from '@/helpers/datetime-utils';
 import { formatErr } from '@/helpers/format-error';
 import { formatRupiah } from '@/helpers/format-rupiah';
 import { getSessionCustomer } from '@/helpers/session';
@@ -23,6 +24,7 @@ import { SMTPService } from '@/services/smtp.service';
 import { TransactionService } from '@/services/transaction.service';
 import { UserService } from '@/services/user.service';
 import { TransactionStatus } from '@prisma/client';
+import { addDays } from 'date-fns';
 import { Request, Response } from 'express';
 
 const mockto = 'gokixa1827@calmpros.com';
@@ -147,8 +149,7 @@ export class TransactionControllers {
         );
       }
 
-      const tigaHariKedepan = new Date();
-      tigaHariKedepan.setDate(tigaHariKedepan.getDate() + 3);
+      const tigaHariKedepan = addDays(currentDate(), 3);
 
       transaction.paymentProof = dto.paymentProof;
       transaction.expiredAt = tigaHariKedepan; // create new expired at for waiting confirmation
@@ -158,7 +159,7 @@ export class TransactionControllers {
       await transactionWaitConfirmQueue.add(
         TRANSACTION_EXP_WAIT_CONFIRM_TOKEN,
         { transactionId: transaction.id, tickets: transaction.tickets },
-        { delay: tigaHariKedepan.getTime() - Date.now() }, // set same as expiredAt
+        { delay: tigaHariKedepan.getTime() - currentDate().getTime() }, // set same as expiredAt
         // { delay: 2 * 60 * 1000 }, // 2 minutes
       );
 
@@ -303,7 +304,7 @@ export class TransactionControllers {
         );
       }
 
-      transaction.expiredAt = new Date(); // update to current date
+      transaction.expiredAt = currentDate(); // update to current date
       transaction.status = TransactionStatus.CANCELLED;
 
       const updated = await this.transactionService.update(transaction);

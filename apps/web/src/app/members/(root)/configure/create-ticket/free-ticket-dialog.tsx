@@ -27,6 +27,12 @@ import {
 } from '@/components/ui/popover';
 import { Textarea } from '@/components/ui/textarea';
 import { useCreateEventContext } from '@/context/create-event-provider';
+import {
+  dateFrom,
+  firstIsAfterSecondDate,
+  firstIsBeforeSecondDate,
+  targetIsBeforeCurrentDate,
+} from '@/lib/datetime-utils';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { CalendarIcon } from 'lucide-react';
@@ -54,7 +60,7 @@ export default function FreeTicketDialog({
   formError,
 }: Props) {
   const { payload } = useCreateEventContext();
-  const eventstart = new Date(payload?.createEvent?.data?.startDate || '');
+  const eventstart = dateFrom(payload?.createEvent?.data?.startDate || '');
   eventstart.setDate(eventstart.getDate() - 1);
 
   useEffect(() => {
@@ -162,12 +168,13 @@ export default function FreeTicketDialog({
                       <PopoverContent className="w-auto p-0" align="start">
                         <Calendar
                           mode="single"
-                          selected={new Date(field.value)}
+                          selected={dateFrom(field.value)}
                           onSelect={(selected) =>
                             field.onChange(selected?.toISOString())
                           }
                           disabled={(date) =>
-                            date > eventstart || date < new Date()
+                            firstIsAfterSecondDate(date, eventstart) ||
+                            targetIsBeforeCurrentDate(date)
                           }
                           initialFocus
                           className="rounded-md border"
@@ -209,14 +216,17 @@ export default function FreeTicketDialog({
                       <PopoverContent className="w-auto p-0" align="start">
                         <Calendar
                           mode="single"
-                          selected={new Date(field.value)}
+                          selected={dateFrom(field.value)}
                           onSelect={(selected) =>
                             field.onChange(selected?.toISOString())
                           }
                           disabled={(date) =>
-                            date > eventstart ||
-                            date < new Date(form.getValues('startDate')) ||
-                            date < new Date()
+                            firstIsAfterSecondDate(date, eventstart) ||
+                            firstIsBeforeSecondDate(
+                              date,
+                              dateFrom(form.getValues('startDate')),
+                            ) ||
+                            targetIsBeforeCurrentDate(date)
                           }
                           initialFocus
                           className="rounded-md border"

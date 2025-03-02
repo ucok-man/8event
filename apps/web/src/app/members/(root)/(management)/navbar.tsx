@@ -104,8 +104,9 @@ export default function Navbar() {
                   </nav>
                   <Separator className="my-2" />
                   <button
-                    onClick={() => {
-                      logout();
+                    onClick={async () => {
+                      await logout();
+                      localStorage.removeItem('create-event-step');
                       router.push('/members/auth/signin');
                     }}
                     className="flex w-full items-center space-x-2 rounded-md p-2 hover:bg-accent transition-colors duration-200 text-sm text-brand-blue-700"

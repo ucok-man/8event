@@ -22,6 +22,7 @@ import { useAuthContext } from '@/context/auth-provider';
 import { refetchNow } from '@/context/query-provider';
 import { toast } from '@/hooks/use-toast';
 import { fadeInUp, opacityUp } from '@/lib/animation-template';
+import { currentDate, dateFrom } from '@/lib/datetime-utils';
 import { cn } from '@/lib/utils';
 import { GetUserByIdResponse } from '@/types';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -250,7 +251,10 @@ export default function ProfilePage() {
             </div>
             <div className="text-xs text-gray-500">
               Member since{' '}
-              {format(new Date(user?.createdAt || Date.now()), 'MMM dd, yyyy')}
+              {format(
+                dateFrom(user?.createdAt || currentDate()),
+                'MMM dd, yyyy',
+              )}
             </div>
           </div>
         </div>

@@ -17,6 +17,7 @@ export class AuthRouter {
     this.router.post('/login', catcherror(this.controller.login));
     this.router.post('/logout', catcherror(this.controller.logout));
     this.router.get('/refresh-token', catcherror(this.controller.refreshToken));
+    this.router.get('/identity', catcherror(this.controller.identity));
   }
 
   getRouter(): Router {

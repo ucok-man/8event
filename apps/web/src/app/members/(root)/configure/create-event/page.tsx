@@ -42,6 +42,11 @@ import { Textarea } from '@/components/ui/textarea';
 import { CREATE_EVENT_STEPS, EVENT_CATEGORY } from '@/constants';
 import { useCreateEventContext } from '@/context/create-event-provider';
 import { fadeInUp, opacityUp } from '@/lib/animation-template';
+import {
+  dateFrom,
+  firstIsBeforeSecondDate,
+  targetIsBeforeEqualCurrentDate,
+} from '@/lib/datetime-utils';
 import { cn, validbanner } from '@/lib/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { format } from 'date-fns';
@@ -232,11 +237,13 @@ export default function CreateEventForm() {
                             >
                               <Calendar
                                 mode="single"
-                                selected={new Date(field.value)}
+                                selected={dateFrom(field.value)}
                                 onSelect={(selected) =>
                                   field.onChange(selected?.toISOString())
                                 }
-                                disabled={(date) => date < new Date()}
+                                disabled={(date) =>
+                                  targetIsBeforeEqualCurrentDate(date)
+                                }
                                 initialFocus
                                 className="rounded-md border"
                               />
@@ -280,14 +287,15 @@ export default function CreateEventForm() {
                             >
                               <Calendar
                                 mode="single"
-                                selected={new Date(field.value)}
+                                selected={dateFrom(field.value)}
                                 onSelect={(selected) =>
                                   field.onChange(selected?.toISOString())
                                 }
                                 disabled={(date) =>
-                                  date <
-                                    new Date(form.getValues('startDate')) ||
-                                  date < new Date()
+                                  firstIsBeforeSecondDate(
+                                    date,
+                                    dateFrom(form.getValues('startDate')),
+                                  ) || targetIsBeforeEqualCurrentDate(date)
                                 }
                                 initialFocus
                                 className="rounded-md border"

@@ -1,12 +1,12 @@
 'use client';
 
+import { currentDate, dateFrom } from '@/lib/datetime-utils';
 import { useEffect, useState } from 'react';
 
 function calculateTimeLeft(targetDate: string | Date) {
   try {
-    const target = new Date(targetDate);
-    const now = Date.now();
-    const difference = target.getTime() - now;
+    const target = dateFrom(targetDate);
+    const difference = target.getTime() - currentDate().getTime();
 
     if (difference <= 0) {
       return { hours: '00', minutes: '00', seconds: '00' };
