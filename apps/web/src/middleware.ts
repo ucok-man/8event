@@ -15,6 +15,10 @@ export async function middleware(req: NextRequest) {
 
     // 🔹 If user is NOT logged in
     if (!res.ok) {
+      console.log({
+        from: 'res !ok',
+        res: res,
+      });
       if (
         requestPath.startsWith('/members') &&
         !requestPath.startsWith('/members/auth')
@@ -51,6 +55,10 @@ export async function middleware(req: NextRequest) {
     }
     return NextResponse.next(); // Proceed if authorized
   } catch (error) {
+    console.log({
+      from: 'catch error',
+      error: error,
+    });
     throw error;
   }
 }
