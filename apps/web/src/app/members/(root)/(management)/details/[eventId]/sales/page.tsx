@@ -1,7 +1,7 @@
 'use client';
 
 import StatCard from '@/components/shared/stat-card';
-import { useAuthContext } from '@/context/auth-provider';
+import { useOrganizer } from '@/hooks/use-organizer';
 import { toast } from '@/hooks/use-toast';
 import { fadeInUp, opacityUp } from '@/lib/animation-template';
 import { cn, formatRupiah } from '@/lib/utils';
@@ -18,7 +18,7 @@ import { GetEventByIdSalesPayload } from './types';
 export default function SalesPage() {
   const { eventId } = useParams();
   const maxw450 = useMediaQuery('(max-width: 450px)');
-  const { apiclient, status } = useAuthContext();
+  const { apiclient, status } = useOrganizer();
 
   if (Array.isArray(eventId)) {
     return notFound();
@@ -57,6 +57,7 @@ export default function SalesPage() {
     }
   }
 
+  if (status === 'pending') return null;
   if (!isPending && !data) return null;
   const { tickets, summary } = data;
 

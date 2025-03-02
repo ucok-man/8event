@@ -18,8 +18,8 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 import { Separator } from '@/components/ui/separator';
-import { useAuthContext } from '@/context/auth-provider';
 import { refetchNow } from '@/context/query-provider';
+import { useOrganizer } from '@/hooks/use-organizer';
 import { toast } from '@/hooks/use-toast';
 import { fadeInUp, opacityUp } from '@/lib/animation-template';
 import { currentDate, dateFrom } from '@/lib/datetime-utils';
@@ -38,7 +38,12 @@ import { NameSchema } from './validation';
 type FormData = z.infer<typeof NameSchema>;
 
 export default function ProfilePage() {
-  const { user: session, apiclient, update: updateSession } = useAuthContext();
+  const {
+    user: session,
+    apiclient,
+    update: updateSession,
+    status,
+  } = useOrganizer();
   const [nameOpen, setNameOpen] = useState(false);
 
   const {
@@ -135,7 +140,7 @@ export default function ProfilePage() {
     });
     return null;
   }
-  if (!user) return null;
+  if (!user || status === 'pending') return null;
 
   return (
     <motion.div {...opacityUp} className="mt-8">

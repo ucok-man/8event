@@ -17,8 +17,8 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Progress } from '@/components/ui/progress';
-import { useAuthContext } from '@/context/auth-provider';
 import { useCreateEventContext } from '@/context/create-event-provider';
+import { useOrganizer } from '@/hooks/use-organizer';
 import { toast } from '@/hooks/use-toast';
 import { opacityUp } from '@/lib/animation-template';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -44,7 +44,7 @@ import { UploadBannerSchema } from './validation';
 type FormData = z.infer<typeof UploadBannerSchema>;
 
 export default function UploadBannerStep() {
-  const { apiclient } = useAuthContext();
+  const { apiclient, status } = useOrganizer();
   const isClient = useIsClient();
   const { payload, updateBannerError, updateBannerPayload } =
     useCreateEventContext();
@@ -177,7 +177,7 @@ export default function UploadBannerStep() {
     });
   };
 
-  if (!isClient) return <div></div>;
+  if (!isClient || status === 'pending') return <div></div>;
 
   return (
     <Form {...form}>

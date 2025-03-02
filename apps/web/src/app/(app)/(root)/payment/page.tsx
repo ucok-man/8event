@@ -5,6 +5,7 @@ import { Separator } from '@/components/ui/separator';
 // import { useAuthContext } from '@/context/auth-provider';
 import PendingState from '@/components/shared/pending-state';
 import { usePaymentNotifContext } from '@/context/payment-notif-provider';
+import { useCustomer } from '@/hooks/use-customer';
 import { CreditCard } from 'lucide-react';
 import { notFound } from 'next/navigation';
 import { useEffect } from 'react';
@@ -12,12 +13,14 @@ import PaymentProof from './payment-proof';
 import TimerPayment from './timer-payment';
 
 export default function PaymentPage() {
+  const { status } = useCustomer();
   const { pendingTransaction, isPending } = usePaymentNotifContext();
 
   useEffect(() => {
     if (!isPending && !pendingTransaction) notFound();
   }, [pendingTransaction, isPending]);
 
+  if (status === 'pending') return null;
   if (isPending) return <PendingState containerClass="min-h-screen" />;
 
   return (

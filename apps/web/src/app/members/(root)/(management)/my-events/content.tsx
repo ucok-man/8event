@@ -2,7 +2,7 @@
 
 import PaginationButton from '@/components/shared/pagination-button';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useAuthContext } from '@/context/auth-provider';
+import { useOrganizer } from '@/hooks/use-organizer';
 import { toast } from '@/hooks/use-toast';
 import { opacityUp } from '@/lib/animation-template';
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
@@ -23,7 +23,7 @@ type Props = {
 };
 
 export default function Content({ search, sortBy, page }: Props) {
-  const { apiclient, user, status } = useAuthContext();
+  const { apiclient, user, status } = useOrganizer();
   const isClient = useIsClient();
   const [activeTab, setActiveTab] = useState<TabActiveType>('active');
   const isMobile = useMediaQuery('(min-width: 450px)');
@@ -91,7 +91,7 @@ export default function Content({ search, sortBy, page }: Props) {
     });
     return null;
   }
-  if (!data) return null;
+  if (!data || status === 'pending') return null;
 
   return (
     <motion.div {...opacityUp}>

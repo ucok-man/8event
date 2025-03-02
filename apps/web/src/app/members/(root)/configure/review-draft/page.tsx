@@ -2,6 +2,7 @@
 'use client';
 
 import { useCreateEventContext } from '@/context/create-event-provider';
+import { useOrganizer } from '@/hooks/use-organizer';
 import { opacityUp } from '@/lib/animation-template';
 import { validbanner, validEvent, validTicket } from '@/lib/utils';
 import { motion } from 'motion/react';
@@ -14,6 +15,7 @@ export default function ReviewDraft() {
   const isClient = useIsClient();
   const { payload } = useCreateEventContext();
   const router = useRouter();
+  const { status } = useOrganizer();
 
   let redirectPath: string | null = null;
   if (!payload.uploadBanner || !validbanner(payload.uploadBanner)) {
@@ -30,7 +32,7 @@ export default function ReviewDraft() {
     }
   }, [redirectPath, router]);
 
-  if (redirectPath || !isClient) return <div></div>;
+  if (redirectPath || !isClient || status === 'pending') return <div></div>;
 
   return (
     <motion.div {...opacityUp}>

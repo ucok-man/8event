@@ -1,6 +1,6 @@
 'use client';
 
-import { useAuthContext } from '@/context/auth-provider';
+import { useOrganizer } from '@/hooks/use-organizer';
 import { toast } from '@/hooks/use-toast';
 import { opacityUp } from '@/lib/animation-template';
 import { GetEventByIdResponse, GetEventSummaryResponse } from '@/types';
@@ -13,7 +13,7 @@ import ContentSummary from './content-summary';
 
 export default function SummaryPage() {
   const { eventId } = useParams();
-  const { status, apiclient } = useAuthContext();
+  const { status, apiclient } = useOrganizer();
 
   const { data, isError, error, isPending } = useQuery({
     queryKey: ['event-detail', 'event-detail-summary', eventId],
@@ -54,6 +54,7 @@ export default function SummaryPage() {
     }
   }
 
+  if (status === 'pending') return null;
   if (!isPending && !data) return null;
   const { event, summary } = data;
 

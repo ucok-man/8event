@@ -1,7 +1,7 @@
 'use client';
 
 import StatCard from '@/components/shared/stat-card';
-import { useAuthContext } from '@/context/auth-provider';
+import { useOrganizer } from '@/hooks/use-organizer';
 import { toast } from '@/hooks/use-toast';
 import { fadeInUp, opacityUp } from '@/lib/animation-template';
 import { cn } from '@/lib/utils';
@@ -21,7 +21,7 @@ import { DataTable } from './data-table';
 export default function TransactionPage() {
   const { eventId } = useParams();
   const maxw450 = useMediaQuery('(max-width: 450px)');
-  const { apiclient, status } = useAuthContext();
+  const { apiclient, status } = useOrganizer();
 
   if (Array.isArray(eventId)) {
     return notFound();
@@ -69,6 +69,7 @@ export default function TransactionPage() {
     }
   }
 
+  if (status === 'pending') return null;
   if (!isPending && !data) return null;
 
   const { transactions, summary } = data;

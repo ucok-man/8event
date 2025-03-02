@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
-import { useAuthContext } from '@/context/auth-provider';
+import { useOrganizer } from '@/hooks/use-organizer';
 import { toast } from '@/hooks/use-toast';
 import { fadeInUp, opacityUp } from '@/lib/animation-template';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -25,7 +25,7 @@ import { ResetPasswordSchema } from './validation';
 type FormData = z.infer<typeof ResetPasswordSchema>;
 
 export default function SettingsPage() {
-  const { apiclient } = useAuthContext();
+  const { apiclient, status } = useOrganizer();
 
   const form = useForm<FormData>({
     resolver: zodResolver(ResetPasswordSchema),
@@ -79,6 +79,8 @@ export default function SettingsPage() {
       }
     },
   });
+
+  if (status === 'pending') return null;
 
   return (
     <div className="mt-8">
