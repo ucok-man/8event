@@ -17,8 +17,8 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { CREATE_EVENT_STEPS } from '@/constants';
-import { useAuthContext } from '@/context/auth-provider';
 import { useCreateEventContext } from '@/context/create-event-provider';
+import { useOrganizer } from '@/hooks/use-organizer';
 import { toast } from '@/hooks/use-toast';
 import { fadeInUp, opacityUp } from '@/lib/animation-template';
 import { validEvent, validbanner } from '@/lib/utils';
@@ -49,7 +49,7 @@ import {
 type Ticket = FreeTicket | PaidTicket;
 
 export default function TicketCreation() {
-  const { apiclient } = useAuthContext();
+  const { apiclient, status } = useOrganizer();
   const isClient = useIsClient();
   const { payload, updateCreateTicketPayload, updateCreateTicketError } =
     useCreateEventContext();
@@ -191,7 +191,7 @@ export default function TicketCreation() {
     }
   }, [redirectPath, router]);
 
-  if (redirectPath || !isClient) return <div></div>;
+  if (redirectPath || !isClient || status === 'pending') return <div></div>;
 
   return (
     <motion.div {...opacityUp} className="container py-10 mx-auto">

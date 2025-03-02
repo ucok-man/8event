@@ -41,6 +41,7 @@ import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { CREATE_EVENT_STEPS, EVENT_CATEGORY } from '@/constants';
 import { useCreateEventContext } from '@/context/create-event-provider';
+import { useOrganizer } from '@/hooks/use-organizer';
 import { fadeInUp, opacityUp } from '@/lib/animation-template';
 import {
   dateFrom,
@@ -70,6 +71,7 @@ import { CreateEventSchema } from './validation';
 type FormData = z.infer<typeof CreateEventSchema>;
 
 export default function CreateEventForm() {
+  const {status} = useOrganizer();
   const isClient = useIsClient();
   const { payload, updateCreateEventPayload, updateCreateEventError } =
     useCreateEventContext();
@@ -113,7 +115,7 @@ export default function CreateEventForm() {
     }
   }, [redirectPath, router]);
 
-  if (redirectPath || !isClient) return <div></div>;
+  if (redirectPath || !isClient || status === "pending") return <div></div>;
 
   return (
     <motion.div {...opacityUp}>

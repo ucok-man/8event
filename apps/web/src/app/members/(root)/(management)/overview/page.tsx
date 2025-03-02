@@ -3,7 +3,7 @@
 import StatCard from '@/components/shared/stat-card';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { useAuthContext } from '@/context/auth-provider';
+import { useOrganizer } from '@/hooks/use-organizer';
 import { toast } from '@/hooks/use-toast';
 import { fadeInUp, opacityUp } from '@/lib/animation-template';
 import { cn, formatRupiah } from '@/lib/utils';
@@ -25,7 +25,7 @@ import {
 } from 'recharts';
 
 export default function OverviewPage() {
-  const { apiclient, user, status } = useAuthContext();
+  const { apiclient, user, status } = useOrganizer();
   const { data, isPending, error } = useQuery({
     queryKey: ['dashboard-overview', user?.id],
     queryFn: async () => {
@@ -69,7 +69,7 @@ export default function OverviewPage() {
     return null;
   }
 
-  if (!data) return null;
+  if (!data || status === 'pending') return null;
 
   return (
     <div className="my-8">
