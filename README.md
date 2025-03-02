@@ -1,82 +1,62 @@
-# Purwadhika Minpro Event Ticketing
+# 8EVENT Minpro PWD
 
-This project uses React.js with NextJS for the frontend, Express.js for the backend, and TurboRepo for monorepo management, facilitating rapid development of a scalable web application with streamlined collaboration and efficient server-client interactions.
+## Overview
 
-## Available Scripts
+8EVENT is a comprehensive event management platform designed to simplify the process of organizing and managing events. It is ideal for event organizers, businesses, and individuals who require an efficient solution for event planning, ticketing, attendee management, and more.
 
-### `npm run dev`
+## Tech Stack
 
-Runs the app in the development mode.
+- **Frontend:** Next.js, Tailwind CSS
+- **Backend:** Node.js (Express.js)
+- **Database:** Supabase with Prisma ORM
+- **Authentication:** JWT
+- **File Upload:** Cloudinary
+- **Payment Integration:** Midtrans
 
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser. For API, you can access it in [http://localhost:4000/api](http://localhost:4000/api). The app will reload if you make edits.
+## Getting Started
 
-### `npm run build`
+Follow these steps to set up the project locally:
 
-Builds the app for production to the `dist` folder for each project.
+1. **Clone the repository:**
 
-### `npm run serve`
+   ```sh
+   git clone https://github.com/your-repo/8event-minpro-pwd.git
+   cd 8event-minpro-pwd
+   ```
 
-Runs the app in the production mode.
+2. **Install dependencies:**
 
-### `npm run <task> --workspace=<app-name>`
+   ```sh
+   npm install
+   ```
 
-Run command on specific app (install package, run test, etc).
+3. **Set up environment variables:**
 
-### `npm run <task> --workspace=<app-name> -- --<option>`
+   - Copy the `.env.example` file found in `apps/web` and `apps/api`.
+   - Rename it to `.env` and fill in the required values (database credentials, API keys, etc.).
 
-Run command on specific app with options.
+4. **Run the development server:**
 
-Example : `npm run seqeulize --workspace=api -- --db:migrate`
+   ```sh
+   npm run dev
+   ```
 
-# Rules
+5. **Access the application:**
+   - Open your browser and navigate to `http://localhost:3000`
 
-## Commit & Pull Request
+## Live Demo
 
-- Always use [conventional commit message](https://www.conventionalcommits.org/en/v1.0.0/) when committing changes or creating pull request
-- **"Squash and Merge"** your pull request to main branch
+The application is deployed at: [8EVENT Minpro PWD](https://minpro-event-ticketing-web.vercel.app)
 
-## Naming Convention
+## Features in Development
 
-### REST API
+The following features are currently missing and planned for future updates:
 
-- Always use [REST API naming convention](https://restfulapi.net/resource-naming/)
+1. **Review System** – Allow users to leave reviews and feedback for events.
+2. **Promotion Vouchers** – Implement discount codes and promotions.
+3. **Forgot Password** – Enable users to reset their passwords.
+4. **Email Verification** – Authenticate users via a verification link.
 
-### File Naming Conventions:
+---
 
-1. **Use CamelCase for filenames:**
-
-   - Begin filenames with a lowercase letter.
-   - For multiple words, capitalize the first letter of each subsequent word.
-   - Example: `index.js`, `userModel.js`, `dataAccess.js`
-
-2. **Use Descriptive Names:**
-
-   - Choose names that accurately describe the file's purpose or content.
-   - Avoid overly generic names like `utils.js` unless the file genuinely contains utility functions.
-
-3. **Follow Naming Conventions for Specific File Types:**
-
-   - For configuration files, use names like `.env`, `config.js`, or `settings.json`.
-   - Use consistent naming for test files, such as appending `.test.js` or `.spec.js` to the filename being tested.
-   - Use `package.json` for the project's metadata and dependencies.
-
-4. **Separate Concerns with File Naming:**
-   - Follow a modular structure for different concerns (e.g., `userController.js`, `userService.js`, `userModel.js` for a user-related module).
-
-### Folder Naming Conventions:
-
-1. **Use Singular or Plural Naming:**
-
-   - Choose a consistent convention for naming folders (e.g., `models` or `model`, `routes` or `route`).
-
-2. **Avoid Special Characters and Spaces:**
-
-   - Use hyphens (`-`) or underscores (`_`) for separating words in folder names, but avoid spaces or special characters.
-
-3. **Use Descriptive Names for Folders:**
-
-   - Name folders according to their content or purpose (e.g., `controllers`, `services`, `utils`, `tests`, `public`, `views`, etc.).
-
-4. **Nested Folder Structure:**
-   - Create a logical and organized folder structure based on the project's architecture.
-   - For larger projects, consider organizing files by features/modules (Feature-Based Structure) or layer-based (Layered Structure).
+For any questions or contributions, feel free to open an issue or submit a pull request!
