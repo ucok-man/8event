@@ -40,10 +40,7 @@ export default function UserAvatar() {
         <Avatar className="w-7 h-7 cursor-pointer border border-brand-blue-500">
           <AvatarImage src={user?.profilePicture} alt={user?.name} />
           <AvatarFallback>
-            {user?.name
-              .split(' ')
-              .map((name) => name[0])
-              .join('')}
+            {user?.name.at(0)?.toUpperCase() ?? 'U'}
           </AvatarFallback>
         </Avatar>
       </DialogTrigger>

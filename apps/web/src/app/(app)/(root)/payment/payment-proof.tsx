@@ -187,8 +187,9 @@ export default function PaymentProof({}: Props) {
           onSubmit={form.handleSubmit((data) => {
             if (!pendingTransaction?.isPayed) {
               toast({
-                title: 'Unprocessable Request',
-                description: 'pay your bill first before submiting your proof',
+                title: 'Oops! 🫢',
+                description:
+                  'pay your bill first before submiting your proof. If you are ready pay please wait in a second',
                 variant: 'destructive',
               });
               return;

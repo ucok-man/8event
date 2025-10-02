@@ -156,11 +156,7 @@ export default function ProfilePage() {
             <Avatar className="w-20 h-20 relative">
               <AvatarImage src={user?.profilePicture} alt={user?.name} />
               <AvatarFallback className="text-2xl bg-gray-200/70">
-                {user?.name
-                  .split(' ')
-                  .map((name) => name[0])
-                  .join('')
-                  .toUpperCase()}
+                {user?.name.at(0)?.toUpperCase() ?? 'U'}
               </AvatarFallback>
 
               {/* Spinner */}

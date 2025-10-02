@@ -12,7 +12,12 @@ export const withAuthentication = async (
   try {
     const { authorization } = req.headers;
 
-    const token = String(authorization || '').split('Bearer ')[1];
+    // Check if authorization header exists and has Bearer format
+    if (!authorization || !authorization.startsWith('Bearer ')) {
+      throw new InvalidAuthTokenError();
+    }
+
+    const token = authorization.split('Bearer ')[1];
 
     let session: JwtPayload | string;
     try {
@@ -20,7 +25,9 @@ export const withAuthentication = async (
     } catch (error) {
       throw new InvalidAuthTokenError();
     }
+
     if (!session) throw new InvalidAuthTokenError();
+
     req['user'] = session as JwtPayload & {
       id: string;
       name: string;

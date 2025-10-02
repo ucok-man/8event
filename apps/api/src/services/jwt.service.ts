@@ -15,9 +15,12 @@ export class JWTService {
     },
     refreshPayload: { email: string },
   ) => {
+    // Access token valid for 15 minutes
     const accessToken = sign(accessPayload, JWT_ACCESS_SECRET, {
-      expiresIn: '1m',
+      expiresIn: '15m',
     });
+
+    // Refresh token valid for 1 day
     const refreshToken = sign(refreshPayload, JWT_REFRESH_SECRET, {
       expiresIn: '1d',
     });
@@ -53,15 +56,18 @@ export class JWTService {
         user: true,
       },
     });
+
     if (!existingToken) return null;
 
     const today = currentDate();
     const refreshExpiredAt = dateFrom(existingToken.refreshExpiredAt);
 
+    // Check if refresh token is expired
     if (isAfter(today, refreshExpiredAt)) {
       return null; // unauthorized
     }
 
+    // Generate new access token (15 minutes)
     const accessToken = sign(
       {
         id: existingToken.user.id,
@@ -72,14 +78,17 @@ export class JWTService {
       },
       JWT_ACCESS_SECRET,
       {
-        expiresIn: '5s',
+        expiresIn: '15m',
       },
     );
+
+    // Generate new refresh token and extend expiration
+    const newRefreshExpiredAt = addDays(today, 1);
     const refreshToken = sign(
       { email: existingToken.user.email },
       JWT_REFRESH_SECRET,
       {
-        expiresIn: `${refreshExpiredAt.getTime() - today.getTime()}ms`,
+        expiresIn: '1d',
       },
     );
 
@@ -90,13 +99,14 @@ export class JWTService {
       data: {
         refreshToken: refreshToken,
         accessToken: accessToken,
+        refreshExpiredAt: newRefreshExpiredAt,
       },
     });
 
     return {
       accessToken,
       refreshToken,
-      refreshExpiredAt,
+      refreshExpiredAt: newRefreshExpiredAt,
     };
   };
 }
