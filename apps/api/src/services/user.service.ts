@@ -79,11 +79,11 @@ export class UserService {
       },
     });
 
-    const sum = pointBalances._sum.point || 0;
+    const sum = pointBalances._sum.point ?? 0;
+
     if (sum < 0) {
       throw new Error('negative sum point balances result');
     }
-
     const rating = await prismaclient.recordOrganizerAverageRating.findUnique({
       where: {
         organizerId: user.id,

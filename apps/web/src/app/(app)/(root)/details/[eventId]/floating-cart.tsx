@@ -46,7 +46,7 @@ export default function FloatingCart({
   const onCheckout = () => {
     if (!data.user.id) {
       toast({
-        title: 'Unprocessable Request',
+        title: 'Oops! 🫢',
         description: 'Please login first before continue on checkout',
         variant: 'destructive',
       });
@@ -55,7 +55,7 @@ export default function FloatingCart({
 
     if (data.user.role !== 'CUSTOMER') {
       toast({
-        title: 'Unprocessable Request',
+        title: 'Oops! 🫢',
         description: 'Please login with your customer account to checkout',
         variant: 'destructive',
       });
@@ -64,7 +64,7 @@ export default function FloatingCart({
 
     if (pendingTransaction) {
       toast({
-        title: 'Unprocessable Request',
+        title: 'Oops! 🫢',
         description:
           'Please complete your transaction first before continue on checkout',
         variant: 'destructive',
@@ -74,7 +74,7 @@ export default function FloatingCart({
 
     if (payload.totalTicketQuantity <= 0) {
       toast({
-        title: 'Unprocessable Request',
+        title: 'Oops! 🫢',
         description: 'Please select ticket first before continue on checkout',
         variant: 'destructive',
       });

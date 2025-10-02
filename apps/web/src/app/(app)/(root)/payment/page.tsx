@@ -35,8 +35,8 @@ export default function PaymentPage() {
         <PaymentProof />
         {/* Snap Container */}
         <div id="snap-container" className="relative mx-auto z-0">
-          <div className="absolute z-30 bg-red-500 h-[24px] w-[320px] top-[26%]"></div>
-          <div className="absolute z-30 bg-red-500 h-[72px] w-[320px] bottom-0 rounded-b-md"></div>
+          <div className="absolute z-30 bg-white h-[24px] w-[320px] top-[26%]"></div>
+          {/* <div className="absolute z-30 bg-white -translate-x-1/2 left-[50%] h-[50px] w-[100px] bottom-0 rounded-b-md"></div> */}
         </div>
       </div>
 

@@ -7,7 +7,10 @@ import { Separator } from '@/components/ui/separator';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { USER_POPOVER_LINK } from '@/constants';
 import { useAuthContext } from '@/context/auth-provider';
-import { useCreateEventContext } from '@/context/create-event-provider';
+import {
+  SESSION_STORAGE_KEY,
+  useCreateEventContext,
+} from '@/context/create-event-provider';
 import { cn } from '@/lib/utils';
 import { PopoverTrigger } from '@radix-ui/react-popover';
 import { CalendarClockIcon, LogOut } from 'lucide-react';
@@ -56,10 +59,7 @@ export default function Navbar() {
                   <Avatar className="md:size-9 size-8 relative cursor-pointer border border-brand-blue-500">
                     <AvatarImage src={user?.profilePicture} alt={user?.name} />
                     <AvatarFallback>
-                      {user?.name
-                        .split(' ')
-                        .map((name) => name[0])
-                        .join('')}
+                      {user?.name.at(0)?.toUpperCase() ?? 'U'}
                     </AvatarFallback>
                   </Avatar>
                 </PopoverTrigger>
@@ -72,10 +72,7 @@ export default function Navbar() {
                         alt={user?.name}
                       />
                       <AvatarFallback>
-                        {user?.name
-                          .split(' ')
-                          .map((name) => name[0])
-                          .join('')}
+                        {user?.name.at(0)?.toUpperCase() ?? 'U'}
                       </AvatarFallback>
                     </Avatar>
                     <div className="space-y-1">
@@ -106,7 +103,7 @@ export default function Navbar() {
                   <button
                     onClick={async () => {
                       await logout();
-                      localStorage.removeItem('create-event-step');
+                      sessionStorage.removeItem(SESSION_STORAGE_KEY);
                       router.push('/members/auth/signin');
                     }}
                     className="flex w-full items-center space-x-2 rounded-md p-2 hover:bg-accent transition-colors duration-200 text-sm text-brand-blue-700"

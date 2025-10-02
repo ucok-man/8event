@@ -41,11 +41,7 @@ export default function EventCreatorAvatar({
             >
               <AvatarImage src={profile} />
               <AvatarFallback>
-                {name
-                  .split(' ')
-                  .map((name) => name[0])
-                  .join('')
-                  .toUpperCase()}
+                {name.at(0)?.toUpperCase() ?? 'U'}
               </AvatarFallback>
             </Avatar>
           </HoverCardTrigger>

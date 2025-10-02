@@ -818,61 +818,6 @@ async function SEED_EVENTS_AND_TICKETS(organizerId: string) {
       ],
     },
     {
-      id: 'd97d2517-cc8a-470b-8baa-55f2fe2b7036',
-      name: 'JAKARTA BIRD LAND ANCOL',
-      bannerUrl:
-        'https://res.cloudinary.com/dx6hmxiv3/image/upload/v1739496237/minpro-event-ticketing/event/banner/bird_land_ancol_kpk0bi.png',
-      description: `
-<p>Jakarta Bird Land adalah taman bermain sekaligus tempat konservasi yang memiliki berbagai jenis spesies burung di Indonesia maupun mancanegara dimana keluarga Indonesia dapat memperoleh edukasi, interaksi hingga pengalaman baru dengan berbagai jenis spesies burung.<br /><br />Jakarta Bird Land menawarkan berbagai interaksi mulai dari Bird Feeding, Direct Touch, dsb hingga interaksi baru seperti Free Range Bird, Lake For Show, Waterfall, Escalator hingga Thematic Hardscape yang tidak ada di taman burung manapun di Indonesia.</p>
-<p>Selain menjadi taman wisata edukasi,&nbsp;Jakarta Bird Land juga menjadi pusat konservasi yang menyelamatkan berbagai spesies burung yang terancam punah melalui pusat Breeding &amp; Research yang fokus dalam merawat spesies-spesies burung di Indonesia &amp; Mancanegara.<br /><br />Berikut beberapa Area yang bisa kamu kunjungi saat berada di Jakarta Bird Land:</p>
-<p>1. Area Makau dan Kakaktua</p>
-<p>2. Area Hornbill Family</p>
-<p>3. Area Para Pemangsa</p>
-<p>4. Area Burung Perairan (Water Bird)</p>
-<p>5. Kandang Burung</p>
-<p>6. Mini Show&nbsp;</p>
-      `,
-      startDate: bulandepan,
-      endDate: bulandepan,
-      startTime: '00:00',
-      endTime: '23:30',
-      categoryId: 'e139448d-50b6-41b6-9f91-a30b72f6afc1', // travels and holiday
-      isPublished: true,
-      isEventOnline: false,
-      urlStreaming: null,
-      organizerId: organizerId,
-      placeAddress: 'Jl. Street 05',
-      placeCity: 'DKI Jakarta',
-      placeName: 'Bird Land, Ancol',
-      views: 10,
-      tickets: [
-        {
-          type: 'PAID',
-          name: 'Bird Land Ancol [Weekday]',
-          amount: 100,
-          initialAmount: 100,
-          price: 60_000,
-          description: `Lorem Ipsum is simply dummy text of the printing and typesetting industry.`,
-          startDate: currentdate,
-          endDate: bulanDepanKurangSatuHari,
-          startTime: '00:00',
-          endTime: '23:30',
-        },
-        {
-          type: 'PAID',
-          name: 'Paket Ber-3 Bird Land [Weekday]',
-          amount: 100,
-          initialAmount: 100,
-          price: 30_000,
-          description: `Lorem Ipsum is simply dummy text of the printing and typesetting industry.`,
-          startDate: currentdate,
-          endDate: bulanDepanKurangSatuHari,
-          startTime: '00:00',
-          endTime: '23:30',
-        },
-      ],
-    },
-    {
       id: '89444960-a101-4565-9652-9f3d435a9411',
       name: 'SAMUDRA ANCOL',
       bannerUrl:

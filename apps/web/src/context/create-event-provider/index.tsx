@@ -181,8 +181,8 @@ export default function CreateEventContextProvider({
   );
 
   const setStorageToDefault = useCallback(() => {
-    setPayload(LOCAL_STORAGE_DEFAULT_VALUE);
-    writeStorage(LOCAL_STORAGE_DEFAULT_VALUE);
+    setPayload(SESSION_STORAGE_DEFAULT_VALUE);
+    writeStorage(SESSION_STORAGE_DEFAULT_VALUE);
   }, []);
 
   const setStorage = useCallback((payload: CreateEventStepPayload) => {
@@ -239,8 +239,8 @@ export function useCreateEventContext() {
 /*                              HELPER                              */
 /* ---------------------------------------------------------------- */
 
-const LOCAL_STORAGE_KEY = 'create-event-step';
-const LOCAL_STORAGE_DEFAULT_VALUE: CreateEventStepPayload = {
+export const SESSION_STORAGE_KEY = 'create-event-step';
+const SESSION_STORAGE_DEFAULT_VALUE: CreateEventStepPayload = {
   uploadBanner: {
     data: { bannerUrl: '' },
   },
@@ -264,17 +264,17 @@ const LOCAL_STORAGE_DEFAULT_VALUE: CreateEventStepPayload = {
 
 function writeStorage(data: CreateEventStepPayload) {
   if (typeof window !== 'undefined') {
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(data));
+    sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(data));
   }
 }
 
 function readStorage() {
   if (typeof window === 'undefined') {
-    return LOCAL_STORAGE_DEFAULT_VALUE; // Avoid SSR issues
+    return SESSION_STORAGE_DEFAULT_VALUE; // Avoid SSR issues
   }
-  const datastr = localStorage.getItem(LOCAL_STORAGE_KEY);
+  const datastr = sessionStorage.getItem(SESSION_STORAGE_KEY);
   if (datastr) return JSON.parse(datastr);
 
-  writeStorage(LOCAL_STORAGE_DEFAULT_VALUE);
-  return LOCAL_STORAGE_DEFAULT_VALUE;
+  writeStorage(SESSION_STORAGE_DEFAULT_VALUE);
+  return SESSION_STORAGE_DEFAULT_VALUE;
 }

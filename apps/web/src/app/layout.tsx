@@ -1,6 +1,4 @@
 import { Toaster } from '@/components/ui/toaster';
-// import { Toaster as ToasterSooner } from 'sonner';
-
 import { TooltipProvider } from '@/components/ui/tooltip';
 import AuthProvider from '@/context/auth-provider';
 import QueryProvider from '@/context/query-provider';
@@ -10,8 +8,8 @@ import { fontDMSans, fontMontserrat } from './fonts';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: '',
-  description: 'Event Ticketing App',
+  title: '8Event',
+  description: 'Event Platform',
 };
 
 type Props = {
@@ -40,7 +38,6 @@ export default function RootLayout({ children }: Props) {
                 <main className="relative">{children}</main>
                 <ReactQueryDevtools initialIsOpen={false} />
               </TooltipProvider>
-              {/* <ToasterSooner /> */}
               <Toaster />
             </div>
           </body>
