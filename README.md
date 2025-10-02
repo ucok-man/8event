@@ -2,13 +2,13 @@
 
 ## Overview
 
-8EVENT is a comprehensive event management platform designed to simplify the process of organizing and managing events. It is ideal for event organizers, businesses, and individuals who require an efficient solution for event planning, ticketing, attendee management, and more.
+8event is a comprehensive event management platform designed to simplify the process of organizing and managing events. It is ideal for event organizers, businesses, and individuals who require an efficient solution for event planning, ticketing, attendee management, and more.
 
 ## Tech Stack
 
-- **Frontend:** Next.js, Tailwind CSS
+- **Frontend:** Next.js, Shadcn
 - **Backend:** Node.js (Express.js)
-- **Database:** Supabase with Prisma ORM
+- **Database:** Postgresql with Prisma ORM
 - **Authentication:** JWT
 - **File Upload:** Cloudinary
 - **Payment Integration:** Midtrans
@@ -46,16 +46,7 @@ Follow these steps to set up the project locally:
 
 ## Live Demo
 
-The application is deployed at: [8EVENT Minpro PWD](https://minpro-event-ticketing-web.vercel.app)
-
-## Features in Development
-
-The following features are currently missing and planned for future updates:
-
-1. **Review System** – Allow users to leave reviews and feedback for events.
-2. **Promotion Vouchers** – Implement discount codes and promotions.
-3. **Forgot Password** – Enable users to reset their passwords.
-4. **Email Verification** – Authenticate users via a verification link.
+- [https://www.8event.ucokman.web.id](https://8event.ucokman.web.id)
 
 ---
 
