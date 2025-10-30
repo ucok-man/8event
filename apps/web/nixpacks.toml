@@ -2,10 +2,14 @@
 nixPkgs = ["nodejs"]
 
 [phases.install]
-cmds = ["apt install wget && wget -qO- https://get.pnpm.io/install.sh | sh - && pnpm install"]
+cmds = [
+  "apt-get update -y && apt-get install -y wget curl",
+  "curl -fsSL https://get.pnpm.io/install.sh | sh -",
+  "export PATH=$HOME/.local/share/pnpm:$PATH && pnpm install"
+]
 
 [phases.build]
-cmds = ["pnpm run build"]
+cmds = ["export PATH=$HOME/.local/share/pnpm:$PATH && pnpm run build"]
 
 [start]
-cmd = "pnpm run serve"
+cmd = "export PATH=$HOME/.local/share/pnpm:$PATH && pnpm run serve"
