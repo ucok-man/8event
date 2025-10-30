@@ -2,7 +2,7 @@
 nixPkgs = ["nodejs"]
 
 [phases.install]
-cmds = ["wget -qO- https://get.pnpm.io/install.sh | sh - && pnpm install"]
+cmds = ["apt install wget && wget -qO- https://get.pnpm.io/install.sh | sh - && pnpm install"]
 
 [phases.build]
 cmds = ["pnpm run build"]
