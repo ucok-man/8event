@@ -1,15 +1,11 @@
 [phases.setup]
-nixPkgs = ["nodejs"]
+nixPkgs = ["nodejs", "pnpm"]
 
 [phases.install]
-cmds = [
-  "apt-get update -y && apt-get install -y wget curl",
-  "curl -fsSL https://get.pnpm.io/install.sh | sh -",
-  "export PATH=$HOME/.local/share/pnpm:$PATH && pnpm install"
-]
+cmds = ["pnpm install"]
 
 [phases.build]
-cmds = ["export PATH=$HOME/.local/share/pnpm:$PATH && pnpm run build"]
+cmds = ["pnpm run build"]
 
 [start]
-cmd = "export PATH=$HOME/.local/share/pnpm:$PATH && pnpm run serve"
+cmd = "pnpm run serve"
