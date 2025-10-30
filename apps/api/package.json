@@ -60,7 +60,6 @@
     "@types/jsonwebtoken": "^9.0.8",
     "@types/multer": "^1.4.12",
     "@types/pug": "^2.0.10",
-    "@types/axios": "^0.14.0",
     "concurrently": "^9.1.2",
     "prisma": "^6.2.1",
     "rimraf": "^6.0.1",
