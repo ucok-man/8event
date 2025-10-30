@@ -6,3 +6,6 @@ cmds = ["ls -al"]
 
 [phases.build]
 cmds = ["ls -al"]
+
+[start]
+cmds = ["echo 'OK'"]
