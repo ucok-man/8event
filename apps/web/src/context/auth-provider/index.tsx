@@ -45,14 +45,14 @@ export default function AuthProvider({ children }: Props) {
   // Create axios instances with credentials
   const apiclient = useMemo(() => {
     return axios.create({
-      baseURL: process.env.NEXT_PUBLIC_BACKEND_URL,
+      baseURL: process.env.NEXT_PUBLIC_BACKEND_URL + '/api',
       withCredentials: true, // Important: sends cookies
     });
   }, []);
 
   const refreshclient = useMemo(() => {
     return axios.create({
-      baseURL: process.env.NEXT_PUBLIC_BACKEND_URL,
+      baseURL: process.env.NEXT_PUBLIC_BACKEND_URL + '/api',
       withCredentials: true, // Important: sends cookies for refresh token
     });
   }, []);

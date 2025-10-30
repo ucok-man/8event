@@ -1,53 +1,59 @@
-# 8EVENT Minpro PWD
+# 8Event
 
-## Overview
+Event management platform designed to simplify the process of organizing and managing events. This project was created to fulfill the requirements for graduating from a mini project in Purwadhika.
 
-8event is a comprehensive event management platform designed to simplify the process of organizing and managing events. It is ideal for event organizers, businesses, and individuals who require an efficient solution for event planning, ticketing, attendee management, and more.
+**Live** : [https://8event.ucokman.web.id](https://8event.ucokman.web.id)
 
 ## Tech Stack
 
-- **Frontend:** Next.js, Shadcn
-- **Backend:** Node.js (Express.js)
-- **Database:** Postgresql with Prisma ORM
-- **Authentication:** JWT
-- **File Upload:** Cloudinary
-- **Payment Integration:** Midtrans
+- **Frontend:** Next.js, Shadcn, Tailwind CSS
+- **Backend:** Node.js (Express.js), BullMQ Worker
+- **Storage:** Postgresql, Prisma, Cloudinary, Redis
+- **Payment:** Midtrans
 
-## Getting Started
+## Quick Start
 
-Follow these steps to set up the project locally:
+### Prerequisites
 
-1. **Clone the repository:**
+- Node.js 18+
+- PostgreSQL
+- Redis
+- Cloudinary account
+- Midtrans account
 
-   ```sh
-   git clone https://github.com/your-repo/8event-minpro-pwd.git
-   cd 8event-minpro-pwd
-   ```
+### Setup
 
-2. **Install dependencies:**
+1. **Clone & Install**
 
-   ```sh
+   ```bash
+   git clone <repo-url>
+   cd 8event
    npm install
    ```
 
-3. **Set up environment variables:**
+2. **Configure Environment**
 
-   - Copy the `.env.example` file found in `apps/web` and `apps/api`.
-   - Rename it to `.env` and fill in the required values (database credentials, API keys, etc.).
+   ```bash
+   cd apps/api
+   cp .env.example .env
+   # Fill in your credentials
 
-4. **Run the development server:**
+   cd apps/web
+   cp .env.example .env
+   # Fill in your credentials
+   ```
 
-   ```sh
+3. **Setup Database**
+
+   ```bash
+   cd apps/api
+   npx prisma migrate dev
+   ```
+
+4. **Run Dev Server**
+   ```bash
+   # From root project
    npm run dev
    ```
 
-5. **Access the application:**
-   - Open your browser and navigate to `http://localhost:3000`
-
-## Live Demo
-
-- [https://www.8event.ucokman.web.id](https://8event.ucokman.web.id)
-
----
-
-For any questions or contributions, feel free to open an issue or submit a pull request!
+Visit `http://localhost:3000`
