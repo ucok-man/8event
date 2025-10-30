@@ -8,4 +8,4 @@ cmds = ["ls -al"]
 cmds = ["ls -al"]
 
 [start]
-cmds = ["echo 'OK'"]
+cmds = "echo 'OK!'"
