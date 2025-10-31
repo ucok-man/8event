@@ -106,6 +106,12 @@ jobs:
           push: true # Push to registry after building
           tags: ${{ steps.meta.outputs.tags }} # Use tags from step 4
           labels: ${{ steps.meta.outputs.labels }}
+
+          # Add build arguments here
+          build-args: |
+            NEXT_PUBLIC_BACKEND_URL=${{ secrets.NEXT_PUBLIC_BACKEND_URL }}
+            NEXT_PUBLIC_MIDTRANS_CLIENT_KEY=${{ secrets.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY }}
+
           # Caching: This speeds up future builds by reusing layers
           cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.WEB_IMAGE_NAME }}:buildcache
           cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ env.WEB_IMAGE_NAME }}:buildcache,mode=max

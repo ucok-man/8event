@@ -7,7 +7,16 @@ FROM base AS build
 WORKDIR /app
 COPY . .
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install
+
+# Add build args for NEXT_PUBLIC_ variables
+ARG NEXT_PUBLIC_BACKEND_URL
+ARG NEXT_PUBLIC_MIDTRANS_CLIENT_KEY
+
+# Set them as env vars for the build
+ENV NEXT_PUBLIC_BACKEND_URL=$NEXT_PUBLIC_BACKEND_URL
+ENV NEXT_PUBLIC_MIDTRANS_CLIENT_KEY=$NEXT_PUBLIC_MIDTRANS_CLIENT_KEY
 ENV NODE_ENV=production
+
 RUN pnpm run build
  
 FROM base AS dokploy
