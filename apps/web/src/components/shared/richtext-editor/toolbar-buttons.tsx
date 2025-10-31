@@ -19,7 +19,6 @@ import { useAuthContext } from '@/context/auth-provider';
 import { toast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { useMutation } from '@tanstack/react-query';
-// import { useEditorStore } from '@/store/use-editor-store';
 import { Level } from '@tiptap/extension-heading';
 import { Editor } from '@tiptap/react';
 import {
