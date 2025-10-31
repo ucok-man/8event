@@ -16,8 +16,10 @@ on:
 # These are available to all jobs below
 env:
   REGISTRY: docker.io # Docker Hub registry URL
-  WEB_IMAGE_NAME: ${{ secrets.DOCKERHUB_USERNAME }}/${{ github.repository }}-web # Full image name for web app
-  API_IMAGE_NAME: ${{ secrets.DOCKERHUB_USERNAME }}/${{ github.repository }}-api # Full image name for API
+  WEB_REPO_NAME: 8event-web
+  API_REPO_NAME: 8event-api
+  WEB_IMAGE_NAME: ${{ secrets.DOCKERHUB_USERNAME }}/8event-web # Full image name for web app
+  API_IMAGE_NAME: ${{ secrets.DOCKERHUB_USERNAME }}/8event-api # Full image name for API
 
 # Jobs are the main tasks that run in the workflow
 # These two jobs will run in parallel (at the same time)
@@ -51,7 +53,35 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }} # Your Docker Hub username
           password: ${{ secrets.DOCKERHUB_TOKEN }} # Your Docker Hub access token
 
-      # Step 4: Generate Docker image tags and labels
+      # Step 4: Create Docker Hub repository if it doesn't exist
+      - name: Create Docker Hub repository for Web
+        run: |
+          REPO_NAME="${{ env.WEB_REPO_NAME }}"
+
+          # Check if repository exists
+          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
+            -H "Authorization: Bearer ${{ secrets.DOCKERHUB_TOKEN }}" \
+            "https://hub.docker.com/v2/repositories/${{ secrets.DOCKERHUB_USERNAME }}/${REPO_NAME}/")
+
+          # If repository doesn't exist (404), create it
+          if [ "$HTTP_CODE" = "404" ]; then
+            echo "Repository doesn't exist. Creating..."
+            curl -X POST \
+              -H "Content-Type: application/json" \
+              -H "Authorization: Bearer ${{ secrets.DOCKERHUB_TOKEN }}" \
+              -d '{
+                "namespace": "${{ secrets.DOCKERHUB_USERNAME }}",
+                "name": "'"${REPO_NAME}"'",
+                "description": "Web application for 8event",
+                "is_private": false
+              }' \
+              "https://hub.docker.com/v2/repositories/"
+            echo "Repository created successfully"
+          else
+            echo "Repository already exists"
+          fi
+
+      # Step 5: Generate Docker image tags and labels
       # This creates smart tags based on branch, commit SHA, etc.
       - name: Extract metadata for Web
         id: meta # We can reference outputs from this step using 'steps.meta.outputs'
@@ -67,7 +97,7 @@ jobs:
             type=sha,prefix={{branch}}-        # Tag with commit SHA (e.g., 'main-abc1234')
             type=raw,value=latest,enable={{is_default_branch}}  # Tag 'latest' only on main branch
 
-      # Step 5: Build the Docker image and push it to Docker Hub
+      # Step 6: Build the Docker image and push it to Docker Hub
       - name: Build and push Web Docker image
         uses: docker/build-push-action@v5
         with:
@@ -105,7 +135,35 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      # Step 4: Generate tags for API image
+      # Step 3: Create Docker Hub repository if it doesn't exist
+      - name: Create Docker Hub repository for API
+        run: |
+          REPO_NAME="${{ env.API_REPO_NAME }}"
+
+          # Check if repository exists
+          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
+            -H "Authorization: Bearer ${{ secrets.DOCKERHUB_TOKEN }}" \
+            "https://hub.docker.com/v2/repositories/${{ secrets.DOCKERHUB_USERNAME }}/${REPO_NAME}/")
+
+          # If repository doesn't exist (404), create it
+          if [ "$HTTP_CODE" = "404" ]; then
+            echo "Repository doesn't exist. Creating..."
+            curl -X POST \
+              -H "Content-Type: application/json" \
+              -H "Authorization: Bearer ${{ secrets.DOCKERHUB_TOKEN }}" \
+              -d '{
+                "namespace": "${{ secrets.DOCKERHUB_USERNAME }}",
+                "name": "'"${REPO_NAME}"'",
+                "description": "API application for 8event",
+                "is_private": false
+              }' \
+              "https://hub.docker.com/v2/repositories/"
+            echo "Repository created successfully"
+          else
+            echo "Repository already exists"
+          fi
+
+      # Step 5: Generate tags for API image
       - name: Extract metadata for API
         id: meta
         uses: docker/metadata-action@v5
@@ -119,7 +177,7 @@ jobs:
             type=sha,prefix={{branch}}-
             type=raw,value=latest,enable={{is_default_branch}}
 
-      # Step 5: Build and push API Docker image
+      # Step 6: Build and push API Docker image
       - name: Build and push API Docker image
         uses: docker/build-push-action@v5
         with:
