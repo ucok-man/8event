@@ -19,8 +19,6 @@
     "prisma:studio": "prisma studio",
     "prisma:seed": "prisma db seed"
   },
-  "author": "",
-  "license": "ISC",
   "dependencies": {
     "@date-fns/tz": "^1.2.0",
     "@prisma/client": "^6.2.1",
