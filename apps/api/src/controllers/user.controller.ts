@@ -6,7 +6,7 @@ import { NotFoundError } from '@/errors/not-found.error';
 import { formatErr } from '@/helpers/format-error';
 import { getSessionAccess } from '@/helpers/session';
 import { UserService } from '@/services/user.service';
-import { compare, hash } from 'bcrypt';
+import { compare, hash } from 'bcryptjs';
 import { Request, Response } from 'express';
 
 export class UserControllers {
