@@ -8,6 +8,7 @@ WORKDIR /app
 COPY . .
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install
 ENV NODE_ENV=production
+RUN pnpm run prisma:migrate:dev
 RUN pnpm run build
  
 FROM base AS dokploy
