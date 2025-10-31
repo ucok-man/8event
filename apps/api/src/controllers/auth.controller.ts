@@ -11,7 +11,7 @@ import { formatErr } from '@/helpers/format-error';
 import { generateReferralCode } from '@/helpers/generate-referral-code';
 import { JWTService } from '@/services/jwt.service';
 import { UserService } from '@/services/user.service';
-import bcrypt, { compare } from 'bcrypt';
+import bcrypt, { compare } from 'bcryptjs';
 import { addMonths } from 'date-fns';
 import { Request, Response } from 'express';
 import { JwtPayload, verify } from 'jsonwebtoken';

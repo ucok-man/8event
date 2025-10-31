@@ -22,10 +22,10 @@
   "dependencies": {
     "@date-fns/tz": "^1.2.0",
     "@prisma/client": "^6.2.1",
-    "@types/bcrypt": "^5.0.2",
     "@types/crypto-js": "^4.2.2",
     "@types/nodemailer": "^6.4.17",
-    "bcrypt": "^5.1.1",
+    "axios": "^1.7.9",
+    "bcryptjs": "^3.0.2",
     "bullmq": "^5.41.5",
     "cloudinary": "^2.5.1",
     "cookie-parser": "^1.4.7",
@@ -48,8 +48,7 @@
     "typescript": "^5.3.3",
     "uuid": "^11.0.5",
     "zod": "^3.24.1",
-    "zod-validation-error": "^3.4.0",
-    "axios": "^1.7.9"
+    "zod-validation-error": "^3.4.0"
   },
   "devDependencies": {
     "@types/cookie-parser": "^1.4.8",
