@@ -1,46 +1,132 @@
-# name: Deploy
+# Name of this workflow - will appear in GitHub Actions tab
+name: Build and Push Docker Images
 
-# on:
-#   push:
-#     branches:
-#       - main
-# jobs:
-#   build:
-#     runs-on: ubuntu-latest
-#     strategy:
-#       matrix:
-#         node-version: [18.x]
-#     steps:
-#       - name: Checkout
-#         uses: actions/checkout@v2
-#       - name: Use Node.js ${{ matrix.node-version }}
-#         uses: actions/setup-node@v1
-#         with:
-#           node-version: ${{ matrix.node-version }}
-#       - name: Build Project
-#         run: |
-#           npm install
-#           npm run build
-#       - name: Deploy to Linode
-#         uses: appleboy/scp-action@master
-#         with:
-#           host: ${{ secrets.SSH_HOST }}
-#           username: ${{ secrets.SSH_USERNAME }}
-#           password: ${{ secrets.SSH_PASSWORD }}
-#           port: ${{ secrets.SSH_PORT }}
-#           source: './apps/web/.next, ./apps/web/*, ./apps/web/.*, ./apps/api, ./deploy.config.js, ./package*.json, ./turbo.json, ./.husky'
-#           target: '${{ secrets.SSH_FOLDER }}'
-#       - name: Run App
-#         uses: appleboy/ssh-action@master
-#         with:
-#           host: ${{ secrets.SSH_HOST }}
-#           username: ${{ secrets.SSH_USERNAME }}
-#           password: ${{ secrets.SSH_PASSWORD }}
-#           port: ${{ secrets.SSH_PORT }}
-#           script: |
-#             export NVM_DIR=~/.nvm
-#             source ~/.nvm/nvm.sh
-#             cd ${{ secrets.SSH_FOLDER }}
-#             npm install
-#             npx prisma generate --schema=./apps/api/prisma/schema.prisma
-#             pm2 start deploy.config.js
+# Define when this workflow should run
+on:
+  push:
+    # Run when code is pushed to these branches
+    branches:
+      - main
+  pull_request:
+    # Also run when someone creates a pull request to these branches
+    branches:
+      - main
+
+# Environment variables that can be used throughout the workflow
+# These are available to all jobs below
+env:
+  REGISTRY: docker.io # Docker Hub registry URL
+  WEB_IMAGE_NAME: ${{ secrets.DOCKERHUB_USERNAME }}/${{ github.repository }}-web # Full image name for web app
+  API_IMAGE_NAME: ${{ secrets.DOCKERHUB_USERNAME }}/${{ github.repository }}-api # Full image name for API
+
+# Jobs are the main tasks that run in the workflow
+# These two jobs will run in parallel (at the same time)
+jobs:
+  # First job: Build and push the Web application
+  build-and-push-web:
+    # Use Ubuntu as the operating system for this job
+    runs-on: ubuntu-latest
+
+    # Permissions needed for this job
+    permissions:
+      contents: read # Read repository files
+      packages: write # Write to Docker registry
+
+    # Steps are individual tasks that run sequentially within a job
+    steps:
+      # Step 1: Download your repository code to the GitHub runner
+      - name: Checkout repository
+        uses: actions/checkout@v4 # This is a pre-made action from GitHub
+
+      # Step 2: Set up Docker Buildx (advanced Docker builder)
+      # This allows multi-platform builds and better caching
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # Step 3: Login to Docker Hub so we can push images
+      # Uses secrets you need to add in GitHub Settings
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }} # Your Docker Hub username
+          password: ${{ secrets.DOCKERHUB_TOKEN }} # Your Docker Hub access token
+
+      # Step 4: Generate Docker image tags and labels
+      # This creates smart tags based on branch, commit SHA, etc.
+      - name: Extract metadata for Web
+        id: meta # We can reference outputs from this step using 'steps.meta.outputs'
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.WEB_IMAGE_NAME }}
+          # Define what tags to create:
+          tags: |
+            type=ref,event=branch              # Tag with branch name (e.g., 'main', 'develop')
+            type=ref,event=pr                  # Tag with PR number (e.g., 'pr-123')
+            type=semver,pattern={{version}}    # Tag with version if you create releases (e.g., '1.0.0')
+            type=semver,pattern={{major}}.{{minor}}  # Tag with major.minor (e.g., '1.0')
+            type=sha,prefix={{branch}}-        # Tag with commit SHA (e.g., 'main-abc1234')
+            type=raw,value=latest,enable={{is_default_branch}}  # Tag 'latest' only on main branch
+
+      # Step 5: Build the Docker image and push it to Docker Hub
+      - name: Build and push Web Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: . # Build context is the root of the repo
+          file: ./apps/web/Dockerfile # Path to Dockerfile
+          push: true # Push to registry after building
+          tags: ${{ steps.meta.outputs.tags }} # Use tags from step 4
+          labels: ${{ steps.meta.outputs.labels }}
+          # Caching: This speeds up future builds by reusing layers
+          cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.WEB_IMAGE_NAME }}:buildcache
+          cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ env.WEB_IMAGE_NAME }}:buildcache,mode=max
+
+  # Second job: Build and push the API application
+  # This job runs in parallel with build-and-push-web (at the same time)
+  build-and-push-api:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    # Same steps as web, but for API
+    steps:
+      # Step 1: Get the code
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Step 2: Setup Docker builder
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # Step 3: Login to Docker Hub
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      # Step 4: Generate tags for API image
+      - name: Extract metadata for API
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.API_IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=sha,prefix={{branch}}-
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      # Step 5: Build and push API Docker image
+      - name: Build and push API Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: . # Build from repo root (monorepo structure)
+          file: ./apps/api/Dockerfile # Use API's Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.API_IMAGE_NAME }}:buildcache
+          cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ env.API_IMAGE_NAME }}:buildcache,mode=max
