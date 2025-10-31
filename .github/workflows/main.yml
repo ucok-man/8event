@@ -71,8 +71,8 @@ jobs:
       - name: Build and push Web Docker image
         uses: docker/build-push-action@v5
         with:
-          context: . # Build context is the root of the repo
-          file: ./apps/web/Dockerfile # Path to Dockerfile
+          context: ./apps/web # Build context is the web folder
+          file: Dockerfile # Path to Dockerfile
           push: true # Push to registry after building
           tags: ${{ steps.meta.outputs.tags }} # Use tags from step 4
           labels: ${{ steps.meta.outputs.labels }}
@@ -123,8 +123,8 @@ jobs:
       - name: Build and push API Docker image
         uses: docker/build-push-action@v5
         with:
-          context: . # Build from repo root (monorepo structure)
-          file: ./apps/api/Dockerfile # Use API's Dockerfile
+          context: ./apps/api # Build from api folder
+          file: Dockerfile # Use API's Dockerfile
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
