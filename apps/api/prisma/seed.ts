@@ -1846,7 +1846,7 @@ async function SEED_USER(): Promise<{
       email: 'john@john.com',
       password: '$2a$12$g4OpJ3.Vezr4bZDz2dBy.OBuQoXWQccypaclZQUxT4njRSswLEIKe', // 12345678
       profilePicture:
-        'https://res.cloudinary.com/dx6hmxiv3/image/upload/v1740309140/minpro-event-ticketing/users/profile/trail-of-the-fireflies_jktzug.jpg',
+        'https://res.cloudinary.com/dx6hmxiv3/image/upload/v1761898356/minpro-event-ticketing/users/profile/soldier-placeholder_am9khm.jpg',
       role: Role.ORGANIZER,
       referralCode: 'REFF-12345',
     },
@@ -1859,7 +1859,7 @@ async function SEED_USER(): Promise<{
       email: 'alice@alice.com',
       password: '$2a$12$g4OpJ3.Vezr4bZDz2dBy.OBuQoXWQccypaclZQUxT4njRSswLEIKe', // 12345678
       profilePicture:
-        'https://res.cloudinary.com/dx6hmxiv3/image/upload/v1740309164/minpro-event-ticketing/users/profile/echoes-of-luminaria_xzojxa.jpg',
+        'https://res.cloudinary.com/dx6hmxiv3/image/upload/v1761898356/minpro-event-ticketing/users/profile/soldier-placeholder_am9khm.jpg',
       role: Role.CUSTOMER,
       referralCode: 'REFF-54321',
       vouchers: {
@@ -1915,7 +1915,7 @@ async function main() {
 main()
   .catch((e) => {
     console.error(e);
-    process.exit(1);
+    // process.exit(1);
   })
   .finally(async () => {
     await prisma.$disconnect();
