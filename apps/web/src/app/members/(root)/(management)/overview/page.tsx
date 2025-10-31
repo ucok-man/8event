@@ -10,8 +10,8 @@ import { cn, formatRupiah } from '@/lib/utils';
 import { GetEventsStatistic } from '@/types';
 import { useQuery } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
-import { motion } from 'framer-motion';
 import { Calendar, Star, Users2, WalletCards } from 'lucide-react';
+import { motion } from 'motion/react';
 import { useEffect, useState } from 'react';
 import {
   Area,
