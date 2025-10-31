@@ -6,8 +6,7 @@ RUN corepack enable
 FROM base AS build
 WORKDIR /app
 COPY . .
-ENV HUSKY=0
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile --ignore-scripts
 ENV NODE_ENV=production
 RUN pnpm run build
  
